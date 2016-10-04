@@ -1,0 +1,47 @@
+{
+    "modules": [
+
+    ],
+    "properties": {
+        "backendModules": [
+
+        ],
+        "description": "Send form data to different providers like Salesforce",
+        "emConf": {
+            "category": "plugin",
+            "custom_category": "",
+            "dependsOn": "typo3 => 7.6.0-7.6.99\n",
+            "disableLocalization": false,
+            "disableVersioning": false,
+            "skipGenerateDocumentationTemplate": false,
+            "sourceLanguage": "en",
+            "state": "alpha",
+            "targetVersion": "7.6.0-7.6.99",
+            "version": ""
+        },
+        "extensionKey": "formrelay",
+        "name": "Form Relay",
+        "originalExtensionKey": "",
+        "originalVendorName": "",
+        "persons": [
+            {
+                "company": "Mediatis AG",
+                "email": "voehringer@mediatis.de",
+                "name": "Michael V\u00f6hringer",
+                "role": "Developer"
+            }
+        ],
+        "plugins": [
+
+        ],
+        "vendorName": "Mediatis"
+    },
+    "wires": [
+
+    ],
+    "log": {
+        "last_modified": "2016-10-04 02:47",
+        "extension_builder_version": "7.6.0",
+        "be_user": "Michael V\u00f6hringer \u2013 mediatis AG (31)"
+    }
+}
