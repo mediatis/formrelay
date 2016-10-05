@@ -1,0 +1,8 @@
+plugin.tx_formrelay {
+	settings{
+		enabled = {$plugin.tx_formrelay.settings.enabled}
+		opcode = {$plugin.tx_formrelay.settings.opcode}
+		system = {$plugin.tx_formrelay.settings.system}
+		logfile_base_path = {$plugin.tx_formrelay.settings.logfile_base_path}
+	}
+}

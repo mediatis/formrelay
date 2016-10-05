@@ -24,13 +24,19 @@ namespace Mediatis\Formrelay\Plugins;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Form\Utility\FormUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Form\Utility\FormUtility;
 use TYPO3\CMS\Form\PostProcess as Form;
-use Mediatis\Formrelay;
 
 class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\PostProcessorInterface
 {
+
+	/**
+	 * @var \Mediatis\Formrelay\Service\FormrelayManager
+	 */
+	protected $FormrelayManager;
 
 	/**
 	 * @var \TYPO3\CMS\Form\Domain\Model\Element
@@ -40,95 +46,50 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
 	/**
 	 * @var array
 	 */
-	protected $typoScript;
+	protected $formSettings;
 
 	/**
 	 * Constructor
 	 *
 	 * @param \TYPO3\CMS\Form\Domain\Model\Element $form Form domain model
-	 * @param array $typoScript Post processor TypoScript settings
+	 * @param array $typoScript Post processor TypoScript formSettings
 	 */
 	public function __construct(\TYPO3\CMS\Form\Domain\Model\Element $form, array $typoScript)
 	{
-		GeneralUtility::devLog('MailFormPostProcessor:__construct', __CLASS__, 0);
-		$this->form = $form;
-		$this->typoScript = $typoScript;
-	}
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->FormrelayManager = GeneralUtility::makeInstance(\Mediatis\Formrelay\Service\FormrelayManager::class);
 
+        $this->formSettings = $objectManager->get(TypoScriptService::class)
+                ->convertTypoScriptArrayToPlainArray($typoScript);
+
+		$this->form = $form;
+	}
 
 	/**
 	 * The main method called by the post processor
 	 *
-	 * Configures the mail message
+	 * process the data
 	 *
 	 * @return string HTML message from this processor
 	 */
 	public function process()
 	{
-		GeneralUtility::devLog('MailFormPostProcessor:process', __CLASS__, 0);
-
 		$data = $this->getFormData();
-		$this->getAdditionalData($data);
-		$this->logData($data);
-		$this->callPlugins($data);
+		$this->FormrelayManager->process($data);
 	}
 
-	private function callPlugins($data)
-	{
-		if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['formSend'])) {
-			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['formSend'] as $classReference) {
-				$dataHook = GeneralUtility::getUserObj($classReference);
-
-				if ($dataHook instanceof Hook) {
-
-					$dataHook->processData($data);
-
-				} else {
-					throw new \InvalidArgumentException(
-						'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\Hook.',
-						1359156192
-					);
-				}
-			}
-		}
-	}
 
 	private function getFormData()
 	{
 		$data = array();
 
 		// Get Form data
-		foreach ($this->form as $key => $value) {
-			$data[$key] = $value;
+		foreach ($this->form->getChildElements() as $input) {
+            $inputInformation = $input->getAdditionalArguments();
+            $data[$inputInformation['name']] = $inputInformation['value'];
 		}
 
 		return $data;
-	}
-
-	private function getAdditionalData(&$data){
-		// Add Additional Data
-		if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'])) {
-			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'] as $classReference) {
-				$dataProvider = GeneralUtility::getUserObj($classReference);
-
-				if ($dataProvider instanceof DataProvider) {
-
-					$dataProvider->addData($data);
-
-				} else {
-					throw new \InvalidArgumentException(
-						'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProvider.',
-						1359156192
-					);
-				}
-			}
-		}
-	}
-
-
-	private function logData()
-	{
-
 	}
 
 }

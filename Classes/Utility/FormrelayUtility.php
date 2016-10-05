@@ -1,7 +1,7 @@
 <?php
 namespace Mediatis\Formrelay\Utility;
 
-final class Formutil {
+final class FormrelayUtility {
 
 	public static function convertToUtf8($content) {
 		if(!mb_check_encoding($content, 'UTF-8')
@@ -16,7 +16,7 @@ final class Formutil {
 		}
 		return $content;
 	}
-	
+
 	public static function xmlentities($string) {
 		return str_replace('&#039;', '&apos;', htmlspecialchars(self::convertToUtf8($string), ENT_QUOTES, 'UTF-8'));
 	}

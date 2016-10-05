@@ -1,7 +1,7 @@
-<?php 
+<?php
 namespace Mediatis\Formrelay\DataProvider;
 
-class Adwords implements DataProvider 
+class Adwords implements \Mediatis\Formrelay\DataProviderInterface
 {
 	public function addData(&$dataArray)
 	{

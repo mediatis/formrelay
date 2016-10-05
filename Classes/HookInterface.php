@@ -28,17 +28,17 @@ namespace Mediatis\Formrelay;
 
 
 /**
- * Formrelay DataProvider interface
+ * Formrelay Hook interface
  *
  * @author Michael Vöhriner
  * @package TYPO3
  * @subpackage formrelay
  */
-interface DataProvider
+interface HookInterface
 {
 
 	/**
 	 * process data.
 	 */
-	public function addData(&$dataArray);
+	public function processData($dataArray);
 }
