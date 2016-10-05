@@ -2,7 +2,7 @@
 ## Configure
 	postProcessor {
 
-		2 = Mediatis\Formrealy\Plugin\MailFormPostProcessor
+		2 = Mediatis\Formrelay\Plugins\MailFormPostProcessor
 		2 {
 		}
 	}

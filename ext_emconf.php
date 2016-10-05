@@ -16,12 +16,13 @@ $EM_CONF[$_EXTKEY] = array(
 	'category' => 'plugin',
 	'author' => 'Michael Vöhringer',
 	'author_email' => 'voehringer@mediatis.de',
+	'author_company' => 'Mediatis AG',
 	'state' => 'alpha',
 	'internal' => '',
 	'uploadfolder' => '0',
 	'createDirs' => '',
 	'clearCacheOnLoad' => 0,
-	'version' => '',
+	'version' => '0.0.1',
 	'constraints' => array(
 		'depends' => array(
 			'typo3' => '7.6.0-7.6.99',
@@ -29,6 +30,7 @@ $EM_CONF[$_EXTKEY] = array(
 		'conflicts' => array(
 		),
 		'suggests' => array(
+			'form' => '',
 		),
 	),
 );

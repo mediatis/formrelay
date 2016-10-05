@@ -1,5 +1,6 @@
 <?php
-namespace Mediatis\Plugins;
+namespace Mediatis\Formrelay\Plugins;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -25,9 +26,10 @@ namespace Mediatis\Plugins;
 
 use TYPO3\CMS\Form\Utility\FormUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Form\PostProcess as Form;
+use Mediatis\Formrelay;
 
-
-class MailFormPostProcessor extends \TYPO3\CMS\Form\PostProcess\MailPostProcessor implements \TYPO3\CMS\Form\PostProcess\PostProcessorInterface
+class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\PostProcessorInterface
 {
 
 	/**
@@ -48,6 +50,7 @@ class MailFormPostProcessor extends \TYPO3\CMS\Form\PostProcess\MailPostProcesso
 	 */
 	public function __construct(\TYPO3\CMS\Form\Domain\Model\Element $form, array $typoScript)
 	{
+		GeneralUtility::devLog('MailFormPostProcessor:__construct', __CLASS__, 0);
 		$this->form = $form;
 		$this->typoScript = $typoScript;
 	}
@@ -62,6 +65,8 @@ class MailFormPostProcessor extends \TYPO3\CMS\Form\PostProcess\MailPostProcesso
 	 */
 	public function process()
 	{
+		GeneralUtility::devLog('MailFormPostProcessor:process', __CLASS__, 0);
+
 		$data = $this->getFormData();
 		$this->getAdditionalData($data);
 		$this->logData($data);
@@ -74,7 +79,7 @@ class MailFormPostProcessor extends \TYPO3\CMS\Form\PostProcess\MailPostProcesso
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['formSend'] as $classReference) {
 				$dataHook = GeneralUtility::getUserObj($classReference);
 
-				if ($dataHook instanceof \Mediatis\Formrelay\Hook) {
+				if ($dataHook instanceof Hook) {
 
 					$dataHook->processData($data);
 
@@ -106,13 +111,13 @@ class MailFormPostProcessor extends \TYPO3\CMS\Form\PostProcess\MailPostProcesso
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'] as $classReference) {
 				$dataProvider = GeneralUtility::getUserObj($classReference);
 
-				if ($dataProvider instanceof \Mediatis\Formrelay\DataProvider) {
+				if ($dataProvider instanceof DataProvider) {
 
 					$dataProvider->addData($data);
 
 				} else {
 					throw new \InvalidArgumentException(
-						'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\Hook.',
+						'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProvider.',
 						1359156192
 					);
 				}
