@@ -33,17 +33,17 @@ class FormrelayManager
 
 	private function callPlugins(&$data)
 	{
-		if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['formSend'])) {
-			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['formSend'] as $classReference) {
+		if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
+			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'] as $classReference) {
 				$dataHook = GeneralUtility::getUserObj($classReference);
 
-				if ($dataHook instanceof \Mediatis\Formrelay\HookInterface) {
+				if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
 
 					$dataHook->processData($data);
 
 				} else {
 					throw new \InvalidArgumentException(
-						'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\HookInterface.',
+						'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProcessorInterface.',
 						1359156192
 					);
 				}

@@ -22,7 +22,7 @@ namespace Mediatis\Formrelay;
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-use Mediatis\Formrelay\Utility;
+use Mediatis\Formrelay\Utility\FormrelayUtility;
 
 /**
  * Plugin Send form data to SourceFoce.com
@@ -48,14 +48,12 @@ abstract class AbstractFormrelayHook {
 
 	public function setOverwriteTsKey($overwriteTsKey) {
 		$this->overwriteTsKey = $overwriteTsKey;
-		$this->conf = Utility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
+		$this->conf = FormrelayUtility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
 	}
 
 	protected function getTsKey() {
 		return get_class($this);
 	}
-
-	public abstract function sendFormmail_preProcessVariables($EMAIL_VARS, &$obj);
 
 	/**
 	 * Determines via the TypoScript structure fields.validation whether to send the data or do nothing.
@@ -124,7 +122,7 @@ abstract class AbstractFormrelayHook {
 								$filterMatched = false;
 								break;
 							}
-							$externalConf = Utility::loadPluginTS($validationKey, $this->overwriteTsKey);
+							$externalConf = FormrelayUtility::loadPluginTS($validationKey, $this->overwriteTsKey);
 							if (!$externalConf) {
 								$filterMatched = false;
 								break;

@@ -28,17 +28,19 @@ namespace Mediatis\Formrelay;
 
 
 /**
- * Formrelay Hook interface
+ * Formrelay Data Processor interface
  *
  * @author Michael Vöhriner
  * @package TYPO3
  * @subpackage formrelay
  */
-interface HookInterface
+interface DataProcessorInterface
 {
 
 	/**
 	 * process data.
+	 *
+	 * return true if dataProcessor processed data
 	 */
 	public function processData($dataArray);
 }
