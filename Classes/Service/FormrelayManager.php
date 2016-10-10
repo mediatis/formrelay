@@ -19,8 +19,7 @@ class FormrelayManager
 		//
 		$typoScript = FormrelayUtility::loadPluginTS('tx_formrelay');
 		$this->settings = $typoScript['.settings'];
-		GeneralUtility::devLog('MailFormPostProcessor:process settings', __CLASS__, 0, $typoScript);
-
+		// GeneralUtility::devLog('MailFormPostProcessor:process settings', __CLASS__, 0, $typoScript);
 	}
 
 	public function process($data)
@@ -28,7 +27,7 @@ class FormrelayManager
 		$this->getAdditionalData($data);
 		$this->logData($data);
 		$this->callPlugins($data);
-		GeneralUtility::devLog('MailFormPostProcessor:process data', __CLASS__, 0, $data);
+		// GeneralUtility::devLog('MailFormPostProcessor:process data', __CLASS__, 0, $data);
 	}
 
 	private function callPlugins(&$data)

@@ -23,6 +23,7 @@ namespace Mediatis\Formrelay;
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 use Mediatis\Formrelay\Utility\FormrelayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Plugin Send form data to SourceFoce.com
@@ -48,19 +49,18 @@ abstract class AbstractFormrelayHook {
 
 	public function setOverwriteTsKey($overwriteTsKey) {
 		$this->overwriteTsKey = $overwriteTsKey;
+		GeneralUtility::devLog('AbstractFormrelayHook::getTsKey', __CLASS__, 0, $this->getTsKey());
 		$this->conf = FormrelayUtility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
 	}
 
-	protected function getTsKey() {
-		return get_class($this);
-	}
+	abstract protected function getTsKey();
 
 	/**
 	 * Determines via the TypoScript structure fields.validation whether to send the data or do nothing.
-	 * @param  array $EMAIL_VARS form fields against which shall be validated
+	 * @param  array $data form fields against which shall be validated
 	 * @return boolean true if the validation succeeded, otherwise false
 	 */
-	protected function validateForm($EMAIL_VARS, $conf = null, $confsPassed = null) {
+	protected function validateForm($data, $conf = null, $confsPassed = null) {
 
 		if ($conf === null) {
 			$conf = $this->conf;
@@ -73,7 +73,8 @@ abstract class AbstractFormrelayHook {
 		if (trim($conf['fields.']['validation.']['required.'])) {
 			$requiredFields = explode(',', trim($conf['fields.']['validation.']['required.']));
 			foreach ($requiredFields as $requiredField) {
-				if (!isset($EMAIL_VARS[$requiredField])) {
+				if (!isset($data[$requiredField])) {
+					GeneralUtility::devLog('validateForm - Required field not set '. $requiredField, __CLASS__, 0);
 					return false;
 				}
 			}
@@ -91,7 +92,7 @@ abstract class AbstractFormrelayHook {
 				foreach (array('whitelist.' => false, 'blacklist.' => true) as $filterType => $negateFilterRule) {
 					if (isset($filter[$filterType])) {
 						foreach ($filter[$filterType] as $field => $valueList) {
-							if (!isset($EMAIL_VARS[$field])) {
+							if (!isset($data[$field])) {
 								if ($negateFilterRule) {
 									continue;
 								} else {
@@ -100,7 +101,7 @@ abstract class AbstractFormrelayHook {
 								}
 							}
 							$valueList = explode(',', strtolower($valueList));
-							$currentValue = strtolower($EMAIL_VARS[$field]);
+							$currentValue = strtolower($data[$field]);
 							$valueInList = in_array($currentValue, $valueList);
 							if (($negateFilterRule && $valueInList) || (!$negateFilterRule && !$valueInList)) {
 								$filterMatched = false;
@@ -127,7 +128,7 @@ abstract class AbstractFormrelayHook {
 								$filterMatched = false;
 								break;
 							}
-							$externalValidation = $this->validateForm($EMAIL_VARS, $externalConf, array_merge($confsPassed, array($validationKey)));
+							$externalValidation = $this->validateForm($data, $externalConf, array_merge($confsPassed, array($validationKey)));
 							if ((!$negateFilterRule && !$externalValidation) || ($negateFilterRule && $externalValidation)) {
 								$filterMatched = false;
 								break;
@@ -147,10 +148,12 @@ abstract class AbstractFormrelayHook {
 		}
 		if ($filterFound) {
 			if (!$filterMatched) {
+				GeneralUtility::devLog('validateForm - !filterMatched '. $requiredField, __CLASS__, 0);
 				return false;
 			}
 		} else  {
 			if (!$conf['fields.']['validation.']['validWithNoFilters']) {
+				GeneralUtility::devLog('validateForm - !validWithNoFilters '. $requiredField, __CLASS__, 0);
 				return false;
 			}
 		}
@@ -265,10 +268,10 @@ abstract class AbstractFormrelayHook {
 
 	/**
 	 * Builds the whole mapping array for all form fields.
-	 * @param  array $EMAIL_VARS The original field array
+	 * @param  array $data The original field array
 	 * @return array The array with the mapped fields and values
 	 */
-	protected function processAllFields($EMAIL_VARS) {
+	protected function processAllFields($data) {
 		$result = isset($this->conf['fields.']['defaults.']) ? $this->conf['fields.']['defaults.'] : array();
 
 		$fieldMapping = $this->conf['fields.']['mapping.'];
@@ -279,7 +282,7 @@ abstract class AbstractFormrelayHook {
 				if (isset($mappingData['values'])) {
 					$valueListString = $mappingData['values'];
 					$valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : array('');
-					$currentValue = trim($EMAIL_VARS[$field]) ? strtolower(trim($EMAIL_VARS[$field])) : '';
+					$currentValue = trim($data[$field]) ? strtolower(trim($data[$field])) : '';
 					if (!in_array($currentValue, $valueList)) {
 						continue;
 					}
@@ -287,7 +290,7 @@ abstract class AbstractFormrelayHook {
 				if (isset($mappingData['valuesNot'])) {
 					$valueListString = $mappingData['valuesNot'];
 					$valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : array('');
-					$currentValue = trim($EMAIL_VARS[$field]) ? strtolower(trim($EMAIL_VARS[$field])) : '';
+					$currentValue = trim($data[$field]) ? strtolower(trim($data[$field])) : '';
 					if (in_array($currentValue, $valueList)) {
 						continue;
 					}
@@ -307,7 +310,7 @@ abstract class AbstractFormrelayHook {
 		$ignoreKeyString = trim(strtolower($this->conf['fields.']['ignore']));
 		$ignoreKeys = $ignoreKeyString ? explode(',', $ignoreKeyString) : array();
 
-		foreach ($EMAIL_VARS as $key => $value) {
+		foreach ($data as $key => $value) {
 
 			// ignore empty values (mostly hidden fields)
 			if ($ignoreEmptyFields && !trim($value)) { continue; }
