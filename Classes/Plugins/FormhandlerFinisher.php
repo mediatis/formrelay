@@ -1,5 +1,5 @@
 <?php
-namespace Mediatis\Formrelay;
+namespace Mediatis\Formrelay\Plugins;
 
 /***************************************************************
 *  Copyright notice
@@ -23,22 +23,33 @@ namespace Mediatis\Formrelay;
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
+use Mediatis\Formrelay\Service\FormrelayManager;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-
-/**
- * Formrelay Data Processor interface
- *
- * @author Michael Vöhriner
- * @package TYPO3
- * @subpackage formrelay
- */
-interface DataProcessorInterface
+class FormhandlerFinisher extends \Typoheads\Formhandler\Finisher\AbstractFinisher
 {
 
 	/**
-	 * process data.
-	 *
-	 * return true if dataProcessor processed data
+	 * @var \Mediatis\Formrelay\Service\FormrelayManager
 	 */
-	public function processData($dataArray);
+	protected $FormrelayManager;
+
+	/**
+	 * Constructor
+	 */
+	public function __construct()
+	{
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->FormrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);
+	}
+
+
+	public function process()
+	{
+		$this->FormrelayManager->process($this->gp);
+		return $this->gp;
+	}
 }
+
+?>

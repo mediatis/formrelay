@@ -2,28 +2,29 @@
 namespace Mediatis\Formrelay\Plugins;
 
 /***************************************************************
- *  Copyright notice
- *
- *  (c) 2012-2013 Franz Geiger <mail_at_fx-g.de>
- *  All rights reserved
- *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+*  Copyright notice
+*
+*  (c) 2016 Michael Vöhringer (Mediatis AG) <voehringer@mediatis.de>
+*  All rights reserved
+*
+*  This script is part of the TYPO3 project. The TYPO3 project is
+*  free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2 of the License, or
+*  (at your option) any later version.
+*
+*  The GNU General Public License can be found at
+*  http://www.gnu.org/copyleft/gpl.html.
+*
+*  This script is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  This copyright notice MUST APPEAR in all copies of the script!
+***************************************************************/
 
+use Mediatis\Formrelay\Service\FormrelayManager;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -57,7 +58,7 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
 	public function __construct(\TYPO3\CMS\Form\Domain\Model\Element $form, array $typoScript)
 	{
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->FormrelayManager = GeneralUtility::makeInstance(\Mediatis\Formrelay\Service\FormrelayManager::class);
+        $this->FormrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);
 
         $this->formSettings = $objectManager->get(TypoScriptService::class)
                 ->convertTypoScriptArrayToPlainArray($typoScript);
