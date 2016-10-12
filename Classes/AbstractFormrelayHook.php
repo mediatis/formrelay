@@ -32,7 +32,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @package	TYPO3
  * @subpackage	leica_sendform
  */
-abstract class AbstractFormrelayHook {
+abstract class AbstractFormrelayHook
+{
 
 	protected $conf;
 

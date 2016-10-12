@@ -3,7 +3,8 @@ namespace Mediatis\Formrelay\DataProvider;
 
 class AdwordCampains implements \Mediatis\Formrelay\DataProviderInterface
 {
-	public function addData(&$dataArray){
+	public function addData(&$dataArray)
+	{
 		/*
 		utmz Cookie -- result form search
 		 */

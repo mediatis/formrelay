@@ -24,31 +24,34 @@ namespace Mediatis\Formrelay\Plugins;
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 use Mediatis\Formrelay\Service\FormrelayManager;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class FormhandlerFinisher extends \Typoheads\Formhandler\Finisher\AbstractFinisher
 {
-
-	/**
-	 * @var \Mediatis\Formrelay\Service\FormrelayManager
-	 */
-	protected $FormrelayManager;
-
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->FormrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);
-	}
-
+	private $gp = array();
 
 	public function process()
 	{
-		$this->FormrelayManager->process($this->gp);
+		GeneralUtility::devLog('FormhandlerFinisher:process this', __CLASS__, 0, $this);
+		GeneralUtility::devLog('FormhandlerFinisher:process $this->gp', __CLASS__, 0, $this->gp);
+
+		$formrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);
+		$formrelayManager->process($this->gp);
 		return $this->gp;
+	}
+
+	/**
+	 * Method to set GET/POST for this class and load the configuration
+	 *
+	 * @param array The GET/POST values
+	 * @param array The TypoScript configuration
+	 * @return void
+	 */
+	public function init($gp, $tsConfig)
+	{
+		GeneralUtility::devLog('FormhandlerFinisher:init gp', __CLASS__, 0, $gp);
+		$this->gp = $gp;
+		$this->settings = $tsConfig;
 	}
 }
 

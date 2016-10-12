@@ -36,7 +36,8 @@ class FormrelayManager
 	protected $settings;
 
 
-	public function __construct(){
+	public function __construct()
+	{
 		// Todo:: use ConfigutationManager to load settings
 		//
 		$typoScript = FormrelayUtility::loadPluginTS('tx_formrelay');
@@ -72,7 +73,8 @@ class FormrelayManager
 		}
 	}
 
-	private function getAdditionalData(&$data){
+	private function getAdditionalData(&$data)
+	{
 		// Add Additional Data
 		if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'])) {
 			foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'] as $classReference) {
