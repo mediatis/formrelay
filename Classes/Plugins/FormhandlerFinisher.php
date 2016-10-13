@@ -28,11 +28,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class FormhandlerFinisher extends \Typoheads\Formhandler\Finisher\AbstractFinisher
 {
-	private $gp = array();
+	protected $gp = array();
 
 	public function process()
 	{
-		GeneralUtility::devLog('FormhandlerFinisher:process this', __CLASS__, 0, $this);
 		GeneralUtility::devLog('FormhandlerFinisher:process $this->gp', __CLASS__, 0, $this->gp);
 
 		$formrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);

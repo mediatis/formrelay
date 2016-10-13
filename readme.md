@@ -14,9 +14,7 @@
 	plugin.Tx_Formhandler.settings.predef.FORMNAME {
 		...
 		finishers {
-			1 {
-				class = Mediatis\Formrelay\Plugins\FormhandlerFinisher
-			}
+			1.class = \Mediatis\Formrelay\Plugins\FormhandlerFinisher
 		}
 	}
 
