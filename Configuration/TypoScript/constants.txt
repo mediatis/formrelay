@@ -1,9 +1,14 @@
 plugin.tx_formrelay {
 	settings{
-		# cat=plugin.tx_formrelay//1; type=int+; label= Enable: Only convert to XML if not set to 0.
-	    enabled = 1
-	    opcode =
-	    system = live
-	    logfile_base_path =
+		# cat=plugin.tx_formrelay//1; type=boolean; label= Enable: Only convert to XML if not set to 0.
+		enabled = 1
+
+		logfile{
+			# cat=plugin.tx_formrelay//4; type=text; label= System (live,workspace,test...)
+			system = live
+
+			# cat=plugin.tx_formrelay//5; type=text; label= Log files folder. Be sure the path exist and is writable.
+			basePath =
+	    }
 	}
 }
