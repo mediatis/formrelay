@@ -50,7 +50,6 @@ abstract class AbstractFormrelayHook
 
 	public function setOverwriteTsKey($overwriteTsKey) {
 		$this->overwriteTsKey = $overwriteTsKey;
-		GeneralUtility::devLog('AbstractFormrelayHook::getTsKey', __CLASS__, 0, $this->getTsKey());
 		$this->conf = FormrelayUtility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
 	}
 
@@ -308,10 +307,11 @@ abstract class AbstractFormrelayHook
 		$valueMapping = $this->conf['fields.']['values.']['mapping.'];
 
 		$ignoreEmptyFields = $this->conf['fields.']['values.']['ignoreIfEmpty'];
-		$ignoreKeyString = trim(strtolower($this->conf['fields.']['ignore']));
+		$ignoreKeyString = trim(strtolower($this->conf['fields.']['ignore.']['value']));
 		$ignoreKeys = $ignoreKeyString ? explode(',', $ignoreKeyString) : array();
 
 		foreach ($data as $key => $value) {
+			$key = strtolower($key);
 
 			// ignore empty values (mostly hidden fields)
 			if ($ignoreEmptyFields && !trim($value)) { continue; }
