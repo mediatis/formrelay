@@ -17,7 +17,7 @@ $EM_CONF[$_EXTKEY] = array(
 	'author' => 'Michael Vöhringer',
 	'author_email' => 'voehringer@mediatis.de',
 	'author_company' => 'Mediatis AG',
-	'state' => 'alpha',
+	'state' => 'beta',
 	'internal' => '',
 	'uploadfolder' => '0',
 	'createDirs' => '',
@@ -31,6 +31,7 @@ $EM_CONF[$_EXTKEY] = array(
 		),
 		'suggests' => array(
 			'form' => '',
+			'form' => 'formhandler',
 		),
 	),
 );
