@@ -1,5 +1,6 @@
 <?php
 namespace Mediatis\Formrelay;
+
 /***************************************************************
 *  Copyright notice
 *

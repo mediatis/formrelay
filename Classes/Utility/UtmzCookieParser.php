@@ -1,5 +1,6 @@
 <?php
 namespace Mediatis\Formrelay\Utility;
+
 /**
  * UTMZ Cookie Parser parses values from Google Analytics cookies into variables
  * for population into hidden fields, databases or elsewhere

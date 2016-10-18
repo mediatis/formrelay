@@ -23,7 +23,6 @@ namespace Mediatis\Formrelay\Plugins;
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
-
 use Mediatis\Formrelay\Service\FormrelayManager;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;

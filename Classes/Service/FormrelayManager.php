@@ -123,7 +123,7 @@ class FormrelayManager
             $logdata = $xmlLog->asXML();
 
             // open logfile and place cursor at the end of file
-            if($logfile = @fopen($logfilePath, "a")) {
+            if ($logfile = @fopen($logfilePath, "a")) {
                 // write xml to logfile and close it
                 @fwrite($logfile, $logdata);
                 fclose($logfile);

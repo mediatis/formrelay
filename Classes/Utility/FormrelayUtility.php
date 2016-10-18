@@ -6,7 +6,7 @@ final class FormrelayUtility
 
     public static function convertToUtf8($content)
     {
-        if(!mb_check_encoding($content, 'UTF-8')
+        if (!mb_check_encoding($content, 'UTF-8')
             OR !($content === mb_convert_encoding(mb_convert_encoding($content, 'UTF-32', 'UTF-8' ), 'UTF-8', 'UTF-32'))) {
             $content = mb_convert_encoding($content, 'UTF-8');
 
@@ -45,7 +45,7 @@ final class FormrelayUtility
     public static function loadPluginTS($extKey, $overwriteKey = NULL)
     {
         $conf  = $GLOBALS['TSFE']->tmpl->setup['plugin.'][$extKey . '.'];
-        if(!$conf) {
+        if (!$conf) {
             $tsSetup = self::loadTS($GLOBALS['TSFE']->id);
             $conf = $tsSetup['plugin.'][$extKey . '.'];
         }
