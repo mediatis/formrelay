@@ -11,27 +11,27 @@
  ***************************************************************/
 
 $EM_CONF[$_EXTKEY] = array(
-	'title' => 'Form Relay',
-	'description' => 'Send form data to different providers like Salesforce',
-	'category' => 'plugin',
-	'author' => 'Michael Vöhringer',
-	'author_email' => 'voehringer@mediatis.de',
-	'author_company' => 'Mediatis AG',
-	'state' => 'beta',
-	'internal' => '',
-	'uploadfolder' => '0',
-	'createDirs' => '',
-	'clearCacheOnLoad' => 0,
-	'version' => '0.0.1',
-	'constraints' => array(
-		'depends' => array(
-			'typo3' => '7.6.0-7.6.99',
-		),
-		'conflicts' => array(
-		),
-		'suggests' => array(
-			'form' => '',
-			'form' => 'formhandler',
-		),
-	),
+    'title' => 'Form Relay',
+    'description' => 'Send form data to different providers like Salesforce',
+    'category' => 'plugin',
+    'author' => 'Michael Vöhringer',
+    'author_email' => 'voehringer@mediatis.de',
+    'author_company' => 'Mediatis AG',
+    'state' => 'beta',
+    'internal' => '',
+    'uploadfolder' => '0',
+    'createDirs' => '',
+    'clearCacheOnLoad' => 0,
+    'version' => '0.0.1',
+    'constraints' => array(
+        'depends' => array(
+            'typo3' => '7.6.0-7.6.99',
+        ),
+        'conflicts' => array(
+        ),
+        'suggests' => array(
+            'form' => '',
+            'form' => 'formhandler',
+        ),
+    ),
 );

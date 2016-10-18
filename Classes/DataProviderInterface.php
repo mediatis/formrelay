@@ -35,8 +35,8 @@ namespace Mediatis\Formrelay;
 interface DataProviderInterface
 {
 
-	/**
-	 * process data.
-	 */
-	public function addData(&$dataArray);
+    /**
+     * process data.
+     */
+    public function addData(&$dataArray);
 }

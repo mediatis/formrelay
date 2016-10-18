@@ -1,6 +1,6 @@
 <?php
 if (!defined ('TYPO3_MODE')) {
- 	die ('Access denied.');
+    die ('Access denied.');
 }
 
 // Form Wizard Hook
@@ -10,5 +10,3 @@ if (!defined ('TYPO3_MODE')) {
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'][] = 'Mediatis\\Formrelay\\DataProvider\\Adwords';
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'][] = 'Mediatis\\Formrelay\\DataProvider\\AdwordCampains';
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'][] = 'Mediatis\\Formrelay\\DataProvider\\LanguageCode';
-
-?>

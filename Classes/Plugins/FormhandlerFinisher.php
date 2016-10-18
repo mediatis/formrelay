@@ -28,30 +28,28 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class FormhandlerFinisher extends \Typoheads\Formhandler\Finisher\AbstractFinisher
 {
-	protected $gp = array();
+    protected $gp = array();
 
-	public function process()
-	{
-		GeneralUtility::devLog('FormhandlerFinisher:process $this->gp', __CLASS__, 0, $this->gp);
+    public function process()
+    {
+        GeneralUtility::devLog('FormhandlerFinisher:process $this->gp', __CLASS__, 0, $this->gp);
 
-		$formrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);
-		$formrelayManager->process($this->gp);
-		return $this->gp;
-	}
+        $formrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);
+        $formrelayManager->process($this->gp);
+        return $this->gp;
+    }
 
-	/**
-	 * Method to set GET/POST for this class and load the configuration
-	 *
-	 * @param array The GET/POST values
-	 * @param array The TypoScript configuration
-	 * @return void
-	 */
-	public function init($gp, $tsConfig)
-	{
-		GeneralUtility::devLog('FormhandlerFinisher:init gp', __CLASS__, 0, $gp);
-		$this->gp = $gp;
-		$this->settings = $tsConfig;
-	}
+    /**
+     * Method to set GET/POST for this class and load the configuration
+     *
+     * @param array The GET/POST values
+     * @param array The TypoScript configuration
+     * @return void
+     */
+    public function init($gp, $tsConfig)
+    {
+        GeneralUtility::devLog('FormhandlerFinisher:init gp', __CLASS__, 0, $gp);
+        $this->gp = $gp;
+        $this->settings = $tsConfig;
+    }
 }
-
-?>

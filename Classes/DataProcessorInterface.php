@@ -35,10 +35,10 @@ namespace Mediatis\Formrelay;
 interface DataProcessorInterface
 {
 
-	/**
-	 * process data.
-	 *
-	 * return true if dataProcessor processed data
-	 */
-	public function processData($dataArray);
+    /**
+     * process data.
+     *
+     * return true if dataProcessor processed data
+     */
+    public function processData($dataArray);
 }

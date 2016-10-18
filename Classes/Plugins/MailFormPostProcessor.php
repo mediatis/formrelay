@@ -34,64 +34,63 @@ use TYPO3\CMS\Form\PostProcess as Form;
 class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\PostProcessorInterface
 {
 
-	/**
-	 * @var \Mediatis\Formrelay\Service\FormrelayManager
-	 */
-	protected $FormrelayManager;
+    /**
+     * @var \Mediatis\Formrelay\Service\FormrelayManager
+     */
+    protected $FormrelayManager;
 
-	/**
-	 * @var \TYPO3\CMS\Form\Domain\Model\Element
-	 */
-	protected $form;
+    /**
+     * @var \TYPO3\CMS\Form\Domain\Model\Element
+     */
+    protected $form;
 
-	/**
-	 * @var array
-	 */
-	protected $formSettings;
+    /**
+     * @var array
+     */
+    protected $formSettings;
 
-	/**
-	 * Constructor
-	 *
-	 * @param \TYPO3\CMS\Form\Domain\Model\Element $form Form domain model
-	 * @param array $typoScript Post processor TypoScript formSettings
-	 */
-	public function __construct(\TYPO3\CMS\Form\Domain\Model\Element $form, array $typoScript)
-	{
+    /**
+     * Constructor
+     *
+     * @param \TYPO3\CMS\Form\Domain\Model\Element $form Form domain model
+     * @param array $typoScript Post processor TypoScript formSettings
+     */
+    public function __construct(\TYPO3\CMS\Form\Domain\Model\Element $form, array $typoScript)
+    {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $this->FormrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);
 
         $this->formSettings = $objectManager->get(TypoScriptService::class)
                 ->convertTypoScriptArrayToPlainArray($typoScript);
 
-		$this->form = $form;
-	}
+        $this->form = $form;
+    }
 
-	/**
-	 * The main method called by the post processor
-	 *
-	 * process the data
-	 *
-	 * @return string HTML message from this processor
-	 */
-	public function process()
-	{
-		$data = $this->getFormData();
-		$this->FormrelayManager->process($data);
-	}
+    /**
+     * The main method called by the post processor
+     *
+     * process the data
+     *
+     * @return string HTML message from this processor
+     */
+    public function process()
+    {
+        $data = $this->getFormData();
+        $this->FormrelayManager->process($data);
+    }
 
 
-	private function getFormData()
-	{
-		$data = array();
+    private function getFormData()
+    {
+        $data = array();
 
-		// Get Form data
-		foreach ($this->form->getChildElements() as $input) {
+        // Get Form data
+        foreach ($this->form->getChildElements() as $input) {
             $inputInformation = $input->getAdditionalArguments();
             $data[$inputInformation['name']] = $inputInformation['value'];
-		}
+        }
 
-		return $data;
-	}
+        return $data;
+    }
 
 }
-?>
