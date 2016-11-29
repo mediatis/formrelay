@@ -82,10 +82,15 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
     private function getFormData()
     {
         $data = array();
+        return $this->loopData($this->form, $data);
+    }
 
-        // Get Form data
-        foreach ($this->form->getChildElements() as $input) {
+    private function loopData($formData, &$data)
+    {
+        foreach ($formData->getChildElements() as $input) {
+            $this->loopData($input, $data);
             $inputInformation = $input->getAdditionalArguments();
+            // GeneralUtility::devLog('loopData', __CLASS__, 0, $inputInformation);
             $data[$inputInformation['name']] = $inputInformation['value'];
         }
 
