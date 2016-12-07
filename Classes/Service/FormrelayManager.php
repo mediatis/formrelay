@@ -59,9 +59,7 @@ class FormrelayManager
                 $dataHook = GeneralUtility::getUserObj($classReference);
 
                 if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
-
                     $dataHook->processData($data);
-
                 } else {
                     throw new \InvalidArgumentException(
                         'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProcessorInterface.',
@@ -80,9 +78,7 @@ class FormrelayManager
                 $dataProvider = GeneralUtility::getUserObj($classReference);
 
                 if ($dataProvider instanceof \Mediatis\Formrelay\DataProviderInterface) {
-
                     $dataProvider->addData($data);
-
                 } else {
                     throw new \InvalidArgumentException(
                         'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProviderInterface.',
@@ -100,7 +96,6 @@ class FormrelayManager
 
         // Only write a logfile if path is set in TS Config and logdata is not empty
         if (strlen($logfileBase) > 0) {
-
             $logfilePath = $logfileBase . DIRECTORY_SEPARATOR . $this->settings['logfile.']['system'] . '.xml';
 
             $xmlLog = simplexml_load_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?><log />");
@@ -127,10 +122,10 @@ class FormrelayManager
                 @fwrite($logfile, $logdata);
                 fclose($logfile);
             } else {
-                if(!is_writable($logfilePath)){
-                    GeneralUtility::devLog("logfile is not writeable" , __CLASS__, 0, $logfilePath);
+                if (!is_writable($logfilePath)) {
+                    GeneralUtility::devLog("logfile is not writeable", __CLASS__, 0, $logfilePath);
                 }
-                GeneralUtility::devLog("error: " , __CLASS__, 0, error_get_last());
+                GeneralUtility::devLog("error: ", __CLASS__, 0, error_get_last());
             }
         }
     }

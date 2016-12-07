@@ -96,5 +96,4 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
 
         return $data;
     }
-
 }

@@ -34,7 +34,6 @@ namespace Mediatis\Formrelay;
  */
 interface DataDispatcherInterface
 {
-
     /**
      * send processed data.
      */

@@ -14,7 +14,6 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
 
     public function send($data)
     {
-
         $retval = true;
 
         $params = array();
@@ -40,7 +39,7 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
 
         $result = curl_exec($handle);
 
-        if ($result === false){
+        if ($result === false) {
             $retval = false;
         }
 

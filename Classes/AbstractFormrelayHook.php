@@ -35,7 +35,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 abstract class AbstractFormrelayHook
 {
-
     protected $conf;
 
     protected $overwriteTsKey = null;
@@ -86,7 +85,6 @@ abstract class AbstractFormrelayHook
      */
     protected function validateForm($data, $conf = null, $confsPassed = null)
     {
-
         if ($conf === null) {
             $conf = $this->conf;
         }
@@ -176,7 +174,7 @@ abstract class AbstractFormrelayHook
                 GeneralUtility::devLog('validateForm - !filterMatched '. $requiredField, __CLASS__, 0);
                 return false;
             }
-        } else  {
+        } else {
             if (!$conf['fields.']['validation.']['validWithNoFilters']) {
                 GeneralUtility::devLog('validateForm - !validWithNoFilters '. $requiredField, __CLASS__, 0);
                 return false;
@@ -196,10 +194,9 @@ abstract class AbstractFormrelayHook
      */
     protected function processField(&$result, $key, $mappedValue, $mappedKey)
     {
-
         $keyPrefixIndex = strpos($mappedKey, ':');
         $keyPrefix = false;
-        if ($keyPrefixIndex !== FALSE && $keyPrefixIndex > 0) {
+        if ($keyPrefixIndex !== false && $keyPrefixIndex > 0) {
             $keyPrefix = substr($mappedKey, 0, $keyPrefixIndex);
             $mappedKey = substr($mappedKey, $keyPrefixIndex + 1);
         }
@@ -268,7 +265,9 @@ abstract class AbstractFormrelayHook
                 // result = array('description' => 'foo = bar
                 // oof = baz
                 // ');
-                if (!isset($result[$mappedKey])) { $result[$mappedKey] = ''; }
+                if (!isset($result[$mappedKey])) {
+                    $result[$mappedKey] = '';
+                }
                 $result[$mappedKey] .= $key . ' = ' . $mappedValue . PHP_EOL;
             break;
 
@@ -281,7 +280,9 @@ abstract class AbstractFormrelayHook
                 // result = array('description' => 'bar
                 // baz
                 // ');
-                if (!isset($result[$mappedKey])) { $result[$mappedKey] = ''; }
+                if (!isset($result[$mappedKey])) {
+                    $result[$mappedKey] = '';
+                }
                 $result[$mappedKey] .= $mappedValue . PHP_EOL;
             break;
 
@@ -325,7 +326,6 @@ abstract class AbstractFormrelayHook
                 foreach ($mappingData['mapping.'] as $mappingField => $mappingRule) {
                     $fieldMapping[$mappingField] = $mappingRule;
                 }
-
             }
         }
 
@@ -341,7 +341,9 @@ abstract class AbstractFormrelayHook
             $key = strtolower($key);
 
             // ignore empty values (mostly hidden fields)
-            if ($ignoreEmptyFields && !trim($value)) { continue; }
+            if ($ignoreEmptyFields && !trim($value)) {
+                continue;
+            }
 
             if ($this->conf['fields.']['removeFieldNameParts']) {
                 $patterns = explode(',', $this->conf['fields.']['removeFieldNameParts']);
@@ -351,7 +353,9 @@ abstract class AbstractFormrelayHook
             }
 
             // ignore superfluous meta data
-            if (in_array($key, $ignoreKeys)) { continue; }
+            if (in_array($key, $ignoreKeys)) {
+                continue;
+            }
 
             if (is_array($value)) {
                 $value = implode(',', $value);
