@@ -95,7 +95,6 @@ class FormrelayManager
 
     private function logData($message, $data=false, $error=false)
     {
-
         $logfileBase = $this->settings['logfile.']['basePath'];
 
 
@@ -123,12 +122,15 @@ class FormrelayManager
             $logdata = $xmlLog->asXML();
 
             // open logfile and place cursor at the end of file
-            if ($logfile = @fopen($logfilePath, "a")) {
+            if ($logfile = fopen($logfilePath, "a")) {
                 // write xml to logfile and close it
                 @fwrite($logfile, $logdata);
                 fclose($logfile);
             } else {
-                debug("Could not open file at ". $logfilePath);
+                if(!is_writable($logfilePath)){
+                    GeneralUtility::devLog("logfile is not writeable" , __CLASS__, 0, $logfilePath);
+                }
+                GeneralUtility::devLog("error: " , __CLASS__, 0, error_get_last());
             }
         }
     }
