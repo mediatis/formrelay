@@ -31,21 +31,21 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author  Stephan Ude (mediatis AG) <ude@mediatis.de>
  * @package TYPO3
- * @subpackage  leica_sendform
+ * @subpackage  formrelay
  */
 abstract class AbstractFormrelayHook
 {
 
     protected $conf;
 
-    protected $overwriteTsKey = NULL;
+    protected $overwriteTsKey = null;
 
     /**
      * Constructor
      *
      * @return void
      */
-    public function __construct($overwriteTsKey = NULL)
+    public function __construct($overwriteTsKey = null)
     {
         $this->setOverwriteTsKey($overwriteTsKey);
     }
@@ -55,6 +55,27 @@ abstract class AbstractFormrelayHook
         $this->overwriteTsKey = $overwriteTsKey;
         $this->conf = FormrelayUtility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
     }
+
+    public function processData($data)
+    {
+        if (!$this->isEnabled()) {
+            return false;
+        }
+
+        if (!$this->validateForm($data)) {
+            return false;
+        }
+
+        $result = $this->processAllFields($data);
+
+        $dispatcher = $this->getDispatcher();
+
+        return $dispatcher->send($result);
+    }
+
+    abstract protected function getDispatcher();
+
+    abstract protected function isEnabled();
 
     abstract protected function getTsKey();
 
