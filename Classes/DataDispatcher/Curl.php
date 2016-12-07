@@ -16,6 +16,8 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
     {
         $retval = true;
 
+        // GeneralUtility::devLog('Mediatis\\Formrelay\\DataDispatcher\\Curl::send()', __CLASS__, 0, $data);
+
         $params = array();
         foreach ($data as $key => $value) {
             $params[] = rawurlencode($key) . '=' . rawurlencode($value);

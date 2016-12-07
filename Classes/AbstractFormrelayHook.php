@@ -341,7 +341,7 @@ abstract class AbstractFormrelayHook
             $key = strtolower($key);
 
             // ignore empty values (mostly hidden fields)
-            if ($ignoreEmptyFields && !trim($value)) {
+            if ($ignoreEmptyFields && trim($value) === '') {
                 continue;
             }
 

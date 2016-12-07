@@ -87,13 +87,24 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
 
     private function loopData($formData, &$data)
     {
-        foreach ($formData->getChildElements() as $input) {
-            $this->loopData($input, $data);
-            $inputInformation = $input->getAdditionalArguments();
-            // GeneralUtility::devLog('loopData', __CLASS__, 0, $inputInformation);
-            $data[$inputInformation['name']] = $inputInformation['value'];
-        }
+        $type = $formData->getElementType();
+        $childElements = $formData->getChildElements();
 
+        $plainElement = count($childElements) === 0 || $type === 'SELECT';
+
+        if ($plainElement) {
+            $inputInformation = $formData->getAdditionalArguments();
+            $name = $inputInformation['name'];
+            $value = $inputInformation['value'];
+            if ($type === 'CHECKBOX' && !$inputInformation['checked']) {
+                $value = 0;
+            }
+            $data[$name] = $value;
+        } else {
+            foreach ($formData->getChildElements() as $input) {
+                $this->loopData($input, $data);
+            }
+        }
         return $data;
     }
 }
