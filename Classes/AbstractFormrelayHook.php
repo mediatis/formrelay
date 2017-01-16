@@ -35,6 +35,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 abstract class AbstractFormrelayHook
 {
+    protected $baseConf;
     protected $conf;
 
     protected $overwriteTsKey = null;
@@ -52,11 +53,32 @@ abstract class AbstractFormrelayHook
     public function setOverwriteTsKey($overwriteTsKey)
     {
         $this->overwriteTsKey = $overwriteTsKey;
-        $this->conf = FormrelayUtility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
+        $this->baseConf = FormrelayUtility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
+        $this->conf = array_merge(array(), $this->baseConf);
     }
 
-    public function processData($data)
+    protected function extendBaseconf($source, &$target)
     {
+        foreach ($source as $key => $value) {
+            if (is_array($value)) {
+                if (is_array($target[$key])) {
+                    $this->extendBaseconf($value, $target[$key]);
+                } else {
+                    $target[$key] = $value;
+                }
+            } else {
+                $target[$key] = $value;
+            }
+        }
+    }
+
+    public function processData($data, $formSettings = false)
+    {
+        if ($formSettings) {
+            $this->conf = array_merge(array(), $this->baseConf);
+            $this->extendBaseconf($formSettings, $this->conf);
+        }
+
         if (!$this->isEnabled()) {
             return false;
         }

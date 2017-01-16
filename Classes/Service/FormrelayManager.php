@@ -44,22 +44,22 @@ class FormrelayManager
         $this->settings = $typoScript['settings.'];
     }
 
-    public function process($data)
+    public function process($data, $formSettings = false)
     {
         $this->getAdditionalData($data);
         $this->logData('form submission received', $data);
-        $this->callPlugins($data);
+        $this->callPlugins($data, $formSettings);
         // GeneralUtility::devLog('MailFormPostProcessor:process data', __CLASS__, 0, $data);
     }
 
-    private function callPlugins(&$data)
+    private function callPlugins(&$data, $formSettings)
     {
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'] as $classReference) {
                 $dataHook = GeneralUtility::getUserObj($classReference);
 
                 if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
-                    $dataHook->processData($data);
+                    $dataHook->processData($data, $formSettings);
                 } else {
                     throw new \InvalidArgumentException(
                         'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProcessorInterface.',

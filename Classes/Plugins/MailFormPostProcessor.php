@@ -75,7 +75,7 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
     public function process()
     {
         $data = $this->getFormData();
-        $this->FormrelayManager->process($data);
+        $this->FormrelayManager->process($data, $this->formSettings);
     }
 
 
