@@ -59,7 +59,9 @@ class FormrelayManager
                 $dataHook = GeneralUtility::getUserObj($classReference);
 
                 if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
-                    $dataHook->processData($data, $formSettings);
+                    $tsKey = $dataHook->getTsKey();
+                    $pluginSettings = $formSettings && isset($formSettings[$tsKey]) ? $formSettings[$tsKey] : false;
+                    $dataHook->processData($data, $pluginSettings);
                 } else {
                     throw new \InvalidArgumentException(
                         'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProcessorInterface.',

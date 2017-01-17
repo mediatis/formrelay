@@ -60,12 +60,8 @@ abstract class AbstractFormrelayHook
     protected function extendBaseconf($source, &$target)
     {
         foreach ($source as $key => $value) {
-            if (is_array($value)) {
-                if (is_array($target[$key])) {
-                    $this->extendBaseconf($value, $target[$key]);
-                } else {
-                    $target[$key] = $value;
-                }
+            if (is_array($value) && is_array($target[$key])) {
+                $this->extendBaseconf($value, $target[$key]);
             } else {
                 $target[$key] = $value;
             }
@@ -98,7 +94,7 @@ abstract class AbstractFormrelayHook
 
     abstract protected function isEnabled();
 
-    abstract protected function getTsKey();
+    abstract public function getTsKey();
 
     /**
      * Determines via the TypoScript structure fields.validation whether to send the data or do nothing.
