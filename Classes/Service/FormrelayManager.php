@@ -60,7 +60,7 @@ class FormrelayManager
 
                 if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
                     $tsKey = $dataHook->getTsKey();
-                    $pluginSettings = $formSettings && isset($formSettings[$tsKey]) ? $formSettings[$tsKey] : false;
+                    $pluginSettings = is_array($formSettings) && isset($formSettings[$tsKey]) ? $formSettings[$tsKey] : false;
                     $dataHook->processData($data, $pluginSettings);
                 } else {
                     throw new \InvalidArgumentException(
