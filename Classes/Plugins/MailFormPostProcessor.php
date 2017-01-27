@@ -90,7 +90,7 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
         $type = $formData->getElementType();
         $childElements = $formData->getChildElements();
 
-        $plainElement = count($childElements) === 0 || $type === 'SELECT';
+        $plainElement = count($childElements) === 0 || $type === 'SELECT' || $type === 'RADIOGROUP';
 
         if ($plainElement) {
             $inputInformation = $formData->getAdditionalArguments();
@@ -98,6 +98,9 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
             $value = $inputInformation['value'];
             if ($type === 'CHECKBOX' && !$inputInformation['checked']) {
                 $value = 0;
+            }
+            if ($type === 'RADIOGROUP') {
+                $name = $formData->getName();
             }
             $data[$name] = $value;
         } else {

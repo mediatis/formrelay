@@ -47,7 +47,7 @@ class FormrelayManager
     public function process($data, $formSettings = false)
     {
         $this->getAdditionalData($data);
-        $this->logData('form submission received', $data);
+        $this->logData($data);
         $this->callPlugins($data, $formSettings);
         // GeneralUtility::devLog('MailFormPostProcessor:process data', __CLASS__, 0, $data);
     }
@@ -91,7 +91,7 @@ class FormrelayManager
         }
     }
 
-    private function logData($message, $data=false, $error=false)
+    private function logData($data=false, $error=false)
     {
         $logfileBase = $this->settings['logfile.']['basePath'];
 
