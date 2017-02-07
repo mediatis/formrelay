@@ -204,6 +204,52 @@ abstract class AbstractFormrelayHook
     }
 
     /**
+     * Flattens a sub structure of key-value pairs to a flat key-value array.
+     * Example
+     * Input: array( '10' => array('key' => 'foo', 'value' => 'bar'), 'baz' => 'snafu')
+     * Output: array('foo' => 'bar', 'baz' => 'snafu')
+     * @param array  $array                The key-value pairs that need to be flattened
+     * @param string $key                  The name of the key field in the pair
+     * @param string $value                The name of the value field in the pair
+     * @param string $multipleKeySeparator If not false, it is the separator for the key field having multiple keys. If false, multiple keys are forbidden.
+     */
+    protected function flattenKeyValueSubArray($array, $key ='key', $value = 'value', $multipleKeySeparator = ',')
+    {
+        $result = array();
+        foreach ($array as $k => $v) {
+            if (is_array($v) && isset($v[$key]) && isset($v[$value])) {
+                if ($multipleKeySeparator) {
+                    $multiKeys = explode($multipleKeySeparator, $v[$key]);
+                    foreach ($multiKeys as $multiKey) {
+                        $result[$multiKey] = $v[$value];
+                    }
+                } else {
+                    $result[$v[$key]] = $v[$value];
+                }
+            } else {
+                $result[$k] = $v;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Flattens a list of sub structures of key-value pairs to a list of flat key-value arrays.
+     * Example
+     * Input: array('abc' => array( '10' => array('key' => 'foo', 'value' => 'bar'), 'baz' => 'snafu'), 'cde' => array('10' => array('key' => 'x', 'value' => 'y'), 20 => array('key' => 'g', 'value' => 'h')))
+     * Output: array('abc' => array('foo' => 'bar', 'baz' => 'snafu'), 'efg' => array('x' => 'y', 'g' => 'h'))
+     * @see flattenKeyValuesSubArray
+     */
+    protected function flattenKeyValueSubArrayList($array, $key = 'key', $value = 'value', $multipleKeySeparator = ',')
+    {
+        $result = array();
+        foreach ($array as $k => $v) {
+            $result[$k] = $this->flattenKeyValueSubArray($v, $key, $value, $multipleKeySeparator);
+        }
+        return $result;
+    }
+
+    /**
      * Processes the whole mapping algorithm for one field
      * @param  array  $result      The result array where the mapping will be stored
      * @param  string $key         The original key of the field
@@ -349,7 +395,10 @@ abstract class AbstractFormrelayHook
 
         $fieldMappingOther = $this->conf['fields.']['mappingOther'];
 
-        $valueMapping = $this->conf['fields.']['values.']['mapping.'];
+        $valueMapping = array();
+        if (isset($this->conf['fields.']['values.']['mapping.'])) {
+            $valueMapping = $this->flattenKeyValueSubArrayList($this->conf['fields.']['values.']['mapping.'], 'trigger', 'value');
+        }
 
         $ignoreEmptyFields = $this->conf['fields.']['values.']['ignoreIfEmpty'];
         $ignoreKeyString = trim(strtolower($this->conf['fields.']['ignore.']['value']));
