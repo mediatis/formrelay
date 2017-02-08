@@ -6,10 +6,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
 {
     protected $url;
+    protected $cookies;
 
-    public function __construct($url)
+    public function __construct($url, $cookies = false)
     {
         $this->url = $url;
+        $this->cookies = $cookies;
     }
 
     public function send($data)
@@ -35,6 +37,15 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
             CURLOPT_MAXREDIRS => 10,
         );
 
+        if ($this->cookies) {
+            $cookieStringArray = array();
+            foreach ($this->cookies as $key => $value) {
+                $cookieStringArray[] = $key . '=' . rawurlencode($value);
+            }
+            $curlOptions[CURLOPT_COOKIE] = implode('; ', $cookieStringArray);
+        }
+
+
         $handle = curl_init();
 
         curl_setopt_array($handle, $curlOptions);
@@ -42,6 +53,7 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
         $result = curl_exec($handle);
 
         if ($result === false) {
+            GeneralUtility::devLog(curl_error($handle), __CLASS__);
             $retval = false;
         }
 
