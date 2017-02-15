@@ -6,12 +6,18 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
 {
     protected $url;
-    protected $cookies;
+    protected $options;
+    protected $parameterise = true;
 
-    public function __construct($url, $cookies = false)
+    public function __construct($url, $options = false)
     {
         $this->url = $url;
-        $this->cookies = $cookies;
+        $this->options = $options;
+    }
+
+    public function setParameterise($value = true)
+    {
+        $this->parameterise = $value;
     }
 
     public function send($data)
@@ -20,16 +26,19 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
 
         // GeneralUtility::devLog('Mediatis\\Formrelay\\DataDispatcher\\Curl::send()', __CLASS__, 0, $data);
 
-        $params = array();
-        foreach ($data as $key => $value) {
-            $params[] = rawurlencode($key) . '=' . rawurlencode($value);
+        $postFields = $data;
+        if ($this->parameterise) {
+            $params = array();
+            foreach ($data as $key => $value) {
+                $params[] = rawurlencode($key) . '=' . rawurlencode($value);
+            }
+            $postFields = implode('&', $params);
         }
-        $queryString = implode('&', $params);
 
         $curlOptions = array(
             CURLOPT_URL => $this->url,
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $queryString,
+            CURLOPT_POSTFIELDS => $postFields,
 
             CURLOPT_REFERER => $_SERVER['HTTP_REFERER'],
             CURLOPT_RETURNTRANSFER => true,
@@ -37,14 +46,25 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
             CURLOPT_MAXREDIRS => 10,
         );
 
-        if ($this->cookies) {
-            $cookieStringArray = array();
-            foreach ($this->cookies as $key => $value) {
-                $cookieStringArray[] = $key . '=' . rawurlencode($value);
+        if ($this->options) {
+            foreach ($this->options as $key => $value) {
+                if ($value === null) {
+                    if (isset($curlOptions[$key])) {
+                        unset($curlOptions[$key]);
+                    }
+                } else {
+                    if ($key === CURLOPT_COOKIE) {
+                        $cookieStringArray = array();
+                        foreach ($value as $ckey => $cvalue) {
+                            $cookieStringArray[] = $ckey . '=' . rawurlencode($cvalue);
+                        }
+                        $curlOptions[$key] = implode('; ', $cookieStringArray);
+                    } else {
+                        $curlOptions[$key] = $value;
+                    }
+                }
             }
-            $curlOptions[CURLOPT_COOKIE] = implode('; ', $cookieStringArray);
         }
-
 
         $handle = curl_init();
 
