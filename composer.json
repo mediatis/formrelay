@@ -1,0 +1,27 @@
+{
+    "authors": [
+        {
+            "email": "voehringer@mediatis.de",
+            "homepage": "http://www.mediatis.de",
+            "name": "Michael Vöhringer",
+            "role": "Developer"
+        }
+    ],
+	"autoload": {
+        "classmap": [
+            "Classes/"
+        ],
+        "psr-4": {
+            "Mediatis\\Formrelay;\\": "Classes/"
+        }
+    },
+    "license": "GPL-2.0+",
+    "name": "mediatis/formrelay",
+    "replace": {
+        "typo3-ter/formrelay": "self.version"
+    },
+    "require": {
+    },
+    "type": "typo3-cms-extension",
+    "version": "0.1.0"
+}
