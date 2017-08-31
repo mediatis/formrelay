@@ -12,7 +12,7 @@
             "Classes/"
         ],
         "psr-4": {
-            "Mediatis\\Formrelay;\\": "Classes/"
+            "Mediatis\\Formrelay\\": "Classes/"
         }
     },
     "license": "GPL-2.0+",
