@@ -275,6 +275,16 @@ abstract class AbstractFormrelayHook
                 // result = array('foo' => 'bar');
                 $result[$key] = $mappedValue;
             break;
+            case 'ignore':
+                // ignores the data completely
+                // actually there is already a TS field 'ignore' which defines all fields which shall be ignored
+                // however just like the 'passthrough:' rule this one can be applied to the mappingOther rule to
+                // ignore all fields which do not have a mapping at all
+                // example:
+                // mappingOther = ignore:
+                // key = 'foo'; value = 'bar'
+                // result = array();
+            break;
             case 'split':
                 // explode the value using the space char as separator, split the result to the given fields
                 // example:

@@ -91,8 +91,11 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
         $childElements = $formData->getChildElements();
 
         $plainElement = count($childElements) === 0 || $type === 'SELECT' || $type === 'RADIOGROUP';
+        $noFormField = $type === 'HEADER' || $type === 'TEXTBLOCK';
 
-        if ($plainElement) {
+        if ($noFormField) {
+            // no data to gather
+        } elseif ($plainElement) {
             $inputInformation = $formData->getAdditionalArguments();
             $name = $inputInformation['name'];
             $value = $inputInformation['value'];
