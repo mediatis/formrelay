@@ -66,6 +66,8 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
             }
         }
 
+        GeneralUtility::devLog('Mediatis\\Formrelay\\DataDispatcher\\Curl::send()', __CLASS__, 0, $curlOptions);
+
         $handle = curl_init();
 
         curl_setopt_array($handle, $curlOptions);
