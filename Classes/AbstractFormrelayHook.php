@@ -60,8 +60,8 @@ abstract class AbstractFormrelayHook
     protected function extendBaseconf($source, &$target)
     {
         foreach ($source as $key => $value) {
-            if (is_array($value) && is_array($target[$key])) {
-                $this->extendBaseconf($value, $target[$key]);
+            if (is_array($value) && is_array($target[$key . '.'])) {
+                $this->extendBaseconf($value, $target[$key . '.']);
             } else {
                 $target[$key] = $value;
             }
