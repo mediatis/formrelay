@@ -214,7 +214,7 @@ abstract class AbstractFormrelayHook
      * @param string $value                The name of the value field in the pair
      * @param string $multipleKeySeparator If not false, it is the separator for the key field having multiple keys. If false, multiple keys are forbidden.
      */
-    protected function flattenKeyValueSubArray($array, $key ='key', $value = 'value', $multipleKeySeparator = ',')
+    protected function flattenKeyValueSubArray($array, $key = 'key', $value = 'value', $multipleKeySeparator = ',')
     {
         $result = array();
         foreach ($array as $k => $v) {
@@ -275,7 +275,7 @@ abstract class AbstractFormrelayHook
                 // key = 'foo'; value = 'bar'
                 // result = array('foo' => 'bar');
                 $result[$key] = $mappedValue;
-            break;
+                break;
             case 'ignore':
                 // ignores the data completely
                 // actually there is already a TS field 'ignore' which defines all fields which shall be ignored
@@ -285,7 +285,7 @@ abstract class AbstractFormrelayHook
                 // mappingOther = ignore:
                 // key = 'foo'; value = 'bar'
                 // result = array();
-            break;
+                break;
             case 'split':
                 // explode the value using the space char as separator, split the result to the given fields
                 // example:
@@ -308,7 +308,7 @@ abstract class AbstractFormrelayHook
                     $splittedValue = implode($valueSeparator, $splittedValues);
                     $this->processField($result, $key, $splittedValue, $splittedField);
                 }
-            break;
+                break;
 
             case 'fields':
                 // share the value with multiple fields
@@ -319,7 +319,7 @@ abstract class AbstractFormrelayHook
                 foreach ($sharedKeys as $sharedKey) {
                     $this->processField($result, $key, $mappedValue, $sharedKey);
                 }
-            break;
+                break;
 
             case 'negate':
                 // write the negated value into the given field
@@ -329,7 +329,7 @@ abstract class AbstractFormrelayHook
                 // value = '0' => result = array('emailOptOut' => 1)
                 // value = 'foobar' => result = array('emailOptOut' => 0)
                 $this->processField($result, $key, $mappedValue ? 0 : 1, $mappedKey);
-            break;
+                break;
 
             case 'concat':
                 // concat the key-value-pair into one field (along with other pairs)
@@ -344,7 +344,7 @@ abstract class AbstractFormrelayHook
                     $result[$mappedKey] = '';
                 }
                 $result[$mappedKey] .= $key . ' = ' . $mappedValue . PHP_EOL;
-            break;
+                break;
 
             case 'append':
                 // appends the values into one field (along with other values)
@@ -359,12 +359,12 @@ abstract class AbstractFormrelayHook
                     $result[$mappedKey] = '';
                 }
                 $result[$mappedKey] .= $mappedValue . PHP_EOL;
-            break;
+                break;
 
             default:
                 // just use the key and value as key and value
                 $result[$mappedKey] = $mappedValue;
-            break;
+                break;
         }
     }
 

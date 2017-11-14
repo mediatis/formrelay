@@ -34,7 +34,6 @@ namespace Mediatis\Formrelay;
  */
 interface DataProviderInterface
 {
-
     /**
      * process data.
      */

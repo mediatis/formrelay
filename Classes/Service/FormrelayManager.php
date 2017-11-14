@@ -97,10 +97,9 @@ class FormrelayManager
         }
     }
 
-    private function logData($data=false, $error=false)
+    private function logData($data = false, $error = false)
     {
         $logfileBase = $this->settings['logfile.']['basePath'];
-
 
         // Only write a logfile if path is set in TS Config and logdata is not empty
         if (strlen($logfileBase) > 0) {
