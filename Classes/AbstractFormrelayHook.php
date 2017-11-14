@@ -25,6 +25,7 @@ namespace Mediatis\Formrelay;
 ***************************************************************/
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
  * Plugin Send form data to SourceFoce.com
@@ -35,7 +36,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 abstract class AbstractFormrelayHook
 {
+    // Typoscript configuration
     protected $baseConf;
+
+    // Configuration to use
     protected $conf;
 
     protected $overwriteTsKey = null;
@@ -57,23 +61,11 @@ abstract class AbstractFormrelayHook
         $this->conf = array_merge(array(), $this->baseConf);
     }
 
-    protected function extendBaseconf($source, &$target)
-    {
-        foreach ($source as $key => $value) {
-            $targetKey = is_array($value) ? $key . '.' : $key;
-            if (is_array($value) && is_array($target[$targetKey])) {
-                $this->extendBaseconf($value, $target[$targetKey]);
-            } else {
-                $target[$targetKey] = $value;
-            }
-        }
-    }
-
     public function processData($data, $formSettings = false)
     {
         if ($formSettings) {
-            $this->conf = array_merge(array(), $this->baseConf);
-            $this->extendBaseconf($formSettings, $this->conf);
+            $ts_formSettings = GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Service\TypoScriptService')->convertPlainArrayToTypoScriptArray($formSettings);
+            ArrayUtility::mergeRecursiveWithOverrule($this->conf, $ts_formSettings);
         }
 
         if (!$this->isEnabled()) {

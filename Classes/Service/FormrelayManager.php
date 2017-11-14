@@ -49,9 +49,13 @@ class FormrelayManager
         $this->getAdditionalData($data);
         $this->logData($data);
         $this->callPlugins($data, $formSettings);
-        // GeneralUtility::devLog('MailFormPostProcessor:process data', __CLASS__, 0, $data);
     }
 
+    /**
+     * call all configures subplugins to process the data
+     * @param  array &$data        All the data as key->value array
+     * @param  array $formSettings setting of formrelay
+     */
     private function callPlugins(&$data, $formSettings)
     {
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
@@ -61,6 +65,7 @@ class FormrelayManager
                 if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
                     $tsKey = $dataHook->getTsKey();
                     $pluginSettings = is_array($formSettings) && isset($formSettings[$tsKey]) ? $formSettings[$tsKey] : false;
+
                     if ($pluginSettings && count($pluginSettings) > 0 && is_numeric(array_shift(array_keys($pluginSettings)))) {
                         foreach ($pluginSettings as $pluginInstanceSettings) {
                             $dataHook->processData($data, $pluginInstanceSettings);
