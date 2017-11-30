@@ -105,6 +105,11 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
             if ($type === 'RADIOGROUP') {
                 $name = $formData->getName();
             }
+            if ($type === 'FILEUPLOAD') {
+                if(count($inputInformation['uploadedFiles']) && count($inputInformation['uploadedFiles'][0])) {
+                    $value = $this->moveFileUpload($inputInformation['uploadedFiles'][0]);
+                }
+            }
             $data[$name] = $value;
         } else {
             foreach ($formData->getChildElements() as $input) {
@@ -112,5 +117,53 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
             }
         }
         return $data;
+    }
+    
+    private function moveFileUpload($file)
+    {
+        $url = '';
+        if (isset($file['tempFilename']) && is_file($file['tempFilename']) && GeneralUtility::isAllowedAbsPath($file['tempFilename']))
+        {    
+            $fileName = $file['name'];
+
+            // Safety checks
+            $safetyChecked = true;
+            $pathParts = pathinfo($fileName);
+            // Check for prohibited file extensions
+            if ($pathParts['extension'] === 'php') {
+                $safetyChecked = false;
+                GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, 0);
+            }
+            
+            if ($safetyChecked) {
+                // Make sure base upload folder for this form exists
+                $formRelaySettings = $this->FormrelayManager->getSettings();
+                $baseUploadPath = $formRelaySettings['fileupload_path'] . $this->form->getId() . '/';
+                if (!file_exists(PATH_site . $baseUploadPath)) {
+                    GeneralUtility::mkdir_deep(PATH_site, $baseUploadPath);
+                    GeneralUtility::devLog("Created Base upload folder for this form", __CLASS__, 0, $baseUploadPath);
+                }
+                
+                // Create upload folder for this specific file
+                $fileUploadPath = $baseUploadPath . sha1_file($file['tempFilename']) . '/';
+                if (!file_exists(PATH_site . $fileUploadPath)) {
+                    GeneralUtility::mkdir_deep(PATH_site, $fileUploadPath);
+                }
+                
+                // Assemble full upload path and filename and move file
+                $suffix = 1;
+                while (file_exists(PATH_site . $fileUploadPath . $fileName)) {
+                    $fileName = $pathParts['filename'] . '_' . $suffix . '.' . $pathParts['extension'];
+                    $suffix++;
+                }
+                $result = rename($file['tempFilename'], PATH_site . $fileUploadPath . $fileName);
+                if ($result) {
+                    $url = rtrim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $fileUploadPath . $fileName;
+                } else {
+                    GeneralUtility::devLog('Failed to move uploaded file "' . $file['tempFilename'] . '" to destination "' . PATH_site . $fileUploadPath . $fileName . '"!', __CLASS__, 3);
+                }
+            }
+        }
+        return $url;
     }
 }

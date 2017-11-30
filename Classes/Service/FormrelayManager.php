@@ -50,6 +50,11 @@ class FormrelayManager
         $this->logData($data);
         $this->callPlugins($data, $formSettings);
     }
+    
+    public function getSettings()
+    {
+        return $this->settings;
+    }
 
     /**
      * call all configures subplugins to process the data
