@@ -10,7 +10,9 @@ plugin.tx_formrelay {
 			# cat=plugin.tx_formrelay//5; type=text; label= Log files folder. Be sure the path exist and is writable.
 			basePath =
 	    }
-		# cat=plugin.tx_formrelay//6; type=text; label= Path to directory where uploaded files are stored (should end with a "/")
-		fileupload_path = fileadmin/formrelay/
+		fileupload{
+			# cat=plugin.tx_formrelay//6; type=text; label= Prohibited Extension, comma-separated
+			prohibitedExtensions = php,exe
+		}
 	}
 }

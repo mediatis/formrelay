@@ -5,6 +5,8 @@ plugin.tx_formrelay {
 			system = {$plugin.tx_formrelay.settings.logfile.system}
 			basePath = {$plugin.tx_formrelay.settings.logfile.basePath}
 		}
-        fileupload_path = {$plugin.tx_formrelay.settings.fileupload_path}
+        fileupload {
+			prohibitedExtensions = {$plugin.tx_formrelay.settings.fileupload.prohibitedExtensions}
+		}
 	}
 }

@@ -127,25 +127,28 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
             $fileName = $file['name'];
 
             // Safety checks
+			$formRelaySettings = $this->FormrelayManager->getSettings();
             $safetyChecked = true;
             $pathParts = pathinfo($fileName);
             // Check for prohibited file extensions
-            if ($pathParts['extension'] === 'php') {
-                $safetyChecked = false;
-                GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, 0);
-            }
+			$prohibitedExtensions = explode(',', $formRelaySettings['fileupload.']['prohibitedExtensions']);
+			foreach($prohibitedExtensions as $ext) {
+	            if ($pathParts['extension'] === trim($ext)) {
+	                $safetyChecked = false;
+	                GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, $ext);
+	            }
+			}
             
             if ($safetyChecked) {
                 // Make sure base upload folder for this form exists
-                $formRelaySettings = $this->FormrelayManager->getSettings();
-                $baseUploadPath = $formRelaySettings['fileupload_path'] . $this->form->getId() . '/';
+                $baseUploadPath = 'uploads/tx_formrelay/' . $this->form->getId() . '/';
                 if (!file_exists(PATH_site . $baseUploadPath)) {
                     GeneralUtility::mkdir_deep(PATH_site, $baseUploadPath);
                     GeneralUtility::devLog("Created Base upload folder for this form", __CLASS__, 0, $baseUploadPath);
                 }
                 
                 // Create upload folder for this specific file
-                $fileUploadPath = $baseUploadPath . sha1_file($file['tempFilename']) . '/';
+                $fileUploadPath = $baseUploadPath . sha1_file($file['tempFilename']) . random_int(10000,99999) . '/';
                 if (!file_exists(PATH_site . $fileUploadPath)) {
                     GeneralUtility::mkdir_deep(PATH_site, $fileUploadPath);
                 }
