@@ -165,6 +165,8 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
                 } else {
                     GeneralUtility::devLog('Failed to move uploaded file "' . $file['tempFilename'] . '" to destination "' . PATH_site . $fileUploadPath . $fileName . '"!', __CLASS__, 3);
                 }
+            } else {
+                GeneralUtility::unlink_tempfile($file['tempFilename']);
             }
         }
         return $url;
