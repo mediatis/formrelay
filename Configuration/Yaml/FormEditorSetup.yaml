@@ -1,0 +1,55 @@
+TYPO3:
+  CMS:
+    Form:
+      prototypes:
+        standard:
+          formElementsDefinition:
+            Form:
+              formEditor:
+                editors:
+                  900:
+                    selectOptions:
+                      99:
+                        value: 'Formrelay'
+                        label: 'Formrelay'
+                propertyCollections:
+                  finishers:
+                    99:
+                      identifier: 'Formrelay'
+                      editors:
+                        __inheritances:
+                          10: 'TYPO3.CMS.Form.mixins.formElementMixins.BaseCollectionEditorsMixin'
+                        100:
+                          label: 'Formrelay'
+                        150:
+                          identifier: 'deleteUploadedFiles'
+                          templateName: 'Inspector-CheckboxEditor'
+                          label: 'Delete Uploaded Files'
+                          propertyPath: 'options.deleteUploadedFiles'
+                        200:
+                          identifier: 'setup'
+                          templateName: 'Inspector-TextareaEditor'
+                          label: 'Setup'
+                          propertyPath: 'options.setup'
+          finishersDefinition:
+            Formrelay:
+              formEditor:
+                iconIdentifier: 't3-form-icon-finisher'
+                label: 'Formrelay'
+                predefinedDefaults:
+                  options:
+                    setup: ''
+                    deleteUploadedFiles: false
+      mixins:
+        formElementMixins:
+          FormElementMixin:
+            formEditor:
+              predefinedDefaults:
+                defaultValue: ''
+              editors:
+                # we insert the field between label and placeholder
+                207:
+                  identifier: 'name'
+                  templateName: 'Inspector-TextEditor'
+                  label: 'Name'
+                  propertyPath: 'properties.fluidAdditionalAttributes.name'

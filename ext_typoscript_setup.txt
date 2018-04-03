@@ -1,0 +1,11 @@
+# frontend configuration
+plugin.tx_form.settings.yamlConfigurations {
+    1522324493 = EXT:formrelay/Configuration/Yaml/BaseSetup.yaml
+    1522324495 = EXT:formrelay/Configuration/Yaml/FormEngineSetup.yaml
+}
+# backend configuration
+module.tx_form.settings.yamlConfigurations {
+    1522324493 = EXT:formrelay/Configuration/Yaml/BaseSetup.yaml
+    1522324494 = EXT:formrelay/Configuration/Yaml/FormEditorSetup.yaml
+    1522324495 = EXT:formrelay/Configuration/Yaml/FormEngineSetup.yaml
+}

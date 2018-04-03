@@ -1,0 +1,18 @@
+TYPO3:
+  CMS:
+    Form:
+      prototypes:
+        standard:
+          finishersDefinition:
+            Formrelay:
+              FormEngine:
+                label: 'Formrelay'
+                elements:
+                  setup:
+                    label: 'Setup'
+                    config:
+                      type: 'text'
+                  deleteUploadedFiles:
+                    label: 'Delete Uploaded Files'
+                    config:
+                      type: 'check'
