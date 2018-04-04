@@ -53,3 +53,5 @@ TYPO3:
                   templateName: 'Inspector-TextEditor'
                   label: 'Name'
                   propertyPath: 'properties.fluidAdditionalAttributes.name'
+                  propertyValidators:
+                    10: 'NotEmpty'

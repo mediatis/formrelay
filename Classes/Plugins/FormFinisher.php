@@ -177,10 +177,16 @@ class FormFinisher extends AbstractFinisher
             } elseif ($element instanceof FileUpload) {
                 // @TODO finish implementation of the method processUploadField
                 // $formValues[$name] = $this->processUploadField($element, $value, $formrelayManager);
+                GeneralUtility::devLog('Ignoring upload form field (currently unsupported).', __CLASS__, 0, array(
+                    'form' => $element->getRootForm()->getIdentifier(),
+                    'field' => $name,
+                ));
             } else {
                 GeneralUtility::devLog('Ignoring unkonwn form field type.', __CLASS__, 0, array(
+                    'form' => $element->getRootForm()->getIdentifier(),
+                    'field' => $name,
                     'class' => get_class($element),
-                    'type' => $type
+                    'type' => $type,
                 ));
             }
         }
