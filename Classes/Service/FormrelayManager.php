@@ -35,18 +35,18 @@ class FormrelayManager
      */
     protected $settings;
 
-
-    public function __construct()
+    public function process($data, $formSettings = false, $simulate = false)
     {
-        // Todo:: use ConfigutationManager to load settings
-        //
-        $typoScript = FormrelayUtility::loadPluginTS('tx_formrelay');
-        $this->settings = $typoScript['settings.'];
-    }
+        if (!$this->settings) {
+            // Todo:: use ConfigurationManager to load settings
+            //
+            $typoScript = FormrelayUtility::loadPluginTS('tx_formrelay');
+            $this->settings = $typoScript['settings.'];
+        }
 
-    public function process($data, $formSettings = false)
-    {
-        $this->getAdditionalData($data);
+        if (!$simulate) {
+            $this->getAdditionalData($data);
+        }
         $this->logData($data);
         $this->callPlugins($data, $formSettings);
     }
