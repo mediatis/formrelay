@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Form\Utility\FormUtility;
 
 use Mediatis\Formrelay\Service\FormrelayManager;
+use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 
 class FormFinisher extends AbstractFinisher
 {
@@ -124,7 +125,7 @@ class FormFinisher extends AbstractFinisher
         if ($element->getType() === 'Checkbox' && !$value) {
             $value = 0;
         }
-        return is_array($value) ? implode(',', $value) : $value;
+        return is_array($value) ? new FormFieldMultiValue($value) : $value;
     }
 
     protected function executeInternal()
