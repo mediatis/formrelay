@@ -5,6 +5,6 @@ class IpAddress implements \Mediatis\Formrelay\DataProviderInterface
 {
     public function addData(&$dataArray)
     {
-        $dataArray['ipAddress'] =  \Mediatis\Formrelay\Utility\IpAddress::getUserIpAdress();
+        $dataArray['ip_address'] =  \Mediatis\Formrelay\Utility\IpAddress::getUserIpAdress();
     }
 }

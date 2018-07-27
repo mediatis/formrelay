@@ -9,11 +9,11 @@ final class FormrelayUtility
             or !($content === mb_convert_encoding(mb_convert_encoding($content, 'UTF-32', 'UTF-8'), 'UTF-8', 'UTF-32'))) {
             $content = mb_convert_encoding($content, 'UTF-8');
 
-            if (mb_check_encoding($content, 'UTF-8')) {
-                \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Converted to UTF-8', 'extention', 0, $content);
-            } else {
-                \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Could not converted to UTF-8', 'extention', 0, $content);
-            }
+            // if (mb_check_encoding($content, 'UTF-8')) {
+            //     \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Converted to UTF-8', 'extention', 0, $content);
+            // } else {
+            //     \TYPO3\CMS\Core\Utility\GeneralUtility::devLog('Could not converted to UTF-8', 'extention', 0, $content);
+            // }
         }
         return $content;
     }
