@@ -50,7 +50,7 @@ class FormrelayManager
         $this->logData($data);
         $this->callPlugins($data, $formSettings);
     }
-    
+
     public function getSettings()
     {
         return $this->settings;
@@ -118,7 +118,7 @@ class FormrelayManager
             $xmlLog = simplexml_load_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?><log />");
             $xmlLog->addAttribute('type', $error ? 'error' : 'notice');
             $xmlLog->addChild('logdate', date('r'));
-            $xmlLog->addChild('userIP', $_SERVER['REMOTE_ADDR']);
+            $xmlLog->addChild('userIP', \Mediatis\Formrelay\Utility\IpAddress::getUserIpAdress());
 
             if ($data) {
                 $xmlFields = $xmlLog->addChild('form');

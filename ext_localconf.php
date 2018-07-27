@@ -10,7 +10,7 @@ if (!defined('TYPO3_MODE')) {
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'][] = 'Mediatis\\Formrelay\\DataProvider\\Adwords';
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'][] = 'Mediatis\\Formrelay\\DataProvider\\AdwordCampains';
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'][] = 'Mediatis\\Formrelay\\DataProvider\\LanguageCode';
-$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'][] = 'Mediatis\\Formrelay\\DataProvider\\IpAddresse';
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'][] = 'Mediatis\\Formrelay\\DataProvider\\IpAddress';
 
 
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] =
