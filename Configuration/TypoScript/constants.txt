@@ -14,5 +14,13 @@ plugin.tx_formrelay {
 			# cat=plugin.tx_formrelay//6; type=text; label= Prohibited Extension, comma-separated
 			prohibitedExtensions = php,exe
 		}
+		dataProviders {
+			contentElement {
+				# cat=plugin.tx_formrelay//7; type=text; label= Comma separated list of tt_content element UIDs that contains the text you wish to add to your email.
+				ttContentUid =
+				# cat=plugin.tx_formrelay//8; type=int; label= Label for the text
+				fieldName = consent_text
+			}
+		}
 	}
 }

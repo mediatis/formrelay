@@ -8,5 +8,11 @@ plugin.tx_formrelay {
 		fileupload {
 			prohibitedExtensions = {$plugin.tx_formrelay.settings.fileupload.prohibitedExtensions}
 		}
+		dataProviders {
+			contentElement {
+				ttContentUid = {$plugin.tx_formrelay.settings.dataProviders.contentElement.ttContentUid}
+				fieldName = {$plugin.tx_formrelay.settings.dataProviders.contentElement.fieldName}
+			}
+		}
 	}
 }
