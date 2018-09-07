@@ -53,7 +53,7 @@ class FormFinisher extends AbstractFinisher
         $defaultStorage = $resourceFactory->getDefaultStorage();
 
         // Make sure base upload folder for this form exists
-        $baseUploadPath = $this->parseOption('baseUploadPath') . $element->getRootForm()->getIdentifier() . '/';
+        $baseUploadPath = rtrim($this->parseOption('baseUploadPath'), '/') . '/' . $element->getRootForm()->getIdentifier() . '/';
 
         $folderName = $file->getSha1() . random_int(10000, 99999) . '/';
         $folderObject = $resourceFactory->createFolderObject($defaultStorage, $baseUploadPath . $folderName, $folderName);
