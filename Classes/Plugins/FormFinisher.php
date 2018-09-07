@@ -52,10 +52,9 @@ class FormFinisher extends AbstractFinisher
         $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
         $defaultStorage = $resourceFactory->getDefaultStorage();
 
-        // Make sure base upload folder for this form exists
         $baseUploadPath = rtrim($this->parseOption('baseUploadPath'), '/') . '/' . $element->getRootForm()->getIdentifier() . '/';
-
         $folderName = $file->getSha1() . random_int(10000, 99999) . '/';
+
         $folderObject = $resourceFactory->createFolderObject($defaultStorage, $baseUploadPath . $folderName, $folderName);
 
         try {
