@@ -22,7 +22,7 @@ $EM_CONF[$_EXTKEY] = array(
     'uploadfolder' => '1',
     'createDirs' => '',
     'clearCacheOnLoad' => 0,
-    'version' => '0.2.1',
+    'version' => '0.2.2',
     'constraints' => array(
         'depends' => array(
             'typo3' => '7.6.0-8.7.99',
@@ -30,8 +30,8 @@ $EM_CONF[$_EXTKEY] = array(
         'conflicts' => array(
         ),
         'suggests' => array(
-            'form' => '',
-            'form' => 'formhandler',
+            'form' => '>=0.0.1',
+            'formhandler' => '>=0.0.1',
         ),
     ),
 );
