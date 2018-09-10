@@ -45,7 +45,7 @@ class FormFinisher extends AbstractFinisher
 
         $deleteUploadedFiles = $this->parseOption('deleteUploadedFiles');
         $formRelaySettings = $formrelayManager->getSettings();
-        
+
         $prohibitedExtensions = explode(',', $formRelaySettings['fileupload.']['prohibitedExtensions']);
         if (in_array($file->getExtension(), $prohibitedExtensions)) {
             GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, $filter->getExtension());
@@ -65,13 +65,13 @@ class FormFinisher extends AbstractFinisher
             GeneralUtility::mkdir_deep(PATH_site, $baseUploadPath);
             GeneralUtility::devLog("Created Base upload folder for this form", __CLASS__, 0, $baseUploadPath);
         }
-        
+
         // Create upload folder for this specific file
         $fileUploadPath = $baseUploadPath . $file->getSha1() . random_int(10000, 99999) . '/';
         if (!file_exists(PATH_site . $fileUploadPath)) {
             GeneralUtility::mkdir_deep(PATH_site, $fileUploadPath);
         }
-        
+
         // Assemble full upload path and filename and move file
         $suffix = 1;
         $fileName = $file->getName();
@@ -141,7 +141,7 @@ class FormFinisher extends AbstractFinisher
         );
 
         $setup = trim($this->parseOption('setup'));
-        
+
         if ($setup) {
             $TSparserObject = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser::class);
             $TSparserObject->parse($setup);

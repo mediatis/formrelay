@@ -106,7 +106,7 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
                 $name = $formData->getName();
             }
             if ($type === 'FILEUPLOAD') {
-                if(count($inputInformation['uploadedFiles']) && count($inputInformation['uploadedFiles'][0])) {
+                if (count($inputInformation['uploadedFiles']) && count($inputInformation['uploadedFiles'][0])) {
                     $value = $this->moveFileUpload($inputInformation['uploadedFiles'][0]);
                 }
             }
@@ -118,27 +118,26 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
         }
         return $data;
     }
-    
+
     private function moveFileUpload($file)
     {
         $url = '';
-        if (isset($file['tempFilename']) && is_file($file['tempFilename']) && GeneralUtility::isAllowedAbsPath($file['tempFilename']))
-        {    
+        if (isset($file['tempFilename']) && is_file($file['tempFilename']) && GeneralUtility::isAllowedAbsPath($file['tempFilename'])) {
             $fileName = $file['name'];
 
             // Safety checks
-			$formRelaySettings = $this->FormrelayManager->getSettings();
+            $formRelaySettings = $this->FormrelayManager->getSettings();
             $safetyChecked = true;
             $pathParts = pathinfo($fileName);
             // Check for prohibited file extensions
-			$prohibitedExtensions = explode(',', $formRelaySettings['fileupload.']['prohibitedExtensions']);
-			foreach($prohibitedExtensions as $ext) {
-	            if ($pathParts['extension'] === trim($ext)) {
-	                $safetyChecked = false;
-	                GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, $ext);
-	            }
-			}
-            
+            $prohibitedExtensions = explode(',', $formRelaySettings['fileupload.']['prohibitedExtensions']);
+            foreach ($prohibitedExtensions as $ext) {
+                if ($pathParts['extension'] === trim($ext)) {
+                    $safetyChecked = false;
+                    GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, $ext);
+                }
+            }
+
             if ($safetyChecked) {
                 // Make sure base upload folder for this form exists
                 $baseUploadPath = 'uploads/tx_formrelay/' . $this->form->getId() . '/';
@@ -146,13 +145,13 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
                     GeneralUtility::mkdir_deep(PATH_site, $baseUploadPath);
                     GeneralUtility::devLog("Created Base upload folder for this form", __CLASS__, 0, $baseUploadPath);
                 }
-                
+
                 // Create upload folder for this specific file
-                $fileUploadPath = $baseUploadPath . sha1_file($file['tempFilename']) . random_int(10000,99999) . '/';
+                $fileUploadPath = $baseUploadPath . sha1_file($file['tempFilename']) . random_int(10000, 99999) . '/';
                 if (!file_exists(PATH_site . $fileUploadPath)) {
                     GeneralUtility::mkdir_deep(PATH_site, $fileUploadPath);
                 }
-                
+
                 // Assemble full upload path and filename and move file
                 $suffix = 1;
                 while (file_exists(PATH_site . $fileUploadPath . $fileName)) {
