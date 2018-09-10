@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Mediatis\Formrelay\Plugins;
 
 use Mediatis\Formrelay\Service\FormrelayManager;
+use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\AbstractFormElement;
@@ -45,10 +46,15 @@ class FormFinisher extends AbstractFinisher
 
         $file = $file->getOriginalResource()->getOriginalFile();
 
-        if ($file->isMissing()) {
-            return '';
+        $pluginTs = FormrelayUtility::loadPluginTS('tx_formrelay');
+        if (!empty($pluginTs['settings.']['fileupload.']['prohibitedExtensions'])) {
+            $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
+            if (in_array($file->getExtension(), $prohibitedExtensions)) {
+                GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, $file->getExtension());
+                $file->delete();
+                return '';
+            }
         }
-
         $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
         $defaultStorage = $resourceFactory->getDefaultStorage();
 
