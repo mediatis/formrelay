@@ -51,7 +51,6 @@ class FormFinisher extends AbstractFinisher
             $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
             if (in_array($file->getExtension(), $prohibitedExtensions)) {
                 GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, $file->getExtension());
-                $file->delete();
                 return '';
             }
         }
