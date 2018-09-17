@@ -12,7 +12,7 @@ TYPO3:
                     label: 'Setup'
                     config:
                       type: 'text'
-                  deleteUploadedFiles:
-                    label: 'Delete Uploaded Files'
+                  baseUploadPath:
+                    label: 'Base upload path'
                     config:
-                      type: 'check'
+                      type: 'text'

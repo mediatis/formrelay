@@ -22,10 +22,10 @@ TYPO3:
                         100:
                           label: 'Formrelay'
                         150:
-                          identifier: 'deleteUploadedFiles'
-                          templateName: 'Inspector-CheckboxEditor'
-                          label: 'Delete Uploaded Files'
-                          propertyPath: 'options.deleteUploadedFiles'
+                          identifier: 'baseUploadPath'
+                          templateName: 'Inspector-TextEditor'
+                          label: 'Base upload path'
+                          propertyPath: 'options.baseUploadPath'
                         200:
                           identifier: 'setup'
                           templateName: 'Inspector-TextareaEditor'
@@ -49,7 +49,7 @@ TYPO3:
                 predefinedDefaults:
                   options:
                     setup: ''
-                    deleteUploadedFiles: false
+                    baseUploadPath: 'uploads/tx_formrelay/'
       mixins:
         formElementMixins:
           FormElementMixin:
