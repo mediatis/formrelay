@@ -2,6 +2,7 @@
 namespace Mediatis\Formrelay\DataDispatcher;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Mediatis\Formrelay\Domain\Model;
 
 class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
 {
@@ -30,7 +31,13 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
         if ($this->parameterise) {
             $params = array();
             foreach ($data as $key => $value) {
-                $params[] = rawurlencode($key) . '=' . rawurlencode($value);
+                if ($value instanceof FormFieldMultiValueDiscrete) {
+                    foreach ($value as $multiValue) {
+                        $params[] = rawurlencode($key) . '=' . rawurlencode($multiValue);
+                    }
+                } else {
+                    $params[] = rawurlencode($key) . '=' . rawurlencode($value);
+                }
             }
             $postFields = implode('&', $params);
         }

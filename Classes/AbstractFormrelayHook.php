@@ -24,6 +24,7 @@ namespace Mediatis\Formrelay;
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 use Mediatis\Formrelay\Utility\FormrelayUtility;
+use Mediatis\Formrelay\Domain\Model;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
@@ -351,6 +352,41 @@ abstract class AbstractFormrelayHook
                     $result[$mappedKey] = '';
                 }
                 $result[$mappedKey] .= $mappedValue . PHP_EOL;
+                break;
+
+            case 'ifEmpty':
+                // puts the value into the given field if it is empty so far
+                // the value will be discraded completely if the field has a value already
+                // (default values are taken into account, too!)
+                // example:
+                // mapping = 'ifEmpty:foo'
+                // first value 'bar'
+                // second value 'baz'
+                // result = array('foo' => 'bar');
+                if (!isset($result[$mappedKey])) {
+                    $result[$mappedKey] = $mappedValue;
+                }
+                break;
+
+            case 'discreteField':
+                // adds the values to an array object for one field
+                // marked as to be dispatched separately, but with the same field name
+                // if a dispatcher does not take care of this, it will automatically be handled as comma separated list
+                // example:
+                // mapping = 'discreteField:foo'
+                // first value 'bar'
+                // second value 'baz'
+                // result = array('foo' => new FormFieldMultiValueDiscrete(array('bar', 'baz')))
+                if (!isset($result[$mappedKey]) || !($result[$mappedKey] instanceof FormFieldMultiValueDiscrete)) {
+                    $result[$mappedKey] = new FormFieldMultiValueDiscrete(array());
+                }
+                if ($mappedValue instanceof FormFieldMultiValue) {
+                    foreach ($mappedValue as $mappedMultiValue) {
+                        $result[$mappedKey]->append($mappedMultiValue);
+                    }
+                } else {
+                    $result[$mappedKey]->append($mappedValue);
+                }
                 break;
 
             default:
