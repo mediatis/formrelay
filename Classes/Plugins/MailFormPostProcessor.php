@@ -168,7 +168,8 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
                     $url = rtrim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $fileUploadPath . $fileName;
                 } else {
                     GeneralUtility::devLog(
-                        'Failed to move uploaded file "' . $file['tempFilename'] . '" to destination "' . PATH_site . $fileUploadPath . $fileName . '"!',
+                        'Failed to move uploaded file "' . $file['tempFilename'] . '" to destination "' . PATH_site .
+                        $fileUploadPath . $fileName . '"!',
                         __CLASS__,
                         3
                     );
