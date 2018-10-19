@@ -47,8 +47,10 @@ class UtmzCookieParser
         $utmz_a = substr($this->utmz, 0, strpos($this->utmz, $utmz_b) - 1);
 
         //assign variables to first half of cookie
-        list($this->utmz_domainHash, $this->utmz_timestamp, $this->utmz_sessionNumber, $this->utmz_campaignNumber) = explode('.',
-            $utmz_a);
+        list($this->utmz_domainHash, $this->utmz_timestamp, $this->utmz_sessionNumber, $this->utmz_campaignNumber) = explode(
+            '.',
+            $utmz_a
+        );
         //break apart second half of cookie
         $utmzPairs = [];
         $z = explode('|', $utmz_b);
