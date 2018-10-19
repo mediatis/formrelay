@@ -70,9 +70,10 @@ class FormrelayManager
 
                 if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
                     $tsKey = $dataHook->getTsKey();
-                    $pluginSettings = is_array(
-                        $formSettings
-                    ) && isset($formSettings[$tsKey]) ? $formSettings[$tsKey] : false;
+                    $pluginSettings = [];
+                    if (is_array($formSettings) && isset($formSettings[$tsKey])) {
+                        $pluginSettings = $formSettings[$tsKey];
+                    }
 
                     if ($pluginSettings && count($pluginSettings) > 0 && is_numeric(
                             array_shift(array_keys($pluginSettings))
