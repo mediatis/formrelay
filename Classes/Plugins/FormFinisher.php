@@ -60,7 +60,8 @@ class FormFinisher extends AbstractFinisher
         $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
         $defaultStorage = $resourceFactory->getDefaultStorage();
 
-        $baseUploadPath = rtrim($this->parseOption('baseUploadPath'), '/') . '/' . $element->getRootForm()->getIdentifier() . '/';
+        $baseUploadPath = rtrim($this->parseOption('baseUploadPath'), '/') .
+            '/' . $element->getRootForm()->getIdentifier() . '/';
         $folderName = $file->getSha1() . random_int(10000, 99999) . '/';
 
         $folderObject = $resourceFactory->createFolderObject(
