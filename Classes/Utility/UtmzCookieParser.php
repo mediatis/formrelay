@@ -25,22 +25,22 @@ class UtmzCookieParser
     //Contstructor fires method that parses and assigns property values
     public function __construct()
     {
-        $this->_set_utmz();
+        $this->setUtmz();
     }
 
     //Grab utmz cookie if it exists
-    private function _set_utmz()
+    private function setUtmz()
     {
         if (isset($_COOKIE['__utmz'])) {
             $this->utmz = $_COOKIE['__utmz'];
-            $this->_parse_utmz();
+            $this->parseUtmz();
         } else {
             return false;
         }
     }
 
     //parse utmz cookie into variables
-    private function _parse_utmz()
+    private function parseUtmz()
     {
         //Break cookie in half
         $utmz_b = strstr($this->utmz, 'u');
