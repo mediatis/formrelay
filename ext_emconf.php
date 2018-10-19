@@ -10,7 +10,7 @@
  * "version" and "dependencies" must not be touched!
  ***************************************************************/
 
-$EM_CONF[$_EXTKEY] = array(
+$EM_CONF[$_EXTKEY] = [
     'title' => 'Form Relay',
     'description' => 'Send form data to different providers like Salesforce',
     'category' => 'plugin',
@@ -23,15 +23,15 @@ $EM_CONF[$_EXTKEY] = array(
     'createDirs' => '',
     'clearCacheOnLoad' => 0,
     'version' => '0.2.3',
-    'constraints' => array(
-        'depends' => array(
+    'constraints' => [
+        'depends' => [
             'typo3' => '7.6.0-8.7.99',
-        ),
-        'conflicts' => array(
-        ),
-        'suggests' => array(
+        ],
+        'conflicts' => [
+        ],
+        'suggests' => [
             'form' => '>=0.0.1',
             'formhandler' => '>=0.0.1',
-        ),
-    ),
-);
+        ],
+    ],
+];

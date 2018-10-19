@@ -1,4 +1,5 @@
 <?php
+
 namespace Mediatis\Formrelay\Simulation;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -26,9 +27,9 @@ class FormSimulator
      */
     public static function initializeTsfe($pageId, $language = 0)
     {
-        static $tsfeCache = array();
+        static $tsfeCache = [];
 
-            // resetting, a TSFE instance with data from a different page Id could be set already
+        // resetting, a TSFE instance with data from a different page Id could be set already
         unset($GLOBALS['TSFE']);
 
         $cacheId = $pageId . '|' . $language;
@@ -40,23 +41,24 @@ class FormSimulator
         if (!isset($tsfeCache[$cacheId]) || !$useCache) {
             \TYPO3\CMS\Core\Utility\GeneralUtility::_GETset($language, 'L');
 
-            $GLOBALS['TSFE'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController::class, $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
+            $GLOBALS['TSFE'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController::class,
+                $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
             $GLOBALS['TSFE']->initFEuser();
             $GLOBALS['TSFE']->determineId();
             $GLOBALS['TSFE']->initTemplate();
             $GLOBALS['TSFE']->getConfigArray();
         }
 
-        static $hosts = array();
+        static $hosts = [];
         // relevant for realURL environments, only
         if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('realurl')) {
             $rootpageId = $pageId;
             //$rootpageId = $item->getRootPageUid();
-            $hostFound  = !empty($hosts[$rootpageId]);
+            $hostFound = !empty($hosts[$rootpageId]);
 
             if (!$hostFound) {
                 $rootline = \TYPO3\CMS\Backend\Utility\BackendUtility::BEgetRootLine($rootpageId);
-                $host     = \TYPO3\CMS\Backend\Utility\BackendUtility::firstDomainRecord($rootline);
+                $host = \TYPO3\CMS\Backend\Utility\BackendUtility::firstDomainRecord($rootline);
 
                 $hosts[$rootpageId] = $host;
             }
@@ -82,22 +84,22 @@ class FormSimulator
             return false;
         }
 
-        $formDate = (string) $xml->logdate;
+        $formDate = (string)$xml->logdate;
 
         $formDataXml = $xml->form;
-        $formData = array();
+        $formData = [];
         foreach ($formDataXml->field as $fieldXml) {
             $fieldName = false;
             foreach ($fieldXml->attributes() as $key => $value) {
                 if ($key === 'name') {
-                    $fieldName = (string) $value;
+                    $fieldName = (string)$value;
                     break;
                 }
             }
             if (!$fieldName) {
                 continue;
             }
-            $fieldValue = (string) $fieldXml;
+            $fieldValue = (string)$fieldXml;
             $formData[$fieldName] = $fieldValue;
         }
         if (count($formData) > 0) {

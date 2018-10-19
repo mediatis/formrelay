@@ -1,28 +1,30 @@
 <?php
+
 namespace Mediatis\Formrelay;
 
 /***************************************************************
-*  Copyright notice
-*
-*  (c) 2016 Michael Vöhringer (Mediatis AG) <voehringer@mediatis.de>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+ *  Copyright notice
+ *
+ *  (c) 2016 Michael Vöhringer (Mediatis AG) <voehringer@mediatis.de>
+ *  All rights reserved
+ *
+ *  This script is part of the TYPO3 project. The TYPO3 project is
+ *  free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The GNU General Public License can be found at
+ *  http://www.gnu.org/copyleft/gpl.html.
+ *
+ *  This script is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
+
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use Mediatis\Formrelay\Domain\Model;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -59,7 +61,7 @@ abstract class AbstractFormrelayHook
     {
         $this->overwriteTsKey = $overwriteTsKey;
         $this->baseConf = FormrelayUtility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
-        $this->conf = array_merge(array(), $this->baseConf);
+        $this->conf = array_merge([], $this->baseConf);
     }
 
     public function processData($data, $formSettings = false)
@@ -101,7 +103,7 @@ abstract class AbstractFormrelayHook
             $conf = $this->conf;
         }
         if ($confsPassed === null) {
-            $confsPassed = array($this->getTsKey());
+            $confsPassed = [$this->getTsKey()];
         }
 
         // validate required fields
@@ -109,7 +111,7 @@ abstract class AbstractFormrelayHook
             $requiredFields = explode(',', trim($conf['fields.']['validation.']['required.']));
             foreach ($requiredFields as $requiredField) {
                 if (!isset($data[$requiredField])) {
-                    GeneralUtility::devLog('validateForm - Required field not set '. $requiredField, __CLASS__, 0);
+                    GeneralUtility::devLog('validateForm - Required field not set ' . $requiredField, __CLASS__, 0);
                     return false;
                 }
             }
@@ -124,7 +126,7 @@ abstract class AbstractFormrelayHook
                 $filterMatched = true;
 
                 // include and exclude lists
-                foreach (array('whitelist.' => false, 'blacklist.' => true) as $filterType => $negateFilterRule) {
+                foreach (['whitelist.' => false, 'blacklist.' => true] as $filterType => $negateFilterRule) {
                     if (isset($filter[$filterType])) {
                         foreach ($filter[$filterType] as $field => $valueList) {
                             if (!isset($data[$field])) {
@@ -150,7 +152,7 @@ abstract class AbstractFormrelayHook
                 }
 
                 // external validations
-                foreach (array('equals' => false, 'equalsNot' => true) as $filterType => $negateFilterRule) {
+                foreach (['equals' => false, 'equalsNot' => true] as $filterType => $negateFilterRule) {
                     if (isset($filter[$filterType])) {
                         $validationKeys = explode(',', $filter[$filterType]);
                         foreach ($validationKeys as $validationKey) {
@@ -163,7 +165,8 @@ abstract class AbstractFormrelayHook
                                 $filterMatched = false;
                                 break;
                             }
-                            $externalValidation = $this->validateForm($data, $externalConf, array_merge($confsPassed, array($validationKey)));
+                            $externalValidation = $this->validateForm($data, $externalConf,
+                                array_merge($confsPassed, [$validationKey]));
                             if ((!$negateFilterRule && !$externalValidation) || ($negateFilterRule && $externalValidation)) {
                                 $filterMatched = false;
                                 break;
@@ -183,12 +186,12 @@ abstract class AbstractFormrelayHook
         }
         if ($filterFound) {
             if (!$filterMatched) {
-                GeneralUtility::devLog('validateForm - !filterMatched '. $requiredField, __CLASS__, 0);
+                GeneralUtility::devLog('validateForm - !filterMatched ' . $requiredField, __CLASS__, 0);
                 return false;
             }
         } else {
             if (!$conf['fields.']['validation.']['validWithNoFilters']) {
-                GeneralUtility::devLog('validateForm - !validWithNoFilters '. $requiredField, __CLASS__, 0);
+                GeneralUtility::devLog('validateForm - !validWithNoFilters ' . $requiredField, __CLASS__, 0);
                 return false;
             }
         }
@@ -202,14 +205,14 @@ abstract class AbstractFormrelayHook
      * Example
      * Input: array( '10' => array('key' => 'foo', 'value' => 'bar'), 'baz' => 'snafu')
      * Output: array('foo' => 'bar', 'baz' => 'snafu')
-     * @param array  $array                The key-value pairs that need to be flattened
-     * @param string $key                  The name of the key field in the pair
-     * @param string $value                The name of the value field in the pair
+     * @param array $array The key-value pairs that need to be flattened
+     * @param string $key The name of the key field in the pair
+     * @param string $value The name of the value field in the pair
      * @param string $multipleKeySeparator If not false, it is the separator for the key field having multiple keys. If false, multiple keys are forbidden.
      */
     protected function flattenKeyValueSubArray($array, $key = 'key', $value = 'value', $multipleKeySeparator = ',')
     {
-        $result = array();
+        $result = [];
         foreach ($array as $k => $v) {
             if (is_array($v) && isset($v[$key]) && isset($v[$value])) {
                 if ($multipleKeySeparator) {
@@ -236,7 +239,7 @@ abstract class AbstractFormrelayHook
      */
     protected function flattenKeyValueSubArrayList($array, $key = 'key', $value = 'value', $multipleKeySeparator = ',')
     {
-        $result = array();
+        $result = [];
         foreach ($array as $k => $v) {
             $result[$k] = $this->flattenKeyValueSubArray($v, $key, $value, $multipleKeySeparator);
         }
@@ -245,10 +248,10 @@ abstract class AbstractFormrelayHook
 
     /**
      * Processes the whole mapping algorithm for one field
-     * @param  array  $result      The result array where the mapping will be stored
-     * @param  string $key         The original key of the field
+     * @param  array $result The result array where the mapping will be stored
+     * @param  string $key The original key of the field
      * @param  string $mappedValue The mapped value of the field
-     * @param  string $mappedKey   The mapped key of the field
+     * @param  string $mappedKey The mapped key of the field
      */
     protected function processField(&$result, $key, $mappedValue, $mappedKey)
     {
@@ -378,7 +381,7 @@ abstract class AbstractFormrelayHook
                 // second value 'baz'
                 // result = array('foo' => new FormFieldMultiValueDiscrete(array('bar', 'baz')))
                 if (!isset($result[$mappedKey]) || !($result[$mappedKey] instanceof FormFieldMultiValueDiscrete)) {
-                    $result[$mappedKey] = new FormFieldMultiValueDiscrete(array());
+                    $result[$mappedKey] = new FormFieldMultiValueDiscrete([]);
                 }
                 if ($mappedValue instanceof FormFieldMultiValue) {
                     foreach ($mappedValue as $mappedMultiValue) {
@@ -403,7 +406,7 @@ abstract class AbstractFormrelayHook
      */
     protected function processAllFields($data)
     {
-        $result = isset($this->conf['fields.']['defaults.']) ? $this->conf['fields.']['defaults.'] : array();
+        $result = isset($this->conf['fields.']['defaults.']) ? $this->conf['fields.']['defaults.'] : [];
 
         $fieldMapping = $this->conf['fields.']['mapping.'];
 
@@ -412,7 +415,7 @@ abstract class AbstractFormrelayHook
                 $field = substr($fieldWithPostfix, 0, -1);
                 if (isset($mappingData['values'])) {
                     $valueListString = $mappingData['values'];
-                    $valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : array('');
+                    $valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : [''];
                     $currentValue = trim($data[$field]) ? strtolower(trim($data[$field])) : '';
                     if (!in_array($currentValue, $valueList)) {
                         continue;
@@ -420,7 +423,7 @@ abstract class AbstractFormrelayHook
                 }
                 if (isset($mappingData['valuesNot'])) {
                     $valueListString = $mappingData['valuesNot'];
-                    $valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : array('');
+                    $valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : [''];
                     $currentValue = trim($data[$field]) ? strtolower(trim($data[$field])) : '';
                     if (in_array($currentValue, $valueList)) {
                         continue;
@@ -434,14 +437,15 @@ abstract class AbstractFormrelayHook
 
         $fieldMappingOther = $this->conf['fields.']['mappingOther'];
 
-        $valueMapping = array();
+        $valueMapping = [];
         if (isset($this->conf['fields.']['values.']['mapping.'])) {
-            $valueMapping = $this->flattenKeyValueSubArrayList($this->conf['fields.']['values.']['mapping.'], 'trigger', 'value');
+            $valueMapping = $this->flattenKeyValueSubArrayList($this->conf['fields.']['values.']['mapping.'], 'trigger',
+                'value');
         }
 
         $ignoreEmptyFields = $this->conf['fields.']['values.']['ignoreIfEmpty'];
         $ignoreKeyString = trim(strtolower($this->conf['fields.']['ignore.']['value']));
-        $ignoreKeys = $ignoreKeyString ? explode(',', $ignoreKeyString) : array();
+        $ignoreKeys = $ignoreKeyString ? explode(',', $ignoreKeyString) : [];
 
         foreach ($data as $key => $value) {
             $key = strtolower($key);
