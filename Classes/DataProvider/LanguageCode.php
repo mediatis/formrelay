@@ -1,4 +1,5 @@
 <?php
+
 namespace Mediatis\Formrelay\DataProvider;
 
 class LanguageCode implements \Mediatis\Formrelay\DataProviderInterface

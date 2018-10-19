@@ -1,4 +1,5 @@
 <?php
+
 namespace Mediatis\Formrelay\Command;
 
 use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;

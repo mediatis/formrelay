@@ -1,4 +1,5 @@
 <?php
+
 namespace Mediatis\Formrelay\Utility;
 
 final class FormrelayUtility
@@ -6,7 +7,8 @@ final class FormrelayUtility
     public static function convertToUtf8($content)
     {
         if (!mb_check_encoding($content, 'UTF-8')
-            or !($content === mb_convert_encoding(mb_convert_encoding($content, 'UTF-32', 'UTF-8'), 'UTF-8', 'UTF-32'))) {
+            or !($content === mb_convert_encoding(mb_convert_encoding($content, 'UTF-32', 'UTF-8'), 'UTF-8',
+                    'UTF-32'))) {
             $content = mb_convert_encoding($content, 'UTF-8');
 
             // if (mb_check_encoding($content, 'UTF-8')) {
@@ -25,7 +27,7 @@ final class FormrelayUtility
 
     public static function loadPluginTS($extKey, $overwriteKey = null)
     {
-        $conf  = $GLOBALS['TSFE']->tmpl->setup['plugin.'][$extKey . '.'];
+        $conf = $GLOBALS['TSFE']->tmpl->setup['plugin.'][$extKey . '.'];
         if (!$conf) {
             $frontendConfigurationManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Configuration\\FrontendConfigurationManager');
             $tsSetup = $frontendConfigurationManager->getTypoScriptSetup();
