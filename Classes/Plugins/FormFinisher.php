@@ -30,7 +30,7 @@ class FormFinisher extends AbstractFinisher
         'baseUploadPath' => 'uploads/tx_formrelay/',
     ];
 
-    protected $formValueMap = array();
+    protected $formValueMap = [];
 
     /**
      * @param FormElementInterface $element
@@ -50,17 +50,20 @@ class FormFinisher extends AbstractFinisher
         if (!empty($pluginTs['settings.']['fileupload.']['prohibitedExtensions'])) {
             $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
             if (in_array($file->getExtension(), $prohibitedExtensions)) {
-                GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__, $file->getExtension());
+                GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__,
+                    $file->getExtension());
                 return '';
             }
         }
         $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
         $defaultStorage = $resourceFactory->getDefaultStorage();
 
-        $baseUploadPath = rtrim($this->parseOption('baseUploadPath'), '/') . '/' . $element->getRootForm()->getIdentifier() . '/';
+        $baseUploadPath = rtrim($this->parseOption('baseUploadPath'),
+                '/') . '/' . $element->getRootForm()->getIdentifier() . '/';
         $folderName = $file->getSha1() . random_int(10000, 99999) . '/';
 
-        $folderObject = $resourceFactory->createFolderObject($defaultStorage, $baseUploadPath . $folderName, $folderName);
+        $folderObject = $resourceFactory->createFolderObject($defaultStorage, $baseUploadPath . $folderName,
+            $folderName);
 
         try {
             $folder = $defaultStorage->getFolder($folderObject->getIdentifier());
@@ -79,7 +82,8 @@ class FormFinisher extends AbstractFinisher
         if ($copiedFile) {
             return trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $copiedFile->getPublicUrl();
         } else {
-            GeneralUtility::devLog('Failed to copy uploaded file "' . $fileName . '" to destination "' . $folder->getIdentifier() . '"!', __CLASS__, 3);
+            GeneralUtility::devLog('Failed to copy uploaded file "' . $fileName . '" to destination "' . $folder->getIdentifier() . '"!',
+                __CLASS__, 3);
         }
     }
 
@@ -111,14 +115,14 @@ class FormFinisher extends AbstractFinisher
 
     protected function executeInternal()
     {
-        $ignoreTypes = array(
+        $ignoreTypes = [
             'Page',
             'StaticText',
             'ContentElement',
             'Fieldset',
             'GridRow',
             'Honeypot',
-        );
+        ];
 
         $setup = trim($this->parseOption('setup'));
 
@@ -130,13 +134,13 @@ class FormFinisher extends AbstractFinisher
             $formSettings = $objectManager->get(TypoScriptService::class)
                 ->convertTypoScriptArrayToPlainArray($typoscript);
         } else {
-            $formSettings = array();
+            $formSettings = [];
         }
 
         $this->formValueMap = $this->finisherContext->getFormValues();
         $formRuntime = $this->finisherContext->getFormRuntime();
 
-        $formValues = array();
+        $formValues = [];
 
         $elements = $formRuntime->getFormDefinition()->getRenderablesRecursively();
         /** @var AbstractFormElement $element */
@@ -161,12 +165,12 @@ class FormFinisher extends AbstractFinisher
                     $formValues[$name] = $uploadUrl;
                 }
             } else {
-                GeneralUtility::devLog('Ignoring unkonwn form field type.', __CLASS__, 0, array(
+                GeneralUtility::devLog('Ignoring unkonwn form field type.', __CLASS__, 0, [
                     'form' => $element->getRootForm()->getIdentifier(),
                     'field' => $name,
                     'class' => get_class($element),
                     'type' => $type,
-                ));
+                ]);
             }
         }
 

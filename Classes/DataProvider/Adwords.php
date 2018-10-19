@@ -1,4 +1,5 @@
 <?php
+
 namespace Mediatis\Formrelay\DataProvider;
 
 class Adwords implements \Mediatis\Formrelay\DataProviderInterface

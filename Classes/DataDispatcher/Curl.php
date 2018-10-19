@@ -1,4 +1,5 @@
 <?php
+
 namespace Mediatis\Formrelay\DataDispatcher;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -29,7 +30,7 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
 
         $postFields = $data;
         if ($this->parameterise) {
-            $params = array();
+            $params = [];
             foreach ($data as $key => $value) {
                 if ($value instanceof FormFieldMultiValueDiscrete) {
                     foreach ($value as $multiValue) {
@@ -42,7 +43,7 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
             $postFields = implode('&', $params);
         }
 
-        $curlOptions = array(
+        $curlOptions = [
             CURLOPT_URL => $this->url,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $postFields,
@@ -51,7 +52,7 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_VERBOSE => true,
             CURLOPT_MAXREDIRS => 10,
-        );
+        ];
 
         if ($this->options) {
             foreach ($this->options as $key => $value) {
@@ -61,7 +62,7 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
                     }
                 } else {
                     if ($key === CURLOPT_COOKIE) {
-                        $cookieStringArray = array();
+                        $cookieStringArray = [];
                         foreach ($value as $ckey => $cvalue) {
                             $cookieStringArray[] = $ckey . '=' . rawurlencode($cvalue);
                         }
