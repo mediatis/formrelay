@@ -50,20 +50,28 @@ class FormFinisher extends AbstractFinisher
         if (!empty($pluginTs['settings.']['fileupload.']['prohibitedExtensions'])) {
             $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
             if (in_array($file->getExtension(), $prohibitedExtensions)) {
-                GeneralUtility::devLog("Uploaded file did not pass safety checks, discarded", __CLASS__,
-                    $file->getExtension());
+                GeneralUtility::devLog(
+                    "Uploaded file did not pass safety checks, discarded",
+                    __CLASS__,
+                    $file->getExtension()
+                );
                 return '';
             }
         }
         $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
         $defaultStorage = $resourceFactory->getDefaultStorage();
 
-        $baseUploadPath = rtrim($this->parseOption('baseUploadPath'),
-                '/') . '/' . $element->getRootForm()->getIdentifier() . '/';
+        $baseUploadPath = rtrim(
+                $this->parseOption('baseUploadPath'),
+                '/'
+            ) . '/' . $element->getRootForm()->getIdentifier() . '/';
         $folderName = $file->getSha1() . random_int(10000, 99999) . '/';
 
-        $folderObject = $resourceFactory->createFolderObject($defaultStorage, $baseUploadPath . $folderName,
-            $folderName);
+        $folderObject = $resourceFactory->createFolderObject(
+            $defaultStorage,
+            $baseUploadPath . $folderName,
+            $folderName
+        );
 
         try {
             $folder = $defaultStorage->getFolder($folderObject->getIdentifier());
@@ -82,8 +90,11 @@ class FormFinisher extends AbstractFinisher
         if ($copiedFile) {
             return trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $copiedFile->getPublicUrl();
         } else {
-            GeneralUtility::devLog('Failed to copy uploaded file "' . $fileName . '" to destination "' . $folder->getIdentifier() . '"!',
-                __CLASS__, 3);
+            GeneralUtility::devLog(
+                'Failed to copy uploaded file "' . $fileName . '" to destination "' . $folder->getIdentifier() . '"!',
+                __CLASS__,
+                3
+            );
         }
     }
 
@@ -127,7 +138,9 @@ class FormFinisher extends AbstractFinisher
         $setup = trim($this->parseOption('setup'));
 
         if ($setup) {
-            $TSparserObject = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser::class);
+            $TSparserObject = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+                \TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser::class
+            );
             $TSparserObject->parse($setup);
             $typoscript = $TSparserObject->setup;
             $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
@@ -165,12 +178,17 @@ class FormFinisher extends AbstractFinisher
                     $formValues[$name] = $uploadUrl;
                 }
             } else {
-                GeneralUtility::devLog('Ignoring unkonwn form field type.', __CLASS__, 0, [
-                    'form' => $element->getRootForm()->getIdentifier(),
-                    'field' => $name,
-                    'class' => get_class($element),
-                    'type' => $type,
-                ]);
+                GeneralUtility::devLog(
+                    'Ignoring unkonwn form field type.',
+                    __CLASS__,
+                    0,
+                    [
+                        'form' => $element->getRootForm()->getIdentifier(),
+                        'field' => $name,
+                        'class' => get_class($element),
+                        'type' => $type,
+                    ]
+                );
             }
         }
 

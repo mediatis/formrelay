@@ -124,7 +124,9 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
     private function moveFileUpload($file)
     {
         $url = '';
-        if (isset($file['tempFilename']) && is_file($file['tempFilename']) && GeneralUtility::isAllowedAbsPath($file['tempFilename'])) {
+        if (isset($file['tempFilename']) && is_file($file['tempFilename']) && GeneralUtility::isAllowedAbsPath(
+                $file['tempFilename']
+            )) {
             $fileName = $file['name'];
 
             // Safety checks
@@ -165,8 +167,11 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
                     chmod(PATH_site . $fileUploadPath . $fileName, 0644);
                     $url = rtrim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $fileUploadPath . $fileName;
                 } else {
-                    GeneralUtility::devLog('Failed to move uploaded file "' . $file['tempFilename'] . '" to destination "' . PATH_site . $fileUploadPath . $fileName . '"!',
-                        __CLASS__, 3);
+                    GeneralUtility::devLog(
+                        'Failed to move uploaded file "' . $file['tempFilename'] . '" to destination "' . PATH_site . $fileUploadPath . $fileName . '"!',
+                        __CLASS__,
+                        3
+                    );
                 }
             } else {
                 GeneralUtility::unlink_tempfile($file['tempFilename']);

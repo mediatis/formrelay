@@ -33,14 +33,20 @@ class FormSimulator
         $cacheId = $pageId . '|' . $language;
 
         if (!is_object($GLOBALS['TT'])) {
-            $GLOBALS['TT'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\TimeTracker\NullTimeTracker::class);
+            $GLOBALS['TT'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+                \TYPO3\CMS\Core\TimeTracker\NullTimeTracker::class
+            );
         }
 
         if (!isset($tsfeCache[$cacheId])) {
             \TYPO3\CMS\Core\Utility\GeneralUtility::_GETset($language, 'L');
 
-            $GLOBALS['TSFE'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController::class,
-                $GLOBALS['TYPO3_CONF_VARS'], $pageId, 0);
+            $GLOBALS['TSFE'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
+                \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController::class,
+                $GLOBALS['TYPO3_CONF_VARS'],
+                $pageId,
+                0
+            );
             $GLOBALS['TSFE']->initFEuser();
             $GLOBALS['TSFE']->determineId();
             $GLOBALS['TSFE']->initTemplate();

@@ -67,7 +67,9 @@ abstract class AbstractFormrelayHook
     public function processData($data, $formSettings = false)
     {
         if ($formSettings) {
-            $ts_formSettings = GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Service\TypoScriptService')->convertPlainArrayToTypoScriptArray($formSettings);
+            $ts_formSettings = GeneralUtility::makeInstance(
+                'TYPO3\CMS\Extbase\Service\TypoScriptService'
+            )->convertPlainArrayToTypoScriptArray($formSettings);
             ArrayUtility::mergeRecursiveWithOverrule($this->conf, $ts_formSettings);
         }
 
@@ -165,8 +167,11 @@ abstract class AbstractFormrelayHook
                                 $filterMatched = false;
                                 break;
                             }
-                            $externalValidation = $this->validateForm($data, $externalConf,
-                                array_merge($confsPassed, [$validationKey]));
+                            $externalValidation = $this->validateForm(
+                                $data,
+                                $externalConf,
+                                array_merge($confsPassed, [$validationKey])
+                            );
                             if ((!$negateFilterRule && !$externalValidation) || ($negateFilterRule && $externalValidation)) {
                                 $filterMatched = false;
                                 break;
@@ -439,8 +444,11 @@ abstract class AbstractFormrelayHook
 
         $valueMapping = [];
         if (isset($this->conf['fields.']['values.']['mapping.'])) {
-            $valueMapping = $this->flattenKeyValueSubArrayList($this->conf['fields.']['values.']['mapping.'], 'trigger',
-                'value');
+            $valueMapping = $this->flattenKeyValueSubArrayList(
+                $this->conf['fields.']['values.']['mapping.'],
+                'trigger',
+                'value'
+            );
         }
 
         $ignoreEmptyFields = $this->conf['fields.']['values.']['ignoreIfEmpty'];
