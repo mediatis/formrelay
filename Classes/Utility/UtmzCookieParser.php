@@ -23,7 +23,7 @@ class UtmzCookieParser
     public $utmz_campaignNumber;
 
     //Contstructor fires method that parses and assigns property values
-    function __construct()
+    public function __construct()
     {
         $this->_set_utmz();
     }

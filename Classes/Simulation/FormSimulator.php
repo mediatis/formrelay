@@ -2,8 +2,6 @@
 
 namespace Mediatis\Formrelay\Simulation;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 class FormSimulator
 {
     const XML_LOG_PREFIX = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -38,7 +36,7 @@ class FormSimulator
             $GLOBALS['TT'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\TimeTracker\NullTimeTracker::class);
         }
 
-        if (!isset($tsfeCache[$cacheId]) || !$useCache) {
+        if (!isset($tsfeCache[$cacheId])) {
             \TYPO3\CMS\Core\Utility\GeneralUtility::_GETset($language, 'L');
 
             $GLOBALS['TSFE'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController::class,
