@@ -483,6 +483,18 @@ abstract class AbstractFormrelayHook
             $mappedValue = $value;
             if (isset($valueMapping[$key . '.']) && isset($valueMapping[$key . '.'][$value])) {
                 $mappedValue = $valueMapping[$key . '.'][$value];
+            } elseif (isset($valueMapping[$key . '.'][$value . '.']) && is_array($valueMapping[$key . '.'][$value . '.'])) {
+                foreach ($valueMapping[$key . '.'][$value . '.'] as $condition => $conditionParams) {
+                    if ($condition === 'if.' && is_array($conditionParams)) {
+                        foreach ($conditionParams as $operator => $operands) {
+                            switch ($operator) {
+                                case 'equals.':
+                                    $mappedValue = $data[$operands['field']] === $operands['value'] ? $operands['then'] : $operands['else'];
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
 
             // if there is no mapping for the key, use the other-key
