@@ -544,8 +544,8 @@ abstract class AbstractFormrelayHook
                     // fields.values.mapping {
                     //     interesse {
                     //         none {
-                    //		       mapping {
-                    //				   interesse {
+                    //            mapping {
+                    //                 interesse {
                     //                     apotheke = 24
                     //           }}}}}
 
@@ -572,12 +572,12 @@ abstract class AbstractFormrelayHook
                 $resultMappedValue[$originalKey] = $this->processValue($originalValue, $valueMapping, $key, $data);
             }
             $mappedValue = $resultMappedValue;
-        // Conditionan value mapping
+            // Conditionan value mapping
         } elseif (is_array($valueMapping[$key . '.'][$mappedValue . '.'])) {
             foreach ($valueMapping[$key . '.'][$mappedValue . '.'] as $condition => $conditionParams) {
                 $mappedValue = $this->processCondition($mappedValue, $condition, $conditionParams, $key, $data);
             }
-        // Straight value mapping
+            // Straight value mapping
         } elseif (isset($valueMapping[$key . '.'][$mappedValue])) {
             $mappedValue = $valueMapping[$key . '.'][$mappedValue];
         }
