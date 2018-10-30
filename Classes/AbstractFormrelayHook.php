@@ -25,8 +25,8 @@ namespace Mediatis\Formrelay;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
-use Mediatis\Formrelay\Domain\Model;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
@@ -84,7 +84,6 @@ abstract class AbstractFormrelayHook
         $result = $this->processAllFields($data);
 
         $dispatcher = $this->getDispatcher();
-
         return $dispatcher->send($result);
     }
 
@@ -479,22 +478,10 @@ abstract class AbstractFormrelayHook
                 $value = implode(',', $value);
             }
 
-            // if a value mapping exists, use it
             $mappedValue = $value;
-            if (isset($valueMapping[$key . '.']) && isset($valueMapping[$key . '.'][$value])) {
-                $mappedValue = $valueMapping[$key . '.'][$value];
-            } elseif (isset($valueMapping[$key . '.'][$value . '.']) && is_array($valueMapping[$key . '.'][$value . '.'])) {
-                foreach ($valueMapping[$key . '.'][$value . '.'] as $condition => $conditionParams) {
-                    if ($condition === 'if.' && is_array($conditionParams)) {
-                        foreach ($conditionParams as $operator => $operands) {
-                            switch ($operator) {
-                                case 'equals.':
-                                    $mappedValue = $data[$operands['field']] === $operands['value'] ? $operands['then'] : $operands['else'];
-                                    break;
-                            }
-                        }
-                    }
-                }
+
+            if (isset($valueMapping[$key . '.'])) {
+                $mappedValue = $this->processValue($mappedValue, $valueMapping, $key, $data);
             }
 
             // if there is no mapping for the key, use the other-key
@@ -503,5 +490,97 @@ abstract class AbstractFormrelayHook
             $this->processField($result, $key, $mappedValue, $mappedKey);
         }
         return $result;
+    }
+
+    /**
+     * @param $mappedValue
+     * @param $condition
+     * @param array $conditionParams
+     * @param $key
+     * @param $data
+     * @return mixed
+     */
+    protected function processCondition(&$mappedValue, $condition, array $conditionParams, $key, &$data)
+    {
+        // Condition parsing for field values. These can be chained
+        foreach ($conditionParams as $operator => $operands) {
+            switch ($condition) {
+                case 'if.':
+                    // Map field value depending on the value of another field
+                    // example:
+                    // fields.values.mapping {
+                    //    interesse {                                   # Mapping field
+                    //        service {                                 # Mapping value
+                    //           if.equals {                            # Condition / Action
+                    //               field = inquiry_type_level2        # Foreign field
+                    //               value = technical_support_repair   # Foreign field value
+                    //               then = Sales Query                 # Then value
+                    //               else = Service Support             # Else value
+                    //           }}}}
+                    switch ($operator) {
+                        case 'equals.':
+                            $mappedValue = $data[$operands['field']] === $operands['value'] ? $operands['then'] : $operands['else'];
+                            break;
+                    }
+                    break;
+                case 'copy.':
+                    // Map field value to a foreign, unprocessed field value
+                    // example:
+                    // fields.values.mapping {
+                    //    interesse {                                   # Mapping field
+                    //        none {                                    # Mapping value
+                    //           copy {                                 # Condition / Action
+                    //               from = thema_mehrfach              # Foreign field to copy value from
+                    //           }}}}
+                    switch ($operator) {
+                        case 'from':
+                            $mappedValue = $data[$operands];
+                            break;
+                    }
+                    break;
+                case 'mapping.':
+                    // Map the field value in condition
+                    // example:
+                    // fields.values.mapping {
+                    //     interesse {
+                    //         none {
+                    //		       mapping {
+                    //				   interesse {
+                    //                     apotheke = 24
+                    //           }}}}}
+
+                    $mappedValue = $this->processValue($mappedValue, $conditionParams, $key, $data);
+                    break;
+            }
+        }
+        return $mappedValue;
+    }
+
+    /**
+     * @param $mappedValue
+     * @param $valueMapping
+     * @param $key
+     * @param $data
+     * @return mixed
+     */
+    protected function processValue(&$mappedValue, $valueMapping, $key, &$data)
+    {
+        // FormFieldMultiValue mapping
+        if ($mappedValue instanceof FormFieldMultiValue) {
+            $resultMappedValue = new FormFieldMultiValue();
+            foreach ($mappedValue as $originalKey => $originalValue) {
+                $resultMappedValue[$originalKey] = $this->processValue($originalValue, $valueMapping, $key, $data);
+            }
+            $mappedValue = $resultMappedValue;
+        // Conditionan value mapping
+        } elseif (is_array($valueMapping[$key . '.'][$mappedValue . '.'])) {
+            foreach ($valueMapping[$key . '.'][$mappedValue . '.'] as $condition => $conditionParams) {
+                $mappedValue = $this->processCondition($mappedValue, $condition, $conditionParams, $key, $data);
+            }
+        // Straight value mapping
+        } elseif (isset($valueMapping[$key . '.'][$mappedValue])) {
+            $mappedValue = $valueMapping[$key . '.'][$mappedValue];
+        }
+        return $mappedValue;
     }
 }
