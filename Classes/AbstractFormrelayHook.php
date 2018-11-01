@@ -88,10 +88,9 @@ abstract class AbstractFormrelayHook
             return false;
         }
 
-        $this->signalSlotDispatcher->dispatch(__CLASS__, 'beforeProcessAllFields', [$data, $this->getTsKey()]);
+        $data = $this->signalSlotDispatcher->dispatch(__CLASS__, 'beforeProcessAllFields', [$data, $this->getTsKey()])[0];
         $result = $this->processAllFields($data);
-        $this->signalSlotDispatcher->dispatch(__CLASS__, 'afterProcessAllFields', [$result, $this->getTsKey()]);
-
+        $result = $this->signalSlotDispatcher->dispatch(__CLASS__, 'afterProcessAllFields', [$result, $this->getTsKey()])[0];
         $dispatcher = $this->getDispatcher();
         return $dispatcher->send($result);
     }
