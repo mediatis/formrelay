@@ -26,9 +26,11 @@ namespace Mediatis\Formrelay;
  ***************************************************************/
 
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
+use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /**
  * Plugin Send form data to SourceFoce.com
@@ -47,6 +49,9 @@ abstract class AbstractFormrelayHook
 
     protected $overwriteTsKey = null;
 
+    /** @var Dispatcher */
+    protected $signalSlotDispatcher;
+
     /**
      * Constructor
      *
@@ -54,6 +59,8 @@ abstract class AbstractFormrelayHook
      */
     public function __construct($overwriteTsKey = null)
     {
+        /** @var Dispatcher $signalSlotDispatcher */
+        $this->signalSlotDispatcher = GeneralUtility::makeInstance(Dispatcher::class);
         $this->setOverwriteTsKey($overwriteTsKey);
     }
 
@@ -81,7 +88,9 @@ abstract class AbstractFormrelayHook
             return false;
         }
 
+        $this->signalSlotDispatcher->dispatch(__CLASS__, 'beforeProcessAllFields', [$data, $this->getTsKey()]);
         $result = $this->processAllFields($data);
+        $this->signalSlotDispatcher->dispatch(__CLASS__, 'afterProcessAllFields', [$result, $this->getTsKey()]);
 
         $dispatcher = $this->getDispatcher();
         return $dispatcher->send($result);
@@ -522,34 +531,6 @@ abstract class AbstractFormrelayHook
                             $mappedValue = $data[$operands['field']] === $operands['value'] ? $operands['then'] : $operands['else'];
                             break;
                     }
-                    break;
-                case 'copy.':
-                    // Map field value to a foreign, unprocessed field value
-                    // example:
-                    // fields.values.mapping {
-                    //    interesse {                                   # Mapping field
-                    //        none {                                    # Mapping value
-                    //           copy {                                 # Condition / Action
-                    //               from = thema_mehrfach              # Foreign field to copy value from
-                    //           }}}}
-                    switch ($operator) {
-                        case 'from':
-                            $mappedValue = $data[$operands];
-                            break;
-                    }
-                    break;
-                case 'mapping.':
-                    // Map the field value in condition
-                    // example:
-                    // fields.values.mapping {
-                    //     interesse {
-                    //         none {
-                    //            mapping {
-                    //                 interesse {
-                    //                     apotheke = 24
-                    //           }}}}}
-
-                    $mappedValue = $this->processValue($mappedValue, $conditionParams, $key, $data);
                     break;
             }
         }
