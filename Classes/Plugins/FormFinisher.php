@@ -37,7 +37,7 @@ class FormFinisher extends AbstractFinisher
      * @return string
      * @throws \Exception
      */
-    protected function processUploadField(FormElementInterface $element, FileReference $file = null): string
+    protected function processUploadField(FormElementInterface $element, FileReference $file = null)
     {
         if ($file === null) {
             return '';
