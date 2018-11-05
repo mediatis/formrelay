@@ -34,7 +34,7 @@ class ContentElement implements \Mediatis\Formrelay\DataProviderInterface
      * @param array $uids
      * @return string
      */
-    protected function prepareContents(array $uids): string
+    protected function prepareContents(array $uids)
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class, __CLASS__);
         $contents = '';
@@ -64,7 +64,7 @@ class ContentElement implements \Mediatis\Formrelay\DataProviderInterface
      * @param string $content
      * @return string
      */
-    protected function prettyContent(string $content): string
+    protected function prettyContent($content)
     {
         return trim(strip_tags($content, '<a>'));
     }
