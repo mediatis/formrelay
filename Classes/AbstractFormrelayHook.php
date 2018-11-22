@@ -361,12 +361,11 @@ abstract class AbstractFormrelayHook
             case 'append':
                 // appends the values into one field (along with other values)
                 // example:
-                // mapping = 'append:description'
+                // mapping = 'append(' '):description'
                 // key = 'foo'; value = 'bar'
                 // followed by key = 'oof'; value = 'baz'
-                // result = array('description' => 'bar
-                // baz
-                // ');
+                // result = array('description' => 'bar baz');
+                // mapping = 'append:description' will result in PHP_EOL
                 if (!isset($keyPrefixParam)) {
                     $keyPrefixParam = PHP_EOL;
                 }
