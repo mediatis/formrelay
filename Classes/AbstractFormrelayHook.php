@@ -272,6 +272,10 @@ abstract class AbstractFormrelayHook
         if ($keyPrefixIndex !== false && $keyPrefixIndex > 0) {
             $keyPrefix = substr($mappedKey, 0, $keyPrefixIndex);
             $mappedKey = substr($mappedKey, $keyPrefixIndex + 1);
+            if (preg_match('!\(\'([^\)]+)\'\)!', $keyPrefix, $match)) {
+                $keyPrefix = substr($keyPrefix, 0, strpos($keyPrefix, $match[0]));
+                $keyPrefixParam = $match[1];
+            }
         }
 
         switch ($keyPrefix) {
@@ -363,10 +367,14 @@ abstract class AbstractFormrelayHook
                 // result = array('description' => 'bar
                 // baz
                 // ');
-                if (!isset($result[$mappedKey])) {
-                    $result[$mappedKey] = '';
+                if (!isset($keyPrefixParam)) {
+                    $keyPrefixParam = PHP_EOL;
                 }
-                $result[$mappedKey] .= $mappedValue . PHP_EOL;
+                if (!isset($result[$mappedKey])) {
+                    $result[$mappedKey] = $mappedValue;
+                    break;
+                }
+                $result[$mappedKey] .= $keyPrefixParam . $mappedValue;
                 break;
 
             case 'ifEmpty':
