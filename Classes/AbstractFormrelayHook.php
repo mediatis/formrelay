@@ -272,6 +272,10 @@ abstract class AbstractFormrelayHook
         if ($keyPrefixIndex !== false && $keyPrefixIndex > 0) {
             $keyPrefix = substr($mappedKey, 0, $keyPrefixIndex);
             $mappedKey = substr($mappedKey, $keyPrefixIndex + 1);
+            if (preg_match('!\(\'([^\)]+)\'\)!', $keyPrefix, $match)) {
+                $keyPrefix = substr($keyPrefix, 0, strpos($keyPrefix, $match[0]));
+                $keyPrefixParam = $match[1];
+            }
         }
 
         switch ($keyPrefix) {
@@ -357,16 +361,19 @@ abstract class AbstractFormrelayHook
             case 'append':
                 // appends the values into one field (along with other values)
                 // example:
-                // mapping = 'append:description'
+                // mapping = 'append(' '):description'
                 // key = 'foo'; value = 'bar'
                 // followed by key = 'oof'; value = 'baz'
-                // result = array('description' => 'bar
-                // baz
-                // ');
-                if (!isset($result[$mappedKey])) {
-                    $result[$mappedKey] = '';
+                // result = array('description' => 'bar baz');
+                // mapping = 'append:description' will result in PHP_EOL
+                if (!isset($keyPrefixParam)) {
+                    $keyPrefixParam = PHP_EOL;
                 }
-                $result[$mappedKey] .= $mappedValue . PHP_EOL;
+                if (!isset($result[$mappedKey])) {
+                    $result[$mappedKey] = $mappedValue;
+                    break;
+                }
+                $result[$mappedKey] .= $keyPrefixParam . $mappedValue;
                 break;
 
             case 'ifEmpty':
