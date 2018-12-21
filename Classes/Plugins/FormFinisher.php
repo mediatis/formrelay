@@ -10,7 +10,6 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\AbstractFormElement;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Model\FormElements\GenericFormElement;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
-use TYPO3\CMS\Form\Domain\Model\FormElements\AdvancedPassword;
 use TYPO3\CMS\Form\Domain\Model\FormElements\DatePicker;
 
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -165,7 +164,7 @@ class FormFinisher extends AbstractFinisher
             $name = $element->getProperties()['fluidAdditionalAttributes']['name'] ?: $id;
             $value = $this->formValueMap[$id];
 
-            if (($element instanceof GenericFormElement) || ($element instanceof AdvancedPassword)) {
+            if (($element instanceof GenericFormElement)) {
                 $formValues[$name] = $this->processStandardField($element, $value);
             } elseif ($element instanceof DatePicker) {
                 $formValues[$name] = $this->processDatePickerField($element, $value);
