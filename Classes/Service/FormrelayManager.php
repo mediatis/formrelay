@@ -66,7 +66,7 @@ class FormrelayManager
     {
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'] as $classReference) {
-                $dataHook = GeneralUtility::getUserObj($classReference);
+                $dataHook = GeneralUtility::makeInstance($classReference);
 
                 if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
                     $tsKey = $dataHook->getTsKey();
@@ -99,7 +99,7 @@ class FormrelayManager
         // Add Additional Data
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'] as $classReference) {
-                $dataProvider = GeneralUtility::getUserObj($classReference);
+                $dataProvider = GeneralUtility::makeInstance($classReference);
 
                 if ($dataProvider instanceof \Mediatis\Formrelay\DataProviderInterface) {
                     $dataProvider->addData($data);
