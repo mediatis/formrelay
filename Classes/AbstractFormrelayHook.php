@@ -28,8 +28,8 @@ namespace Mediatis\Formrelay;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /**

@@ -2,21 +2,19 @@
 
 namespace Mediatis\Formrelay\Plugins;
 
+use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Service\FormrelayManager;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\AbstractFormElement;
+use TYPO3\CMS\Form\Domain\Model\FormElements\DatePicker;
+use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Model\FormElements\GenericFormElement;
-use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
-use TYPO3\CMS\Form\Domain\Model\FormElements\DatePicker;
-
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
-use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 
 class FormFinisher extends AbstractFinisher
 {
