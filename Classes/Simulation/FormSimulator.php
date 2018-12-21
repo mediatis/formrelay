@@ -43,7 +43,8 @@ class FormSimulator
 
         if (!is_object($GLOBALS['TT'])) {
             $GLOBALS['TT'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-                \TYPO3\CMS\Core\TimeTracker\NullTimeTracker::class
+                \TYPO3\CMS\Core\TimeTracker\TimeTracker::class,
+                [false]
             );
         }
 
