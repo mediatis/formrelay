@@ -2,6 +2,7 @@
 
 namespace Mediatis\Formrelay\DataDispatcher;
 
+use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Mediatis\Formrelay\Domain\Model;
 

@@ -12,10 +12,17 @@ class FormSimulationCommandController extends CommandController
 {
 
     /**
-     * @var \Mediatis\Formrelay\Simulation\FormSimulator
-     * @inject
+     * @var FormSimulator
      */
     protected $formSimulator;
+
+    /**
+     * @param \Mediatis\Formrelay\Simulation\FormSimulator $formSimulator
+     */
+    public function injectFormSimulator(FormSimulator $formSimulator)
+    {
+        $this->formSimulator = $formSimulator;
+    }
 
     /**
      * Re-sends form data from a given log file.

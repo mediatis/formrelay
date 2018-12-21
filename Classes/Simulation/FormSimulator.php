@@ -2,6 +2,8 @@
 
 namespace Mediatis\Formrelay\Simulation;
 
+use Mediatis\Formrelay\Service\FormrelayManager;
+
 class FormSimulator
 {
     const XML_LOG_PREFIX = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -9,11 +11,18 @@ class FormSimulator
 
     /**
      * @var \Mediatis\Formrelay\Service\FormrelayManager
-     * @inject
      */
     protected $formrelayManager;
 
     protected $logEntryCounter;
+
+    /**
+     * @param FormrelayManager $formrelayManager
+     */
+    public function injectFormSimulator(FormrelayManager $formrelayManager)
+    {
+        $this->formrelayManager = $formrelayManager;
+    }
 
     /**
      * Initializes the TSFE for a given page ID and language.
