@@ -52,48 +52,6 @@ class FormrelayManager
         $this->callPlugins($data, $formSettings);
     }
 
-    public function getSettings()
-    {
-        return $this->settings;
-    }
-
-    /**
-     * call all configures subplugins to process the data
-     * @param  array &$data All the data as key->value array
-     * @param  array $formSettings setting of formrelay
-     */
-    private function callPlugins(&$data, $formSettings)
-    {
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'] as $classReference) {
-                $dataHook = GeneralUtility::makeInstance($classReference);
-
-                if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
-                    $tsKey = $dataHook->getTsKey();
-                    $pluginSettings = [];
-                    if (is_array($formSettings) && isset($formSettings[$tsKey])) {
-                        $pluginSettings = $formSettings[$tsKey];
-                    }
-
-                    if ($pluginSettings && count($pluginSettings) > 0 && is_numeric(
-                            array_shift(array_keys($pluginSettings))
-                        )) {
-                        foreach ($pluginSettings as $pluginInstanceSettings) {
-                            $dataHook->processData($data, $pluginInstanceSettings);
-                        }
-                    } else {
-                        $dataHook->processData($data, $pluginSettings);
-                    }
-                } else {
-                    throw new \InvalidArgumentException(
-                        'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProcessorInterface.',
-                        1359156192
-                    );
-                }
-            }
-        }
-    }
-
     private function getAdditionalData(&$data)
     {
         // Add Additional Data
@@ -151,5 +109,47 @@ class FormrelayManager
                 GeneralUtility::devLog("error: ", __CLASS__, 0, error_get_last());
             }
         }
+    }
+
+    /**
+     * call all configures subplugins to process the data
+     * @param  array &$data All the data as key->value array
+     * @param  array $formSettings setting of formrelay
+     */
+    private function callPlugins(&$data, $formSettings)
+    {
+        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'] as $classReference) {
+                $dataHook = GeneralUtility::makeInstance($classReference);
+
+                if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
+                    $tsKey = $dataHook->getTsKey();
+                    $pluginSettings = [];
+                    if (is_array($formSettings) && isset($formSettings[$tsKey])) {
+                        $pluginSettings = $formSettings[$tsKey];
+                    }
+
+                    if ($pluginSettings && count($pluginSettings) > 0 && is_numeric(
+                            array_shift(array_keys($pluginSettings))
+                        )) {
+                        foreach ($pluginSettings as $pluginInstanceSettings) {
+                            $dataHook->processData($data, $pluginInstanceSettings);
+                        }
+                    } else {
+                        $dataHook->processData($data, $pluginSettings);
+                    }
+                } else {
+                    throw new \InvalidArgumentException(
+                        'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProcessorInterface.',
+                        1359156192
+                    );
+                }
+            }
+        }
+    }
+
+    public function getSettings()
+    {
+        return $this->settings;
     }
 }

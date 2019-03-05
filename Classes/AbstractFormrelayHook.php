@@ -71,6 +71,8 @@ abstract class AbstractFormrelayHook
         $this->conf = array_merge([], $this->baseConf);
     }
 
+    abstract public function getTsKey();
+
     public function processData($data, $formSettings = false)
     {
         if ($formSettings) {
@@ -103,11 +105,7 @@ abstract class AbstractFormrelayHook
         return $dispatcher->send($result);
     }
 
-    abstract protected function getDispatcher();
-
     abstract protected function isEnabled();
-
-    abstract public function getTsKey();
 
     /**
      * Determines via the TypoScript structure fields.validation whether to send the data or do nothing.
@@ -221,6 +219,111 @@ abstract class AbstractFormrelayHook
     }
 
     /**
+     * Builds the whole mapping array for all form fields.
+     * @param  array $data The original field array
+     * @return array The array with the mapped fields and values
+     */
+    protected function processAllFields($data)
+    {
+        $result = isset($this->conf['fields.']['defaults.']) ? $this->conf['fields.']['defaults.'] : [];
+
+        $fieldMapping = $this->conf['fields.']['mapping.'];
+
+        if (isset($this->conf['fields.']['specialMapping.'])) {
+            foreach ($this->conf['fields.']['specialMapping.'] as $fieldWithPostfix => $mappingData) {
+                $field = substr($fieldWithPostfix, 0, -1);
+                if (isset($mappingData['values'])) {
+                    $valueListString = $mappingData['values'];
+                    $valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : [''];
+                    $currentValue = trim($data[$field]) ? strtolower(trim($data[$field])) : '';
+                    if (!in_array($currentValue, $valueList)) {
+                        continue;
+                    }
+                }
+                if (isset($mappingData['valuesNot'])) {
+                    $valueListString = $mappingData['valuesNot'];
+                    $valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : [''];
+                    $currentValue = trim($data[$field]) ? strtolower(trim($data[$field])) : '';
+                    if (in_array($currentValue, $valueList)) {
+                        continue;
+                    }
+                }
+                foreach ($mappingData['mapping.'] as $mappingField => $mappingRule) {
+                    $fieldMapping[$mappingField] = $mappingRule;
+                }
+            }
+        }
+
+        $fieldMappingOther = $this->conf['fields.']['mappingOther'];
+
+        $valueMapping = [];
+        if (isset($this->conf['fields.']['values.']['mapping.'])) {
+            $valueMapping = $this->flattenKeyValueSubArrayList(
+                $this->conf['fields.']['values.']['mapping.'],
+                'trigger',
+                'value'
+            );
+        }
+
+        $ignoreEmptyFields = $this->conf['fields.']['values.']['ignoreIfEmpty'];
+        $ignoreKeyString = trim(strtolower($this->conf['fields.']['ignore.']['value']));
+        $ignoreKeys = $ignoreKeyString ? explode(',', $ignoreKeyString) : [];
+
+        foreach ($data as $key => $value) {
+            $key = strtolower($key);
+
+            // ignore empty values (mostly hidden fields)
+            if ($ignoreEmptyFields && trim($value) === '') {
+                continue;
+            }
+
+            if ($this->conf['fields.']['removeFieldNameParts']) {
+                $patterns = explode(',', $this->conf['fields.']['removeFieldNameParts']);
+                foreach ($patterns as $pattern) {
+                    $key = preg_replace($pattern, '', $key);
+                }
+            }
+
+            // ignore superfluous meta data
+            if (in_array($key, $ignoreKeys)) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                $value = implode(',', $value);
+            }
+
+            $mappedValue = $value;
+
+            if (isset($valueMapping[$key . '.'])) {
+                $mappedValue = $this->processValue($mappedValue, $valueMapping, $key, $data);
+            }
+
+            // if there is no mapping for the key, use the other-key
+            $mappedKey = isset($fieldMapping[$key]) ? $fieldMapping[$key] : $fieldMappingOther;
+
+            $this->processField($result, $key, $mappedValue, $mappedKey);
+        }
+        return $result;
+    }
+
+    /**
+     * Flattens a list of sub structures of key-value pairs to a list of flat key-value arrays.
+     * Example
+     * Input: array('abc' => array( '10' => array('key' => 'foo', 'value' => 'bar'), 'baz' => 'snafu'), 'cde' => array('10' => array('key' => 'x', 'value' => 'y'), 20 => array('key' => 'g', 'value' => 'h')))
+     * Output: array('abc' => array('foo' => 'bar', 'baz' => 'snafu'), 'efg' => array('x' => 'y', 'g' => 'h'))
+     * @see flattenKeyValuesSubArray
+     */
+    protected function flattenKeyValueSubArrayList($array, $key = 'key', $value = 'value', $multipleKeySeparator = ',')
+    {
+        $result = [];
+        foreach ($array as $k => $v) {
+            $result[$k] = $this->flattenKeyValueSubArray($v, $key, $value, $multipleKeySeparator);
+        }
+        return $result;
+    }
+
+    /**
      * Flattens a sub structure of key-value pairs to a flat key-value array.
      * Example
      * Input: array( '10' => array('key' => 'foo', 'value' => 'bar'), 'baz' => 'snafu')
@@ -251,19 +354,67 @@ abstract class AbstractFormrelayHook
     }
 
     /**
-     * Flattens a list of sub structures of key-value pairs to a list of flat key-value arrays.
-     * Example
-     * Input: array('abc' => array( '10' => array('key' => 'foo', 'value' => 'bar'), 'baz' => 'snafu'), 'cde' => array('10' => array('key' => 'x', 'value' => 'y'), 20 => array('key' => 'g', 'value' => 'h')))
-     * Output: array('abc' => array('foo' => 'bar', 'baz' => 'snafu'), 'efg' => array('x' => 'y', 'g' => 'h'))
-     * @see flattenKeyValuesSubArray
+     * @param $mappedValue
+     * @param $valueMapping
+     * @param $key
+     * @param $data
+     * @return mixed
      */
-    protected function flattenKeyValueSubArrayList($array, $key = 'key', $value = 'value', $multipleKeySeparator = ',')
+    protected function processValue(&$mappedValue, $valueMapping, $key, &$data)
     {
-        $result = [];
-        foreach ($array as $k => $v) {
-            $result[$k] = $this->flattenKeyValueSubArray($v, $key, $value, $multipleKeySeparator);
+        // FormFieldMultiValue mapping
+        if ($mappedValue instanceof FormFieldMultiValue) {
+            $resultMappedValue = new FormFieldMultiValue();
+            foreach ($mappedValue as $originalKey => $originalValue) {
+                $resultMappedValue[$originalKey] = $this->processValue($originalValue, $valueMapping, $key, $data);
+            }
+            $mappedValue = $resultMappedValue;
+            // Conditionan value mapping
+        } elseif (is_array($valueMapping[$key . '.'][$mappedValue . '.'])) {
+            foreach ($valueMapping[$key . '.'][$mappedValue . '.'] as $condition => $conditionParams) {
+                $mappedValue = $this->processCondition($mappedValue, $condition, $conditionParams, $key, $data);
+            }
+            // Straight value mapping
+        } elseif (isset($valueMapping[$key . '.'][$mappedValue])) {
+            $mappedValue = $valueMapping[$key . '.'][$mappedValue];
         }
-        return $result;
+        return $mappedValue;
+    }
+
+    /**
+     * @param $mappedValue
+     * @param $condition
+     * @param array $conditionParams
+     * @param $key
+     * @param $data
+     * @return mixed
+     */
+    protected function processCondition(&$mappedValue, $condition, array $conditionParams, $key, &$data)
+    {
+        // Condition parsing for field values. These can be chained
+        foreach ($conditionParams as $operator => $operands) {
+            switch ($condition) {
+                case 'if.':
+                    // Map field value depending on the value of another field
+                    // example:
+                    // fields.values.mapping {
+                    //    interesse {                                   # Mapping field
+                    //        service {                                 # Mapping value
+                    //           if.equals {                            # Condition / Action
+                    //               field = inquiry_type_level2        # Foreign field
+                    //               value = technical_support_repair   # Foreign field value
+                    //               then = Sales Query                 # Then value
+                    //               else = Service Support             # Else value
+                    //           }}}}
+                    switch ($operator) {
+                        case 'equals.':
+                            $mappedValue = $data[$operands['field']] === $operands['value'] ? $operands['then'] : $operands['else'];
+                            break;
+                    }
+                    break;
+            }
+        }
+        return $mappedValue;
     }
 
     /**
@@ -426,156 +577,5 @@ abstract class AbstractFormrelayHook
         }
     }
 
-    /**
-     * Builds the whole mapping array for all form fields.
-     * @param  array $data The original field array
-     * @return array The array with the mapped fields and values
-     */
-    protected function processAllFields($data)
-    {
-        $result = isset($this->conf['fields.']['defaults.']) ? $this->conf['fields.']['defaults.'] : [];
-
-        $fieldMapping = $this->conf['fields.']['mapping.'];
-
-        if (isset($this->conf['fields.']['specialMapping.'])) {
-            foreach ($this->conf['fields.']['specialMapping.'] as $fieldWithPostfix => $mappingData) {
-                $field = substr($fieldWithPostfix, 0, -1);
-                if (isset($mappingData['values'])) {
-                    $valueListString = $mappingData['values'];
-                    $valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : [''];
-                    $currentValue = trim($data[$field]) ? strtolower(trim($data[$field])) : '';
-                    if (!in_array($currentValue, $valueList)) {
-                        continue;
-                    }
-                }
-                if (isset($mappingData['valuesNot'])) {
-                    $valueListString = $mappingData['valuesNot'];
-                    $valueList = trim($valueListString) ? explode(',', strtolower(trim($valueListString))) : [''];
-                    $currentValue = trim($data[$field]) ? strtolower(trim($data[$field])) : '';
-                    if (in_array($currentValue, $valueList)) {
-                        continue;
-                    }
-                }
-                foreach ($mappingData['mapping.'] as $mappingField => $mappingRule) {
-                    $fieldMapping[$mappingField] = $mappingRule;
-                }
-            }
-        }
-
-        $fieldMappingOther = $this->conf['fields.']['mappingOther'];
-
-        $valueMapping = [];
-        if (isset($this->conf['fields.']['values.']['mapping.'])) {
-            $valueMapping = $this->flattenKeyValueSubArrayList(
-                $this->conf['fields.']['values.']['mapping.'],
-                'trigger',
-                'value'
-            );
-        }
-
-        $ignoreEmptyFields = $this->conf['fields.']['values.']['ignoreIfEmpty'];
-        $ignoreKeyString = trim(strtolower($this->conf['fields.']['ignore.']['value']));
-        $ignoreKeys = $ignoreKeyString ? explode(',', $ignoreKeyString) : [];
-
-        foreach ($data as $key => $value) {
-            $key = strtolower($key);
-
-            // ignore empty values (mostly hidden fields)
-            if ($ignoreEmptyFields && trim($value) === '') {
-                continue;
-            }
-
-            if ($this->conf['fields.']['removeFieldNameParts']) {
-                $patterns = explode(',', $this->conf['fields.']['removeFieldNameParts']);
-                foreach ($patterns as $pattern) {
-                    $key = preg_replace($pattern, '', $key);
-                }
-            }
-
-            // ignore superfluous meta data
-            if (in_array($key, $ignoreKeys)) {
-                continue;
-            }
-
-            if (is_array($value)) {
-                $value = implode(',', $value);
-            }
-
-            $mappedValue = $value;
-
-            if (isset($valueMapping[$key . '.'])) {
-                $mappedValue = $this->processValue($mappedValue, $valueMapping, $key, $data);
-            }
-
-            // if there is no mapping for the key, use the other-key
-            $mappedKey = isset($fieldMapping[$key]) ? $fieldMapping[$key] : $fieldMappingOther;
-
-            $this->processField($result, $key, $mappedValue, $mappedKey);
-        }
-        return $result;
-    }
-
-    /**
-     * @param $mappedValue
-     * @param $condition
-     * @param array $conditionParams
-     * @param $key
-     * @param $data
-     * @return mixed
-     */
-    protected function processCondition(&$mappedValue, $condition, array $conditionParams, $key, &$data)
-    {
-        // Condition parsing for field values. These can be chained
-        foreach ($conditionParams as $operator => $operands) {
-            switch ($condition) {
-                case 'if.':
-                    // Map field value depending on the value of another field
-                    // example:
-                    // fields.values.mapping {
-                    //    interesse {                                   # Mapping field
-                    //        service {                                 # Mapping value
-                    //           if.equals {                            # Condition / Action
-                    //               field = inquiry_type_level2        # Foreign field
-                    //               value = technical_support_repair   # Foreign field value
-                    //               then = Sales Query                 # Then value
-                    //               else = Service Support             # Else value
-                    //           }}}}
-                    switch ($operator) {
-                        case 'equals.':
-                            $mappedValue = $data[$operands['field']] === $operands['value'] ? $operands['then'] : $operands['else'];
-                            break;
-                    }
-                    break;
-            }
-        }
-        return $mappedValue;
-    }
-
-    /**
-     * @param $mappedValue
-     * @param $valueMapping
-     * @param $key
-     * @param $data
-     * @return mixed
-     */
-    protected function processValue(&$mappedValue, $valueMapping, $key, &$data)
-    {
-        // FormFieldMultiValue mapping
-        if ($mappedValue instanceof FormFieldMultiValue) {
-            $resultMappedValue = new FormFieldMultiValue();
-            foreach ($mappedValue as $originalKey => $originalValue) {
-                $resultMappedValue[$originalKey] = $this->processValue($originalValue, $valueMapping, $key, $data);
-            }
-            $mappedValue = $resultMappedValue;
-            // Conditionan value mapping
-        } elseif (is_array($valueMapping[$key . '.'][$mappedValue . '.'])) {
-            foreach ($valueMapping[$key . '.'][$mappedValue . '.'] as $condition => $conditionParams) {
-                $mappedValue = $this->processCondition($mappedValue, $condition, $conditionParams, $key, $data);
-            }
-            // Straight value mapping
-        } elseif (isset($valueMapping[$key . '.'][$mappedValue])) {
-            $mappedValue = $valueMapping[$key . '.'][$mappedValue];
-        }
-        return $mappedValue;
-    }
+    abstract protected function getDispatcher();
 }

@@ -24,6 +24,15 @@ class FormSimulator
         $this->formrelayManager = $formrelayManager;
     }
 
+    public function run($file, $pageId = 1)
+    {
+        // print('FormSimulator::run()' . PHP_EOL);
+        // print($file . PHP_EOL);
+        // print($pageId . PHP_EOL);
+        $this->initializeTsfe($pageId);
+        $this->computeLogFile($file);
+    }
+
     /**
      * Initializes the TSFE for a given page ID and language.
      *
@@ -81,6 +90,24 @@ class FormSimulator
         }
     }
 
+    protected function computeLogFile($file)
+    {
+        $this->logEntryCounter = 0;
+        $content = file_get_contents($file);
+        $index = strrpos($content, self::XML_LOG_PREFIX);
+        while ($index !== false) {
+            $logEntry = substr($content, $index);
+
+            if (strlen($logEntry) > strlen(self::XML_LOG_PREFIX) + 3) {
+                $this->computeLogEntry($logEntry);
+            }
+
+            $content = substr($content, 0, $index);
+            $index = strrpos($content, self::XML_LOG_PREFIX);
+        }
+        print('INFO: ' . $this->logEntryCounter . ' log entries re-sent.' . PHP_EOL);
+    }
+
     protected function computeLogEntry($logEntry)
     {
         try {
@@ -124,33 +151,5 @@ class FormSimulator
         } else {
             print('ERROR: no valid form data found in log entry from ' . $formDate . PHP_EOL);
         }
-    }
-
-    protected function computeLogFile($file)
-    {
-        $this->logEntryCounter = 0;
-        $content = file_get_contents($file);
-        $index = strrpos($content, self::XML_LOG_PREFIX);
-        while ($index !== false) {
-            $logEntry = substr($content, $index);
-
-            if (strlen($logEntry) > strlen(self::XML_LOG_PREFIX) + 3) {
-                $this->computeLogEntry($logEntry);
-            }
-
-            $content = substr($content, 0, $index);
-            $index = strrpos($content, self::XML_LOG_PREFIX);
-        }
-        print('INFO: ' . $this->logEntryCounter . ' log entries re-sent.' . PHP_EOL);
-    }
-
-
-    public function run($file, $pageId = 1)
-    {
-        // print('FormSimulator::run()' . PHP_EOL);
-        // print($file . PHP_EOL);
-        // print($pageId . PHP_EOL);
-        $this->initializeTsfe($pageId);
-        $this->computeLogFile($file);
     }
 }

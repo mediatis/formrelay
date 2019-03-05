@@ -28,96 +28,6 @@ class FormFinisher extends AbstractFinisher
 
     protected $formValueMap = [];
 
-    /**
-     * @param FormElementInterface $element
-     * @param FileReference|null $file
-     * @return string
-     * @throws \Exception
-     */
-    protected function processUploadField(FormElementInterface $element, FileReference $file = null)
-    {
-        if ($file === null) {
-            return '';
-        }
-
-        $file = $file->getOriginalResource()->getOriginalFile();
-
-        $pluginTs = FormrelayUtility::loadPluginTS('tx_formrelay');
-        if (!empty($pluginTs['settings.']['fileupload.']['prohibitedExtensions'])) {
-            $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
-            if (in_array($file->getExtension(), $prohibitedExtensions)) {
-                GeneralUtility::devLog(
-                    "Uploaded file did not pass safety checks, discarded",
-                    __CLASS__,
-                    $file->getExtension()
-                );
-                return '';
-            }
-        }
-        $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
-        $defaultStorage = $resourceFactory->getDefaultStorage();
-
-        $baseUploadPath = rtrim($this->parseOption('baseUploadPath'), '/') .
-            '/' . $element->getRootForm()->getIdentifier() . '/';
-        $folderName = $file->getSha1() . random_int(10000, 99999) . '/';
-
-        $folderObject = $resourceFactory->createFolderObject(
-            $defaultStorage,
-            $baseUploadPath . $folderName,
-            $folderName
-        );
-
-        try {
-            $folder = $defaultStorage->getFolder($folderObject->getIdentifier());
-        } catch (\Exception $e) {
-            try {
-                $folder = $defaultStorage->createFolder($folderObject->getIdentifier());
-            } catch (\Exception $e) {
-                GeneralUtility::devLog("Upload folder for this form can not be created", __CLASS__, 0, $baseUploadPath);
-                return '';
-            }
-        }
-
-        $fileName = $file->getName();
-        $copiedFile = $file->copyTo($folder);
-
-        if ($copiedFile) {
-            return trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $copiedFile->getPublicUrl();
-        } else {
-            GeneralUtility::devLog(
-                'Failed to copy uploaded file "' . $fileName . '" to destination "' . $folder->getIdentifier() . '"!',
-                __CLASS__,
-                3
-            );
-        }
-    }
-
-    protected function processDatePickerField(&$element, $dateObject)
-    {
-        $value = '';
-        $properties = $element->getProperties();
-        if ($dateObject instanceof \DateTime) {
-            if (isset($properties['dateFormat'])) {
-                $dateFormat = $properties['dateFormat'];
-                if (isset($properties['displayTimeSelector']) && $properties['displayTimeSelector'] === true) {
-                    $dateFormat .= ' H:i';
-                }
-            } else {
-                $dateFormat = \DateTime::W3C;
-            }
-            $value = $dateObject->format($dateFormat);
-        }
-        return $value;
-    }
-
-    protected function processStandardField(&$element, $value)
-    {
-        if ($element->getType() === 'Checkbox' && !$value) {
-            $value = 0;
-        }
-        return is_array($value) ? new FormFieldMultiValue($value) : $value;
-    }
-
     protected function executeInternal()
     {
         $ignoreTypes = [
@@ -187,5 +97,95 @@ class FormFinisher extends AbstractFinisher
         }
 
         GeneralUtility::makeInstance(FormrelayManager::class)->process($formValues, $formSettings);
+    }
+
+    protected function processStandardField(&$element, $value)
+    {
+        if ($element->getType() === 'Checkbox' && !$value) {
+            $value = 0;
+        }
+        return is_array($value) ? new FormFieldMultiValue($value) : $value;
+    }
+
+    protected function processDatePickerField(&$element, $dateObject)
+    {
+        $value = '';
+        $properties = $element->getProperties();
+        if ($dateObject instanceof \DateTime) {
+            if (isset($properties['dateFormat'])) {
+                $dateFormat = $properties['dateFormat'];
+                if (isset($properties['displayTimeSelector']) && $properties['displayTimeSelector'] === true) {
+                    $dateFormat .= ' H:i';
+                }
+            } else {
+                $dateFormat = \DateTime::W3C;
+            }
+            $value = $dateObject->format($dateFormat);
+        }
+        return $value;
+    }
+
+    /**
+     * @param FormElementInterface $element
+     * @param FileReference|null $file
+     * @return string
+     * @throws \Exception
+     */
+    protected function processUploadField(FormElementInterface $element, FileReference $file = null)
+    {
+        if ($file === null) {
+            return '';
+        }
+
+        $file = $file->getOriginalResource()->getOriginalFile();
+
+        $pluginTs = FormrelayUtility::loadPluginTS('tx_formrelay');
+        if (!empty($pluginTs['settings.']['fileupload.']['prohibitedExtensions'])) {
+            $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
+            if (in_array($file->getExtension(), $prohibitedExtensions)) {
+                GeneralUtility::devLog(
+                    "Uploaded file did not pass safety checks, discarded",
+                    __CLASS__,
+                    $file->getExtension()
+                );
+                return '';
+            }
+        }
+        $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+        $defaultStorage = $resourceFactory->getDefaultStorage();
+
+        $baseUploadPath = rtrim($this->parseOption('baseUploadPath'), '/') .
+            '/' . $element->getRootForm()->getIdentifier() . '/';
+        $folderName = $file->getSha1() . random_int(10000, 99999) . '/';
+
+        $folderObject = $resourceFactory->createFolderObject(
+            $defaultStorage,
+            $baseUploadPath . $folderName,
+            $folderName
+        );
+
+        try {
+            $folder = $defaultStorage->getFolder($folderObject->getIdentifier());
+        } catch (\Exception $e) {
+            try {
+                $folder = $defaultStorage->createFolder($folderObject->getIdentifier());
+            } catch (\Exception $e) {
+                GeneralUtility::devLog("Upload folder for this form can not be created", __CLASS__, 0, $baseUploadPath);
+                return '';
+            }
+        }
+
+        $fileName = $file->getName();
+        $copiedFile = $file->copyTo($folder);
+
+        if ($copiedFile) {
+            return trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $copiedFile->getPublicUrl();
+        } else {
+            GeneralUtility::devLog(
+                'Failed to copy uploaded file "' . $fileName . '" to destination "' . $folder->getIdentifier() . '"!',
+                __CLASS__,
+                3
+            );
+        }
     }
 }
