@@ -53,7 +53,7 @@ class UtmzCookieParser
             $this->utmz_sessionNumber,
             $this->utmz_campaignNumber
             ) = explode('.', $utmz_a);
-        
+
         //break apart second half of cookie
         $utmzPairs = [];
         $z = explode('|', $utmz_b);

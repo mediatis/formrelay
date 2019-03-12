@@ -2,8 +2,8 @@
 
 namespace Mediatis\Formrelay\Command;
 
-use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 use Mediatis\Formrelay\Simulation\FormSimulator;
+use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
 
 /**
  * CommandController for working with extension management through CLI/scheduler
@@ -12,10 +12,17 @@ class FormSimulationCommandController extends CommandController
 {
 
     /**
-     * @var \Mediatis\Formrelay\Simulation\FormSimulator
-     * @inject
+     * @var FormSimulator
      */
     protected $formSimulator;
+
+    /**
+     * @param \Mediatis\Formrelay\Simulation\FormSimulator $formSimulator
+     */
+    public function injectFormSimulator(FormSimulator $formSimulator)
+    {
+        $this->formSimulator = $formSimulator;
+    }
 
     /**
      * Re-sends form data from a given log file.

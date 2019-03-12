@@ -1,5 +1,6 @@
 stages:
 - test
+
 test_master:
   image: registry.mediatis.de:4567/devops/docker-images/sonar-scanner
   stage: test

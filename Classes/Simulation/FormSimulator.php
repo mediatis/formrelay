@@ -2,6 +2,8 @@
 
 namespace Mediatis\Formrelay\Simulation;
 
+use Mediatis\Formrelay\Service\FormrelayManager;
+
 class FormSimulator
 {
     const XML_LOG_PREFIX = '<?xml version="1.0" encoding="UTF-8"?>';
@@ -9,11 +11,27 @@ class FormSimulator
 
     /**
      * @var \Mediatis\Formrelay\Service\FormrelayManager
-     * @inject
      */
     protected $formrelayManager;
 
     protected $logEntryCounter;
+
+    /**
+     * @param FormrelayManager $formrelayManager
+     */
+    public function injectFormSimulator(FormrelayManager $formrelayManager)
+    {
+        $this->formrelayManager = $formrelayManager;
+    }
+
+    public function run($file, $pageId = 1)
+    {
+        // print('FormSimulator::run()' . PHP_EOL);
+        // print($file . PHP_EOL);
+        // print($pageId . PHP_EOL);
+        $this->initializeTsfe($pageId);
+        $this->computeLogFile($file);
+    }
 
     /**
      * Initializes the TSFE for a given page ID and language.
@@ -34,7 +52,8 @@ class FormSimulator
 
         if (!is_object($GLOBALS['TT'])) {
             $GLOBALS['TT'] = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-                \TYPO3\CMS\Core\TimeTracker\NullTimeTracker::class
+                \TYPO3\CMS\Core\TimeTracker\TimeTracker::class,
+                [false]
             );
         }
 
@@ -69,6 +88,24 @@ class FormSimulator
 
             $_SERVER['HTTP_HOST'] = $hosts[$rootpageId];
         }
+    }
+
+    protected function computeLogFile($file)
+    {
+        $this->logEntryCounter = 0;
+        $content = file_get_contents($file);
+        $index = strrpos($content, self::XML_LOG_PREFIX);
+        while ($index !== false) {
+            $logEntry = substr($content, $index);
+
+            if (strlen($logEntry) > strlen(self::XML_LOG_PREFIX) + 3) {
+                $this->computeLogEntry($logEntry);
+            }
+
+            $content = substr($content, 0, $index);
+            $index = strrpos($content, self::XML_LOG_PREFIX);
+        }
+        print('INFO: ' . $this->logEntryCounter . ' log entries re-sent.' . PHP_EOL);
     }
 
     protected function computeLogEntry($logEntry)
@@ -114,33 +151,5 @@ class FormSimulator
         } else {
             print('ERROR: no valid form data found in log entry from ' . $formDate . PHP_EOL);
         }
-    }
-
-    protected function computeLogFile($file)
-    {
-        $this->logEntryCounter = 0;
-        $content = file_get_contents($file);
-        $index = strrpos($content, self::XML_LOG_PREFIX);
-        while ($index !== false) {
-            $logEntry = substr($content, $index);
-
-            if (strlen($logEntry) > strlen(self::XML_LOG_PREFIX) + 3) {
-                $this->computeLogEntry($logEntry);
-            }
-
-            $content = substr($content, 0, $index);
-            $index = strrpos($content, self::XML_LOG_PREFIX);
-        }
-        print('INFO: ' . $this->logEntryCounter . ' log entries re-sent.' . PHP_EOL);
-    }
-
-
-    public function run($file, $pageId = 1)
-    {
-        // print('FormSimulator::run()' . PHP_EOL);
-        // print($file . PHP_EOL);
-        // print($pageId . PHP_EOL);
-        $this->initializeTsfe($pageId);
-        $this->computeLogFile($file);
     }
 }
