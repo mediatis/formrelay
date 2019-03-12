@@ -30,8 +30,6 @@ $EM_CONF[$_EXTKEY] = [
         'conflicts' => [
         ],
         'suggests' => [
-            'form' => '>=0.0.1',
-            'formhandler' => '>=0.0.1',
         ],
     ],
 ];
