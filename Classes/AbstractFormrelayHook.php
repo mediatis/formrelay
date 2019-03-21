@@ -491,7 +491,31 @@ abstract class AbstractFormrelayHook
                     $this->processField($result, $key, $mappedValue, $sharedKey);
                 }
                 break;
-
+            case 'implode':
+                // Implodes Multifield values into a target string, separated by $keyPrefixParam
+                // example:
+                // mapping = 'implode(' '):thema_mehrfach'
+                // where thema_mehrfach is an instance of FormFieldMultiValue
+                // result = array('thema_mehrfach' => 'bar baz');
+                if (!isset($keyPrefixParam)) {
+                    $keyPrefixParam = PHP_EOL;
+                }
+                if (!isset($result[$mappedKey])) {
+                    $result[$mappedKey] = '';
+                }
+                $k = 0;
+                if ($mappedValue instanceof FormFieldMultiValue) {
+                    foreach ($mappedValue as $mappedMultiValue) {
+                        $result[$mappedKey] .= $mappedMultiValue;
+                        $k++;
+                        if ($k < count($mappedValue)) {
+                            $result[$mappedKey] .= $keyPrefixParam;
+                        }
+                    }
+                } else {
+                    $result[$mappedKey] = $mappedValue;
+                }
+                break;
             case 'negate':
                 // write the negated value into the given field
                 // example:
