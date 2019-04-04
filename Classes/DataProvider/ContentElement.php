@@ -25,7 +25,10 @@ class ContentElement implements \Mediatis\Formrelay\DataProviderInterface
 
         $contents = $this->prepareContents($uids);
 
-        $dataArray[$fieldName] = $contents;
+        // Only add the data to the dataArray if the field is defined (not null)
+        if (isset($dataArray[$fieldName])) {
+            $dataArray[$fieldName] .= $contents;
+        }
     }
 
     /**
