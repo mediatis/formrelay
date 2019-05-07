@@ -73,7 +73,16 @@ abstract class AbstractFormrelayHook
 
     abstract public function getTsKey();
 
-    public function processData($data, $formSettings = false)
+    /**
+     * @param array $data The original field array
+     * @param bool|array $formSettings
+     * @param bool|array $attachments paths to processed user uploads
+     * @return bool
+     *
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
+     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
+     */
+    public function processData($data, $formSettings = false, $attachments = false)
     {
         if ($formSettings) {
             $ts_formSettings = GeneralUtility::makeInstance(
@@ -102,7 +111,7 @@ abstract class AbstractFormrelayHook
             [$result, $this->getTsKey()]
         )[0];
         $dispatcher = $this->getDispatcher();
-        return $dispatcher->send($result);
+        return $dispatcher->send($result, $attachments);
     }
 
     abstract protected function isEnabled();
