@@ -58,7 +58,7 @@ class FormFinisher extends AbstractFinisher
         $formRuntime = $this->finisherContext->getFormRuntime();
 
         $formValues = [];
-
+        $attachments = [];
         $elements = $formRuntime->getFormDefinition()->getRenderablesRecursively();
         /** @var AbstractFormElement $element */
         foreach ($elements as $element) {
@@ -79,6 +79,7 @@ class FormFinisher extends AbstractFinisher
             } elseif ($element instanceof FileUpload) {
                 $uploadUrl = $this->processUploadField($element, $value);
                 if (!empty($uploadUrl)) {
+                    $attachments[] = $uploadUrl;
                     $formValues[$name] = $uploadUrl;
                 }
             } else {
@@ -96,7 +97,7 @@ class FormFinisher extends AbstractFinisher
             }
         }
 
-        GeneralUtility::makeInstance(FormrelayManager::class)->process($formValues, $formSettings);
+        GeneralUtility::makeInstance(FormrelayManager::class)->process($formValues, $formSettings, false, $attachments);
     }
 
     protected function processStandardField(&$element, $value)

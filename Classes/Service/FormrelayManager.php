@@ -36,7 +36,13 @@ class FormrelayManager
      */
     protected $settings;
 
-    public function process($data, $formSettings = false, $simulate = false)
+    /**
+     * @param array $data The original field array
+     * @param bool|array $formSettings
+     * @param bool $simulate
+     * @param bool|array $attachments paths to processed user uploads
+     */
+    public function process($data, $formSettings = false, $simulate = false, $attachments = false)
     {
         if (!$this->settings) {
             // Todo:: use ConfigurationManager to load settings
@@ -49,7 +55,7 @@ class FormrelayManager
             $this->getAdditionalData($data);
         }
         $this->logData($data);
-        $this->callPlugins($data, $formSettings);
+        $this->callPlugins($data, $formSettings, $attachments);
     }
 
     private function getAdditionalData(&$data)
@@ -115,8 +121,9 @@ class FormrelayManager
      * call all configures subplugins to process the data
      * @param  array &$data All the data as key->value array
      * @param  array $formSettings setting of formrelay
+     * @param bool|array $attachments paths of processed uploads
      */
-    private function callPlugins(&$data, $formSettings)
+    private function callPlugins(&$data, $formSettings, $attachments = false)
     {
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'] as $classReference) {
@@ -133,10 +140,10 @@ class FormrelayManager
                             array_shift(array_keys($pluginSettings))
                         )) {
                         foreach ($pluginSettings as $pluginInstanceSettings) {
-                            $dataHook->processData($data, $pluginInstanceSettings);
+                            $dataHook->processData($data, $pluginInstanceSettings, $attachments);
                         }
                     } else {
-                        $dataHook->processData($data, $pluginSettings);
+                        $dataHook->processData($data, $pluginSettings, $attachments);
                     }
                 } else {
                     throw new \InvalidArgumentException(
