@@ -5,6 +5,8 @@ namespace Mediatis\Formrelay\Plugins;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Service\FormrelayManager;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
+use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
@@ -77,10 +79,12 @@ class FormFinisher extends AbstractFinisher
             } elseif ($element instanceof DatePicker) {
                 $formValues[$name] = $this->processDatePickerField($element, $value);
             } elseif ($element instanceof FileUpload) {
-                $uploadUrl = $this->processUploadField($element, $value);
-                if (!empty($uploadUrl)) {
-                    $attachments[] = $uploadUrl;
-                    $formValues[$name] = $uploadUrl;
+                /** @var FileInterface $copiedFile */
+                $copiedFile = $this->processUploadField($element, $value);
+                if ($copiedFile instanceof FileInterface) {
+                    $publicUrl = $copiedFile->getPublicUrl();
+                    $attachments[] = $publicUrl;
+                    $formValues[$name] = trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $publicUrl;
                 }
             } else {
                 GeneralUtility::devLog(
@@ -129,7 +133,7 @@ class FormFinisher extends AbstractFinisher
     /**
      * @param FormElementInterface $element
      * @param FileReference|null $file
-     * @return string
+     * @return null|file
      * @throws \Exception
      */
     protected function processUploadField(FormElementInterface $element, FileReference $file = null)
@@ -180,7 +184,7 @@ class FormFinisher extends AbstractFinisher
         $copiedFile = $file->copyTo($folder);
 
         if ($copiedFile) {
-            return trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $copiedFile->getPublicUrl();
+            return $copiedFile;
         } else {
             GeneralUtility::devLog(
                 'Failed to copy uploaded file "' . $fileName . '" to destination "' . $folder->getIdentifier() . '"!',
