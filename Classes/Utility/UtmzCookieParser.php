@@ -30,10 +30,7 @@ class UtmzCookieParser
     //Grab utmz cookie if it exists
     private function setUtmz()
     {
-        if (isset($_COOKIE['__utmzz'])) {
-            $this->utmz = $_COOKIE['__utmzz'];
-            $this->parseUtmz();
-        } elseif (isset($_COOKIE['__utmz'])) {
+        if (isset($_COOKIE['__utmz'])) {
             $this->utmz = $_COOKIE['__utmz'];
             $this->parseUtmz();
         } else {
