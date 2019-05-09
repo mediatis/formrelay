@@ -9,7 +9,6 @@ namespace Mediatis\Formrelay\Utility;
  */
 class UtmzCookieParser
 {
-
     public $utmz_source;
     public $utmz_medium;
     public $utmz_term;
@@ -31,7 +30,10 @@ class UtmzCookieParser
     //Grab utmz cookie if it exists
     private function setUtmz()
     {
-        if (isset($_COOKIE['__utmz'])) {
+        if (isset($_COOKIE['__utmzz'])) {
+            $this->utmz = $_COOKIE['__utmzz'];
+            $this->parseUtmz();
+        } elseif (isset($_COOKIE['__utmz'])) {
             $this->utmz = $_COOKIE['__utmz'];
             $this->parseUtmz();
         } else {
@@ -53,7 +55,7 @@ class UtmzCookieParser
             $this->utmz_sessionNumber,
             $this->utmz_campaignNumber
             ) = explode('.', $utmz_a);
-        
+
         //break apart second half of cookie
         $utmzPairs = [];
         $z = explode('|', $utmz_b);
