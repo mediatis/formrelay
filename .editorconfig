@@ -1,18 +1,18 @@
 [*]
-charset=utf-8
-end_of_line=lf
-trim_trailing_whitespace=true
-insert_final_newline=true
-indent_style=space
-indent_size=2
+charset = utf-8
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+indent_size = 2
 
-[{*.sql,*.ddl}]
-indent_style=space
-indent_size=2
+[{*.sql, *.ddl}]
+indent_style = space
+indent_size = 2
 
-[{*.hphp,*.php5,*.php,*.phtml,*.inc,*.php4,*.module}]
-indent_style=space
-indent_size=4
+[{*.hphp, *.php5, *.php, *.phtml, *.inc, *.php4, *.module}]
+indent_style = space
+indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false
