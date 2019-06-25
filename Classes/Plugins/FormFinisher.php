@@ -26,6 +26,7 @@ class FormFinisher extends AbstractFinisher
     protected $defaultOptions = [
         'setup' => '',
         'baseUploadPath' => 'uploads/tx_formrelay/',
+		'addHiddenFields' => '',
     ];
 
     protected $formValueMap = [];
@@ -98,6 +99,22 @@ class FormFinisher extends AbstractFinisher
                         'type' => $type,
                     ]
                 );
+            }
+        }
+
+        // Add hidden fields (if configured in form or plugin) to form data
+        $hiddenFields = trim($this->parseOption('addHiddenFields'));
+        if (trim($hiddenFields) != '' ) {
+            $hiddenFieldsArray = explode(PHP_EOL, $hiddenFields);
+            foreach ($hiddenFieldsArray as $hiddenField) {
+                $field = explode(':', $hiddenField);
+                if(count($field) > 1) {
+                    $field_name = trim($field[0]);
+                    $field_value = trim($field[1]);
+                    if($field_name != '' && $field_value != '') {
+                        $formValues[$field_name] = $field_value;
+                    }
+                }
             }
         }
 
