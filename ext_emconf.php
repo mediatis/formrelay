@@ -12,7 +12,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Form Relay',
-    'description' => 'Send form data to different providers like Salesforce',
+    'description' => 'Send form data to different providers',
     'category' => 'plugin',
     'author' => 'Michael Vöhringer',
     'author_email' => 'voehringer@mediatis.de',
