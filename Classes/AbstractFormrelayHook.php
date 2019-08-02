@@ -255,6 +255,7 @@ abstract class AbstractFormrelayHook
         }
 
         $fieldMappingOther = $this->conf['fields.']['mappingOther'];
+        $fieldMappingOtherConfig = $this->conf['fields.']['mappingOther.'] ?: [];
 
         $valueMapping = [];
         if (isset($this->conf['fields.']['values.']['mapping.'])) {
@@ -299,10 +300,14 @@ abstract class AbstractFormrelayHook
                 $mappedValue = $this->processValue($mappedValue, $valueMapping, $key, $data);
             }
 
-            // if there is no mapping for the key, use the other-key
-            $mappedKey = isset($fieldMapping[$key]) ? $fieldMapping[$key] : $fieldMappingOther;
+            $mappedKey = $fieldMappingOther;
+            $mappedKeyConfig = $fieldMappingOtherConfig;
+            if (isset($fieldMapping[$key]) || isset($fieldMapping[$key . '.'])) {
+                $mappedKey = $fieldMapping[$key] ?: '';
+                $mappedKeyConfig = $fieldMapping[$key . '.'] ?: [];
+            }
 
-            $this->processField($result, $key, $mappedValue, $mappedKey);
+            $this->processField($result, $key, $mappedValue, $mappedKey, $mappedKeyConfig);
         }
         return $result;
     }
@@ -417,6 +422,29 @@ abstract class AbstractFormrelayHook
         return $mappedValue;
     }
 
+    private function buildFieldList($tsFieldArray) {
+        $fieldsDone = [];
+        $fields = [];
+        foreach ($tsFieldArray as $key => $value) {
+            if (substr($key, -1) === '.') {
+                $key = substr($key, 0, -1);
+            }
+            if ($fieldsDone[$key]) { continue; }
+            $fieldsDone[$key] = true;
+            $fields[] = [
+                'name' => $tsFieldArray[$key] ?: '',
+                'config' => $tsFieldArray[$key . '.'] ?: []
+            ]
+        }
+        return $fields;
+    }
+
+    private function parseSeparatorString($str) {
+        $str = str_replace('\\n', PHP_EOL, trim($str));
+        $str = str_replace('\\s', ' ', $str);
+        return $str;
+    }
+
     /**
      * Processes the whole mapping algorithm for one field
      * @param  array $result The result array where the mapping will be stored
@@ -424,180 +452,100 @@ abstract class AbstractFormrelayHook
      * @param  string $mappedValue The mapped value of the field
      * @param  string $mappedKey The mapped key of the field
      */
-    protected function processField(&$result, $key, $mappedValue, $mappedKey)
+    protected function processField(&$result, $key, $mappedValue, $mappedKey, $mappedKeyConfig)
     {
-        $keyPrefixIndex = strpos($mappedKey, ':');
-        $keyPrefix = false;
-        if ($keyPrefixIndex !== false && $keyPrefixIndex > 0) {
-            $keyPrefix = substr($mappedKey, 0, $keyPrefixIndex);
-            $mappedKey = substr($mappedKey, $keyPrefixIndex + 1);
-            if (preg_match('!\(\'([^\)]+)\'\)!', $keyPrefix, $match)) {
-                $keyPrefix = substr($keyPrefix, 0, strpos($keyPrefix, $match[0]));
-                $keyPrefixParam = $match[1];
-            }
-        }
+        if (!$mappedKeyConfig || empty($mappedKeyConfig)) {
+            $result[$mappedKey] = $mappedValue;
+        } else {
+            $ignore = !!$mappedConfig['ignore'];
+            $passthrough = !!$mappedConfig['passthrough'];
+            $negate = !!$mappedConfig['negate'];
+            $split = $mappedConfig['split.'] ?: false;
+            $distribute = $mappedConfig['distribute.'] ?: false;
+            $join = $mappedConfig['join.'] ?: ($mappedConfig['join'] ? [] : false);
+            $appendKeyValue = $mappedConfig['appendKeyValue.'] ?: ($mappedConfig['appendKeyValue'] ? [] ; false);
+            $appendValue = $mappedConfig['appendValue.'] ?: ($mappedConfig['appendValue'] ? [] ; false);
+            $ifEmpty = !!$mappedConfig['ifEmpty'];
 
-        switch ($keyPrefix) {
-            case 'passthrough':
-                // just pass the key-value-pair as it is
-                // useful for the rule mappingOther which applies to all fields which don't have a mapping at all
-                // example:
-                // mappingOther = passthrough:
-                // key = 'foo'; value = 'bar'
-                // result = array('foo' => 'bar');
+            if ($ignore) {
+                // do nothing
+            } elseif ($passthrough) {
                 $result[$key] = $mappedValue;
-                break;
-            case 'ignore':
-                // ignores the data completely
-                // actually there is already a TS field 'ignore' which defines all fields which shall be ignored
-                // however just like the 'passthrough:' rule this one can be applied to the mappingOther rule to
-                // ignore all fields which do not have a mapping at all
-                // example:
-                // mappingOther = ignore:
-                // key = 'foo'; value = 'bar'
-                // result = array();
-                break;
-            case 'split':
-                // explode the value using the space char as separator, split the result to the given fields
-                // example:
-                // mapping = 'split:first_name,last_name'
-                // value = 'John Doe' => result = array('first_name' => 'John', 'last_name' => 'Doe');
-                // value = 'John' => result = array('first_name' => 'John');
-                // value = 'John Doe Smith' => result = array('first_name' => 'John', 'last_name' => 'Doe Smith');
-                $valueSeparator = ' ';
-                $splitToFields = explode(',', $mappedKey);
-                $splittedValues = explode($valueSeparator, $mappedValue);
-                while (count($splitToFields) > 1 && count($splittedValues) > 0) {
-                    // split for all fields but the last
-                    $splittedField = array_shift($splitToFields);
-                    $splittedValue = array_shift($splittedValues);
-                    $this->processField($result, $key, $splittedValue, $splittedField);
+            } else {
+                if ($negate) {
+                    $mappedValue = !!$mappedValue ? '1' : '0';
                 }
-                if (count($splittedValues) > 0) {
-                    // concat the remaining splitted values again and use them for the last field
-                    $splittedField = array_shift($splitToFields);
-                    $splittedValue = implode($valueSeparator, $splittedValues);
-                    $this->processField($result, $key, $splittedValue, $splittedField);
-                }
-                break;
-
-            case 'fields':
-                // share the value with multiple fields
-                // example:
-                // mapping = 'fields:country,country_code'
-                // value = 'US' => result = array('country' => 'US', 'country_code' => 'US');
-                $sharedKeys = explode(',', $mappedKey);
-                foreach ($sharedKeys as $sharedKey) {
-                    $this->processField($result, $key, $mappedValue, $sharedKey);
-                }
-                break;
-            case 'implode':
-                // Implodes Multifield values into a target string, separated by $keyPrefixParam
-                // example:
-                // mapping = 'implode(' '):thema_mehrfach'
-                // where thema_mehrfach is an instance of FormFieldMultiValue
-                // result = array('thema_mehrfach' => 'bar baz');
-                if (!isset($keyPrefixParam)) {
-                    $keyPrefixParam = PHP_EOL;
-                }
-                if (!isset($result[$mappedKey])) {
-                    $result[$mappedKey] = '';
-                }
-                $k = 0;
-                if ($mappedValue instanceof FormFieldMultiValue) {
-                    foreach ($mappedValue as $mappedMultiValue) {
-                        $result[$mappedKey] .= $mappedMultiValue;
-                        $k++;
-                        if ($k < count($mappedValue)) {
-                            $result[$mappedKey] .= $keyPrefixParam;
+                if ($split) {
+                    $token = $split['token'] ? $this->parseSeparatorString($split['token']) : ' ';
+                    $splitFields = $this->buildFieldList($split['fields.']);
+                    $splitValues = explode($token, $mappedValue);
+                    while (count($splitFields) > 1 && count($splitValues) > 0) {
+                        // split for all fields but the last
+                        $splitField = array_shift($splitFields);
+                        $splitValue = array_shift($splitValues);
+                        $this->processField($result, $key, $splitValue, $splitField['name'], $splitField['config']);
+                    }
+                    if (count($splitValues) > 0) {
+                        // concat the remaining splitted values again and use them for the last field
+                        $splitField = array_shift($splitFields);
+                        $splitValue = implode($token, $splitValues);
+                        $this->processField($result, $key, $splitValue, $splitField['name'], $splitField['config']);
+                    }
+                } elseif ($distribute) {
+                    $sharedFields = $this->buildFieldList($distribute['fields.']);
+                    foreach ($sharedFields as $sharedField) {
+                        $this->processField($result, $key, $mappedValue, $sharedField['name'], $sharedField['config']);
+                    }
+                } elseif ($discreteField) {
+                    if (!isset($result[$mappedKey]) || !($result[$mappedKey] instanceof FormFieldMultiValueDiscrete)) {
+                        $result[$mappedKey] = new FormFieldMultiValueDiscrete([]);
+                    }
+                    if ($mappedValue instanceof FormFieldMultiValue) {
+                        foreach ($mappedValue as $mappedMultiValue) {
+                            $result[$mappedKey]->append($mappedMultiValue);
                         }
+                    } else {
+                        $result[$mappedKey]->append($mappedValue);
                     }
-                } else {
-                    $result[$mappedKey] = $mappedValue;
-                }
-                break;
-            case 'negate':
-                // write the negated value into the given field
-                // example:
-                // mapping = 'negate:emailOptOut'
-                // value = '1' => result = array('emailOptOut' => 0)
-                // value = '0' => result = array('emailOptOut' => 1)
-                // value = 'foobar' => result = array('emailOptOut' => 0)
-                $this->processField($result, $key, $mappedValue ? 0 : 1, $mappedKey);
-                break;
-
-            case 'concat':
-                // concat the key-value-pair into one field (along with other pairs)
-                // example:
-                // mapping = 'concat:description'
-                // key = 'foo'; value = 'bar'
-                // followed by key = 'oof'; value = 'baz'
-                // result = array('description' => 'foo = bar
-                // oof = baz
-                // ');
-                if (!isset($result[$mappedKey])) {
-                    $result[$mappedKey] = '';
-                }
-                $result[$mappedKey] .= $key . ' = ' . $mappedValue . PHP_EOL;
-                break;
-
-            case 'append':
-                // appends the values into one field (along with other values)
-                // example:
-                // mapping = 'append(' '):description'
-                // key = 'foo'; value = 'bar'
-                // followed by key = 'oof'; value = 'baz'
-                // result = array('description' => 'bar baz');
-                // mapping = 'append:description' will result in PHP_EOL
-                if (!isset($keyPrefixParam)) {
-                    $keyPrefixParam = PHP_EOL;
-                }
-                if (!isset($result[$mappedKey])) {
-                    $result[$mappedKey] = $mappedValue;
-                    break;
-                }
-                $result[$mappedKey] .= $keyPrefixParam . $mappedValue;
-                break;
-
-            case 'ifEmpty':
-                // puts the value into the given field if it is empty so far
-                // the value will be discraded completely if the field has a value already
-                // (default values are taken into account, too!)
-                // example:
-                // mapping = 'ifEmpty:foo'
-                // first value 'bar'
-                // second value 'baz'
-                // result = array('foo' => 'bar');
-                if (!isset($result[$mappedKey])) {
-                    $result[$mappedKey] = $mappedValue;
-                }
-                break;
-
-            case 'discreteField':
-                // adds the values to an array object for one field
-                // marked as to be dispatched separately, but with the same field name
-                // if a dispatcher does not take care of this, it will automatically be handled as comma separated list
-                // example:
-                // mapping = 'discreteField:foo'
-                // first value 'bar'
-                // second value 'baz'
-                // result = array('foo' => new FormFieldMultiValueDiscrete(array('bar', 'baz')))
-                if (!isset($result[$mappedKey]) || !($result[$mappedKey] instanceof FormFieldMultiValueDiscrete)) {
-                    $result[$mappedKey] = new FormFieldMultiValueDiscrete([]);
-                }
-                if ($mappedValue instanceof FormFieldMultiValue) {
-                    foreach ($mappedValue as $mappedMultiValue) {
-                        $result[$mappedKey]->append($mappedMultiValue);
+                } else if (!$ifEmpty || !$result[$mappedKey]) {
+                    if ($join) {
+                        $glue = $join['glue'] ? $this->parseSeparatorString($join['glue']) : PHP_EOL;
+                        $result[$mappedKey] = $result[$mappedKey] ?: '';
+                        $k = 0;
+                        if ($mappedValue instanceof FormFieldMultiValue) {
+                            foreach ($mappedValue as $mappedMultiValue) {
+                                $result[$mappedKey] .= $mappedMultiValue;
+                                $k++;
+                                if ($k < count($mappedValue)) {
+                                    $result[$mappedKey] .= $glue;
+                                }
+                            }
+                        } else {
+                            $result[$mappedKey] = $mappedValue;
+                        }
+                    } elseif ($appendKeyValue) {
+                        $keyValueSeparator = $appendKeyValue['keyValueSeparator']
+                            ? $this->parseSeparatorString($appendKeyValue['keyValueSeparator']) 
+                            : ' = ';
+                        $separator = $appendKeyValue['separator'] 
+                            ? $this->parseSeparatorString($appendKeyValue['separator']) 
+                            : PHP_EOL;
+                        if (!isset($result[$mappedKey])) {
+                            $result[$mappedKey] = '';
+                        }
+                        $result[$mappedKey] .= $key . $keyValueSeparator . $mappedValue . $separator;
+                    } elseif ($appendValue) {
+                        $separator = $appendValue['separator'] ? $this->parseSeparatorString($appendValue['separator']) : PHP_EOL;
+                        if (!isset($result[$mappedKey])) {
+                            $result[$mappedKey] = $mappedValue;
+                        } else {
+                            $result[$mappedKey] .= $separator . $mappedValue;
+                        }
+                    } else {
+                        $result[$mappedKey] = $mappedValue;
                     }
-                } else {
-                    $result[$mappedKey]->append($mappedValue);
                 }
-                break;
-
-            default:
-                // just use the key and value as key and value
-                $result[$mappedKey] = $mappedValue;
-                break;
+            }
         }
     }
 
