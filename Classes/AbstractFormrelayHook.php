@@ -47,8 +47,6 @@ abstract class AbstractFormrelayHook
     // Configuration to use
     protected $conf;
 
-    protected $overwriteTsKey = null;
-
     /** @var Dispatcher */
     protected $signalSlotDispatcher;
 
@@ -57,18 +55,11 @@ abstract class AbstractFormrelayHook
      *
      * @return void
      */
-    public function __construct($overwriteTsKey = null)
+    public function __construct()
     {
         /** @var Dispatcher $signalSlotDispatcher */
         $this->signalSlotDispatcher = GeneralUtility::makeInstance(Dispatcher::class);
-        $this->setOverwriteTsKey($overwriteTsKey);
-    }
-
-    public function setOverwriteTsKey($overwriteTsKey)
-    {
-        $this->overwriteTsKey = $overwriteTsKey;
-        $this->baseConf = FormrelayUtility::loadPluginTS($this->getTsKey(), $this->overwriteTsKey);
-        $this->conf = array_merge([], $this->baseConf);
+        $this->conf = FormrelayUtility::loadPluginTS($this->getTsKey());
     }
 
     abstract public function getTsKey();
@@ -184,7 +175,7 @@ abstract class AbstractFormrelayHook
                                 $filterMatched = false;
                                 break;
                             }
-                            $externalConf = FormrelayUtility::loadPluginTS($validationKey, $this->overwriteTsKey);
+                            $externalConf = FormrelayUtility::loadPluginTS($validationKey);
                             if (!$externalConf) {
                                 $filterMatched = false;
                                 break;

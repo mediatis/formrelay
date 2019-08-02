@@ -22,7 +22,7 @@ final class FormrelayUtility
         return $content;
     }
 
-    public static function loadPluginTS($extKey, $overwriteKey = null)
+    public static function loadPluginTS($extKey)
     {
         $conf = $GLOBALS['TSFE']->tmpl->setup['plugin.'][$extKey . '.'];
         if (!$conf) {
@@ -31,9 +31,6 @@ final class FormrelayUtility
             );
             $tsSetup = $frontendConfigurationManager->getTypoScriptSetup();
             $conf = $tsSetup['plugin.'][$extKey . '.'];
-        }
-        if ($overwriteKey) {
-            return $conf['configurationOverwrite.'][$overwriteKey . '.'] ?: $conf;
         }
         return $conf;
     }
