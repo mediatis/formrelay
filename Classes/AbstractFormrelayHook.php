@@ -434,7 +434,7 @@ abstract class AbstractFormrelayHook
             $fields[] = [
                 'name' => $tsFieldArray[$key] ?: '',
                 'config' => $tsFieldArray[$key . '.'] ?: []
-            ]
+            ];
         }
         return $fields;
     }
@@ -457,15 +457,16 @@ abstract class AbstractFormrelayHook
         if (!$mappedKeyConfig || empty($mappedKeyConfig)) {
             $result[$mappedKey] = $mappedValue;
         } else {
-            $ignore = !!$mappedConfig['ignore'];
-            $passthrough = !!$mappedConfig['passthrough'];
-            $negate = !!$mappedConfig['negate'];
-            $split = $mappedConfig['split.'] ?: false;
-            $distribute = $mappedConfig['distribute.'] ?: false;
-            $join = $mappedConfig['join.'] ?: ($mappedConfig['join'] ? [] : false);
-            $appendKeyValue = $mappedConfig['appendKeyValue.'] ?: ($mappedConfig['appendKeyValue'] ? [] ; false);
-            $appendValue = $mappedConfig['appendValue.'] ?: ($mappedConfig['appendValue'] ? [] ; false);
-            $ifEmpty = !!$mappedConfig['ifEmpty'];
+            $ignore = !!$mappedKeyConfig['ignore'];
+            $passthrough = !!$mappedKeyConfig['passthrough'];
+            $negate = !!$mappedKeyConfig['negate'];
+            $split = $mappedKeyConfig['split.'] ?: false;
+            $distribute = $mappedKeyConfig['distribute.'] ?: false;
+            $join = $mappedKeyConfig['join.'] ?: ($mappedKeyConfig['join'] ? [] : false);
+            $appendKeyValue = $mappedKeyConfig['appendKeyValue.'] ?: ($mappedKeyConfig['appendKeyValue'] ? [] : false);
+            $appendValue = $mappedKeyConfig['appendValue.'] ?: ($mappedKeyConfig['appendValue'] ? [] : false);
+            $ifEmpty = !!$mappedKeyConfig['ifEmpty'];
+            $discreteField = !!$mappedKeyConfig['discreteField'];
 
             if ($ignore) {
                 // do nothing
@@ -473,7 +474,7 @@ abstract class AbstractFormrelayHook
                 $result[$key] = $mappedValue;
             } else {
                 if ($negate) {
-                    $mappedValue = !!$mappedValue ? '1' : '0';
+                    $mappedValue = !!$mappedValue ? '0' : '1';
                 }
                 if ($split) {
                     $token = $split['token'] ? $this->parseSeparatorString($split['token']) : ' ';
