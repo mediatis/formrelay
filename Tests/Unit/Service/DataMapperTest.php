@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Mediatis\Formrelay\Tests\Unit;
+namespace Mediatis\Formrelay\Tests\Unit\Service;
 
 use Mediatis\Formrelay\AbstractFormrelayHook;
 use Mediatis\Formrelay\Command\FormSimulationCommand;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
+use Mediatis\Formrelay\Service\DataMapper;
 use Mediatis\Formrelay\Simulation\FormSimulatorService;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -13,7 +14,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
-class AbstractFormrelayHookTest extends UnitTestCase
+class DataMapperTest extends UnitTestCase
 {
     /**
      * @var MockObject
@@ -21,7 +22,7 @@ class AbstractFormrelayHookTest extends UnitTestCase
     private $subject;
 
     protected static function getMethod($name) {
-        $class = new \ReflectionClass(AbstractFormrelayHook::class);
+        $class = new \ReflectionClass(DataMapper::class);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
         return $method;
@@ -30,7 +31,7 @@ class AbstractFormrelayHookTest extends UnitTestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->subject = $this->getMockForAbstractClass(AbstractFormrelayHook::class, [], '', false);
+        $this->subject = $this->getMockForAbstractClass(DataMapper::class);
     }
 
     protected function tearDown()
