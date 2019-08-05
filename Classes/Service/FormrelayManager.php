@@ -27,14 +27,27 @@ namespace Mediatis\Formrelay\Service;
 
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Mediatis\Formrelay\DataProcessorInterface;
+use Mediatis\Formrelay\DataProviderInterface;
+use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class FormrelayManager
+class FormrelayManager implements SingletonInterface
 {
+
+    /**
+     * @var ConfigurationManager
+     */
+    protected $configurationManager;
 
     /**
      * @var array
      */
     protected $settings;
+
+    public function injectConfigurationManager(ConfigurationManager $configurationManager) {
+        $this->configurationManager = $configurationManager;
+    }
 
     /**
      * @param array $data The original field array
@@ -45,9 +58,7 @@ class FormrelayManager
     public function process($data, $formSettings = false, $simulate = false, $attachments = false)
     {
         if (!$this->settings) {
-            // Todo:: use ConfigurationManager to load settings
-            //
-            $typoScript = FormrelayUtility::loadPluginTS('tx_formrelay');
+            $typoScript = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
             $this->settings = $typoScript['settings.'];
         }
 
@@ -62,10 +73,11 @@ class FormrelayManager
     {
         // Add Additional Data
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'])) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'] as $classReference) {
-                $dataProvider = GeneralUtility::makeInstance($classReference);
+                $dataProvider = $objectManager->get($classReference);
 
-                if ($dataProvider instanceof \Mediatis\Formrelay\DataProviderInterface) {
+                if ($dataProvider instanceof DataProviderInterface) {
                     $dataProvider->addData($data);
                 } else {
                     throw new \InvalidArgumentException(
@@ -126,25 +138,12 @@ class FormrelayManager
     private function callPlugins(&$data, $formSettings, $attachments = false)
     {
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
             foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'] as $classReference) {
-                $dataHook = GeneralUtility::makeInstance($classReference);
-
-                if ($dataHook instanceof \Mediatis\Formrelay\DataProcessorInterface) {
-                    $tsKey = $dataHook->getTsKey();
-                    $pluginSettings = [];
-                    if (is_array($formSettings) && isset($formSettings[$tsKey])) {
-                        $pluginSettings = $formSettings[$tsKey];
-                    }
-
-                    if ($pluginSettings && count($pluginSettings) > 0 && is_numeric(
-                            array_shift(array_keys($pluginSettings))
-                        )) {
-                        foreach ($pluginSettings as $pluginInstanceSettings) {
-                            $dataHook->processData($data, $pluginInstanceSettings, $attachments);
-                        }
-                    } else {
-                        $dataHook->processData($data, $pluginSettings, $attachments);
-                    }
+                $dataHook = $objectManager->get($classReference);
+                $this->configurationManager->setOverwriteSettings($formSettings);
+                if ($dataHook instanceof DataProcessorInterface) {
+                    $dataHook->processData($data, $attachments);
                 } else {
                     throw new \InvalidArgumentException(
                         'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProcessorInterface.',

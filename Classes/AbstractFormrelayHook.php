@@ -27,8 +27,9 @@ namespace Mediatis\Formrelay;
 
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
+use Mediatis\Formrelay\Service\ConfigurationManager;
 use Mediatis\Formrelay\Service\DataMapper;
-use Mediatis\Formrelay\Service\Gate;
+use Mediatis\Formrelay\Service\FormrelayGate;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -43,9 +44,6 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  */
 abstract class AbstractFormrelayHook
 {
-    // Configuration to use
-    protected $conf;
-
     /** @var Dispatcher */
     protected $signalSlotDispatcher;
 
@@ -55,24 +53,27 @@ abstract class AbstractFormrelayHook
     protected $dataMapper;
 
     /**
-     * @var Gate
+     * @var ConfigurationManager
+     */
+    protected $configurationManager;
+
+    /**
+     * @var FormrelayGate
      */
     protected $gate;
 
-    /**
-     * Constructor
-     *
-     * @param DataMapper $dataMapper
-     * @param Gate $gate
-     * @param Dispatcher $signalSlotDispatcher
-     * @return void
-     */
-    public function __construct(DataMapper $dataMapper, Gate $gate, Dispatcher $signalSlotDispatcher)
+    public function injectDataMapper(DataMapper $dataMapper)
     {
         $this->dataMapper = $dataMapper;
+    }
+
+    public function injectGate(FormrelayGate $gate) {
         $this->gate = $gate;
+    }
+
+    public function injectSingalSlotDispatcher(Dispatcher $signalSlotDispatcher)
+    {
         $this->signalSlotDispatcher = $signalSlotDispatcher;
-        $this->conf = FormrelayUtility::loadPluginTS($this->getTsKey());
     }
 
     abstract public function getTsKey();
@@ -86,37 +87,38 @@ abstract class AbstractFormrelayHook
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
      * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
      */
-    public function processData($data, $formSettings = false, $attachments = false)
+    public function processData($data, $attachments = false)
     {
-        if ($formSettings) {
-            $ts_formSettings = GeneralUtility::makeInstance(
-                'TYPO3\CMS\Extbase\Service\TypoScriptService'
-            )->convertPlainArrayToTypoScriptArray($formSettings);
-            ArrayUtility::mergeRecursiveWithOverrule($this->conf, $ts_formSettings);
-        }
-
         if (!$this->isEnabled()) {
             return false;
         }
 
-        if (!$this->gate->validateForm($data, $this->conf, [$this->getTsKey()])) {
-            return false;
+        $extKey = $this->getTsKey();
+        $dispatched = false;
+        for ($index = 0; $index < $this->configurationManager->getSettingsCount($extKey); $index++) {
+
+            if (!$this->gate->permit($data, $extKey, $index)) {
+                break;
+            }
+
+            $data = $this->signalSlotDispatcher->dispatch(
+                __CLASS__,
+                'beforeProcessAllFields',
+                [$data, $extKey, $index]
+            )[0];
+            $result = $this->dataMapper->processAllFields($data, $extKey, $index);
+            $result = $this->signalSlotDispatcher->dispatch(
+                __CLASS__,
+                'afterProcessAllFields',
+                [$result, $extKey, $index]
+            )[0];
+
+            $dispatcher = $this->getDispatcher();
+            if ($dispatcher->send($result, $attachments)) {
+                $dispatched = true;
+            }
         }
-
-        $data = $this->signalSlotDispatcher->dispatch(
-            __CLASS__,
-            'beforeProcessAllFields',
-            [$data, $this->getTsKey()]
-        )[0];
-        $result = $this->dataMapper->processAllFields($data, $this->conf);
-        $result = $this->signalSlotDispatcher->dispatch(
-            __CLASS__,
-            'afterProcessAllFields',
-            [$result, $this->getTsKey()]
-        )[0];
-
-        $dispatcher = $this->getDispatcher();
-        return $dispatcher->send($result, $attachments);
+        return $dispatched;
     }
 
     abstract protected function isEnabled();

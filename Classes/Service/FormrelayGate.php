@@ -25,12 +25,9 @@ namespace Mediatis\Formrelay\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
-use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
-use Mediatis\Formrelay\Utility\FormrelayUtility;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
+use TYPO3\CMS\Core\SingletonInterface;
+use Mediatis\Formrelay\Service\ConfigurationManager;
 
 /**
  * Decides whether or not a data set shall be sent to a specific end point.
@@ -39,33 +36,49 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  * @package TYPO3
  * @subpackage  formrelay
  */
-class Gate
+class FormrelayGate implements SingletonInterface
 {
     /**
-     * Determines via the TypoScript structure fields.validation whether to send the data or do nothing.
-     * @param  array $data form fields against which shall be validated
-     * @param array $conf The configuration of of the current validation
-     * @param array $confsPassed Array of keys of configurations which already have been validated (to avoid recursion loops)
-     * @return boolean true if the validation succeeded, otherwise false
+     * @var ConfigurationManager
      */
-    public function validateForm($data, $conf, $confsPassed = [])
+    protected $configurationManager;
+
+    public function injectConfigurationManager(ConfigurationManager $configurationManager) {
+        $this->configurationManager = $configurationManager;
+    }
+
+    /**
+     * Determines via the TypoScript structure fields.gate whether to send the data or not.
+     * @param array $data form fields which shall be checked against config
+     * @param string $extKey key of the extension which has to be checked
+     * @param int $index The index of the instance of the extension which has to be checked
+     * @param array $confsPassed Array of keys of configurations which already have been checked (to avoid recursion loops)
+     * @return boolean true if the permission is given, otherwise false
+     */
+    public function permit(array $data, string $extKey, int $index, array $confsPassed = []) : bool
     {
-        // validate required fields
-        if (trim($conf['fields.']['validation.']['required'])) {
-            $requiredFields = explode(',', trim($conf['fields.']['validation.']['required']));
+        $conf = $this->configurationManager->getSettings($extKey, $index);
+
+        if (empty($confsPassed)) {
+            array_push($confsPassed, $extKey);
+        }
+
+        // check required fields
+        if (trim($conf['fields.']['gate.']['required'])) {
+            $requiredFields = explode(',', trim($conf['fields.']['gate.']['required']));
             foreach ($requiredFields as $requiredField) {
                 if (!isset($data[$requiredField])) {
-                    GeneralUtility::devLog('validateForm - Required field not set ' . $requiredField, __CLASS__, 0);
+                    GeneralUtility::devLog('permit - Required field not set ' . $requiredField, __CLASS__, 0);
                     return false;
                 }
             }
         }
 
-        // validate filter rules
+        // check filter rules
         $filterFound = false;
         $filterMatched = false;
-        if (isset($conf['fields.']['validation.']['filters.'])) {
-            foreach ($conf['fields.']['validation.']['filters.'] as $filterIndex => $filter) {
+        if (isset($conf['fields.']['gate.']['filters.'])) {
+            foreach ($conf['fields.']['gate.']['filters.'] as $filterIndex => $filter) {
                 $filterFound = true;
                 $filterMatched = true;
 
@@ -95,26 +108,24 @@ class Gate
                     }
                 }
 
-                // external validations
+                // external permission checks
                 foreach (['equals' => false, 'equalsNot' => true] as $filterType => $negateFilterRule) {
                     if (isset($filter[$filterType])) {
-                        $validationKeys = explode(',', $filter[$filterType]);
-                        foreach ($validationKeys as $validationKey) {
-                            if (in_array($validationKey, $confsPassed)) { // prevent loops
+                        $externalKeys = explode(',', $filter[$filterType]);
+                        foreach ($externalKeys as $externalKey) {
+                            if (in_array($externalKey, $confsPassed)) { // prevent loops
                                 $filterMatched = false;
                                 break;
                             }
-                            $externalConf = FormrelayUtility::loadPluginTS($validationKey);
-                            if (!$externalConf) {
-                                $filterMatched = false;
-                                break;
+                            $confsPassed = array_merge($confsPassed, [$externalKey]);
+                            $externalPermission = false;
+                            for ($externalConfIndex = 0; $externalConfIndex < $this->configurationManager->getSettingsCount($externalKey); $externalConfIndex++) {
+                                if ($this->permit($data, $externalKey, $externalConfIndex, $confsPassed)) {
+                                    $externalPermission = true;
+                                    break;
+                                }
                             }
-                            $externalValidation = $this->validateForm(
-                                $data,
-                                $externalConf,
-                                array_merge($confsPassed, [$validationKey])
-                            );
-                            if ((!$negateFilterRule && !$externalValidation) || ($negateFilterRule && $externalValidation)) {
+                            if ((!$negateFilterRule && !$externalPermission) || ($negateFilterRule && $externalPermission)) {
                                 $filterMatched = false;
                                 break;
                             }
@@ -125,7 +136,7 @@ class Gate
                     }
                 }
 
-                // filters are disjunctive, if any is validated, then the validation is complete
+                // filters are disjunctive, if any gives permission, then the check complete
                 if ($filterMatched) {
                     break;
                 }
@@ -133,17 +144,17 @@ class Gate
         }
         if ($filterFound) {
             if (!$filterMatched) {
-                GeneralUtility::devLog('validateForm - !filterMatched ', __CLASS__, 0);
+                GeneralUtility::devLog('permit - !filterMatched ', __CLASS__, 0);
                 return false;
             }
         } else {
-            if (!$conf['fields.']['validation.']['validWithNoFilters']) {
-                GeneralUtility::devLog('validateForm - !validWithNoFilters ', __CLASS__, 0);
+            if (!$conf['fields.']['gate.']['validWithNoFilters']) {
+                GeneralUtility::devLog('permit - !validWithNoFilters ', __CLASS__, 0);
                 return false;
             }
         }
 
-        // all validation passed
+        // all checks passed
         return true;
     }
 }

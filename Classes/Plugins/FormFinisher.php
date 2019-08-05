@@ -118,7 +118,10 @@ class FormFinisher extends AbstractFinisher
             }
         }
 
-        GeneralUtility::makeInstance(FormrelayManager::class)->process($formValues, $formSettings, false, $attachments);
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $formrelayManager = $objectManager->get(FormrelayManager::class);
+
+        $formrelayManager->process($formValues, $formSettings, false, $attachments);
     }
 
     protected function processStandardField(&$element, $value)
