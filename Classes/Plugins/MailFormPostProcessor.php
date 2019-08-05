@@ -29,6 +29,7 @@ use Mediatis\Formrelay\Service\FormrelayManager;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Form\Domain\Model\Element;
 use TYPO3\CMS\Form\PostProcess as Form;
 
 class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\PostProcessorInterface
@@ -37,7 +38,7 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
     /**
      * @var \Mediatis\Formrelay\Service\FormrelayManager
      */
-    protected $FormrelayManager;
+    protected $formrelayManager;
 
     /**
      * @var \TYPO3\CMS\Form\Domain\Model\Element
@@ -55,14 +56,13 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
      * @param \TYPO3\CMS\Form\Domain\Model\Element $form Form domain model
      * @param array $typoScript Post processor TypoScript formSettings
      */
-    public function __construct(\TYPO3\CMS\Form\Domain\Model\Element $form, array $typoScript)
+    public function __construct(Element $form, array $typoScript)
     {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->FormrelayManager = GeneralUtility::makeInstance(FormrelayManager::class);
+        $typoScriptService = $objectManager->get(TypoScriptService::class);
 
-        $this->formSettings = $objectManager->get(TypoScriptService::class)
-            ->convertTypoScriptArrayToPlainArray($typoScript);
-
+        $this->formrelayManager = $objectManager->get(FormrelayManager::class);
+        $this->formSettings = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
         $this->form = $form;
     }
 
@@ -76,7 +76,7 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
     public function process()
     {
         $data = $this->getFormData();
-        $this->FormrelayManager->process($data, $this->formSettings);
+        $this->formrelayManager->process($data, $this->formSettings);
     }
 
 
@@ -129,7 +129,7 @@ class MailFormPostProcessor extends Form\AbstractPostProcessor implements Form\P
             $fileName = $file['name'];
 
             // Safety checks
-            $formRelaySettings = $this->FormrelayManager->getSettings();
+            $formRelaySettings = $this->formrelayManager->getSettings();
             $safetyChecked = true;
             $pathParts = pathinfo($fileName);
             // Check for prohibited file extensions

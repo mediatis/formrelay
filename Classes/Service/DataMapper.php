@@ -28,6 +28,7 @@ namespace Mediatis\Formrelay\Service;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
+use TYPO3\CMS\Core\SingletonInterface;
 
 /**
  * Plugin Send form data to SourceFoce.com
@@ -36,16 +37,28 @@ use Mediatis\Formrelay\Utility\FormrelayUtility;
  * @package TYPO3
  * @subpackage  formrelay
  */
-class DataMapper
+class DataMapper implements SingletonInterface
 {
+    /**
+     * @var ConfigurationManager
+     */
+    protected $configurationManager;
+
+    public function injectConfigurationManager(ConfigurationManager $configurationManager)
+    {
+        $this->configurationManager = $configurationManager;
+    }
+
     /**
      * Builds the whole mapping array for all form fields.
      * @param  array $data The original field array
      * @param array $conf The configuration to be used
      * @return array The array with the mapped fields and values
      */
-    public function processAllFields($data, $conf)
+    public function processAllFields($data, $extKey, $index)
     {
+        $conf = $this->configurationManager->getSettings($extKey, $index);
+
         $result = isset($conf['fields.']['defaults.']) ? $conf['fields.']['defaults.'] : [];
 
         $fieldMapping = $conf['fields.']['mapping.'];
