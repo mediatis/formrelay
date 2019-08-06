@@ -3,10 +3,10 @@
 namespace Mediatis\Formrelay\Utility;
 
 use InvalidArgumentException;
+use Mediatis\Formrelay\DataProvider\DataProviderInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
-use Mediatis\Formrelay\DataDispatcher\DataDispatcherInterface;
 use Mediatis\Formrelay\FormrelayExtensionInterface;
 use Mediatis\Formrelay\Service\FormrelayManager;
 
@@ -28,19 +28,6 @@ final class FormrelayUtility
             $content = mb_convert_encoding($content, 'UTF-8');
         }
         return $content;
-    }
-
-    public static function loadPluginTS($extKey)
-    {
-        $conf = $GLOBALS['TSFE']->tmpl->setup['plugin.'][$extKey . '.'];
-        if (!$conf) {
-            $frontendConfigurationManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-                'TYPO3\\CMS\\Extbase\\Configuration\\FrontendConfigurationManager'
-            );
-            $tsSetup = $frontendConfigurationManager->getTypoScriptSetup();
-            $conf = $tsSetup['plugin.'][$extKey . '.'];
-        }
-        return $conf;
     }
 
     /**
@@ -123,7 +110,7 @@ final class FormrelayUtility
 
     public static function registerExtension(string $classReference)
     {
-        if (!is_a($classReference, FormrelayExtensionInterface::class)) {
+        if (!class_implements($classReference, FormrelayExtensionInterface::class)) {
             throw new InvalidArgumentException(
                 'Error detector "' . $classReference . '" must implement interface ' . FormrelayExtensionInterface::class . '.',
                 1565086200
@@ -154,9 +141,9 @@ final class FormrelayUtility
 
     public static function registerDataProvider(string $classReference)
     {
-        if (!is_a($classReference, DataDispatcherInterface::class)) {
+        if (!class_implements($classReference, DataProviderInterface::class)) {
             throw new InvalidArgumentException(
-                'Error detector "' . $classReference . '" must implement interface ' . DataDispatcherInterface::class . '.',
+                'Error detector "' . $classReference . '" must implement interface ' . DataProviderInterface::class . '.',
                 1565087714
             );
         }

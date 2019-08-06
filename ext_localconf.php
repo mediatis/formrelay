@@ -1,19 +1,15 @@
 <?php
 
-use Mediatis\Formrelay\Utility\FormrelayUtility;
-use Mediatis\Formrelay\DataProvider;
-use Mediatis\Formrelay\Command\FormSimulationCommandController;
-
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
 
 // Add data providers
-FormrelayUtility::registerDataProvider(DataProvider\Adwords::class);
-FormrelayUtility::registerDataProvider(DataProvider\AdwordCampains::class);
-FormrelayUtility::registerDataProvider(DataProvider\LanguageCode::class);
-FormrelayUtility::registerDataProvider(DataProvider\IpAddress::class);
-FormrelayUtility::registerDataProvider(DataProvider\Timestamp::class);
-FormrelayUtility::registerDataProvider(DataProvider\ContentElement::class);
+\Mediatis\Formrelay\Utility\FormrelayUtility::registerDataProvider(\Mediatis\Formrelay\DataProvider\Adwords::class);
+\Mediatis\Formrelay\Utility\FormrelayUtility::registerDataProvider(\Mediatis\Formrelay\DataProvider\AdwordCampains::class);
+\Mediatis\Formrelay\Utility\FormrelayUtility::registerDataProvider(\Mediatis\Formrelay\DataProvider\LanguageCode::class);
+\Mediatis\Formrelay\Utility\FormrelayUtility::registerDataProvider(\Mediatis\Formrelay\DataProvider\IpAddress::class);
+\Mediatis\Formrelay\Utility\FormrelayUtility::registerDataProvider(\Mediatis\Formrelay\DataProvider\Timestamp::class);
+\Mediatis\Formrelay\Utility\FormrelayUtility::registerDataProvider(\Mediatis\Formrelay\DataProvider\ContentElement::class);
 
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = FormSimulationCommandController::class;
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = \Mediatis\Formrelay\Command\FormSimulationCommandController::class;

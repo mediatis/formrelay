@@ -128,7 +128,7 @@ class DataMapper implements SingletonInterface
 
             $mappedKey = $fieldMappingOther;
             $mappedKeyConfig = $fieldMappingOtherConfig;
-            if (isset($fieldMapping[$key]) || isset($fieldMapping[$key . '.'])) {
+            if (isset($fieldMapping[$key]) || isset($fieldMapping[$key . '.'])) {
                 $mappedKey = $fieldMapping[$key] ?: '';
                 $mappedKeyConfig = $fieldMapping[$key . '.'] ?: [];
             }
@@ -234,7 +234,7 @@ class DataMapper implements SingletonInterface
                 if ($negate) {
                     $mappedValue = !!$mappedValue ? '0' : '1';
                 }
-                if ($split) {
+                if (is_array($split)) {
                     $token = $split['token'] ? FormrelayUtility::parseSeparatorString($split['token']) : ' ';
                     $splitFields = FormrelayUtility::buildFieldList($split['fields.']);
                     $splitValues = explode($token, $mappedValue);
@@ -250,7 +250,7 @@ class DataMapper implements SingletonInterface
                         $splitValue = implode($token, $splitValues);
                         $this->processField($result, $key, $splitValue, $splitField['name'], $splitField['config']);
                     }
-                } elseif ($distribute) {
+                } elseif (is_array($distribute)) {
                     $sharedFields = FormrelayUtility::buildFieldList($distribute['fields.']);
                     foreach ($sharedFields as $sharedField) {
                         $this->processField($result, $key, $mappedValue, $sharedField['name'], $sharedField['config']);
@@ -267,7 +267,7 @@ class DataMapper implements SingletonInterface
                         $result[$mappedKey]->append($mappedValue);
                     }
                 } else if (!$ifEmpty || !$result[$mappedKey]) {
-                    if ($join) {
+                    if (is_array($join)) {
                         $glue = $join['glue'] ? FormrelayUtility::parseSeparatorString($join['glue']) : PHP_EOL;
                         $result[$mappedKey] = $result[$mappedKey] ?: '';
                         $k = 0;
@@ -282,7 +282,7 @@ class DataMapper implements SingletonInterface
                         } else {
                             $result[$mappedKey] = $mappedValue;
                         }
-                    } elseif ($appendKeyValue) {
+                    } elseif (is_array($appendKeyValue)) {
                         $keyValueSeparator = $appendKeyValue['keyValueSeparator']
                             ? FormrelayUtility::parseSeparatorString($appendKeyValue['keyValueSeparator'])
                             : ' = ';
@@ -293,7 +293,7 @@ class DataMapper implements SingletonInterface
                             $result[$mappedKey] = '';
                         }
                         $result[$mappedKey] .= $key . $keyValueSeparator . $mappedValue . $separator;
-                    } elseif ($appendValue) {
+                    } elseif (is_array($appendValue)) {
                         $separator = $appendValue['separator'] ? FormrelayUtility::parseSeparatorString($appendValue['separator']) : PHP_EOL;
                         if (!isset($result[$mappedKey])) {
                             $result[$mappedKey] = $mappedValue;
