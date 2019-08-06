@@ -2,14 +2,16 @@
 
 namespace Mediatis\Formrelay\DataProvider;
 
-class AdwordCampains implements \Mediatis\Formrelay\DataProviderInterface
+use Mediatis\Formrelay\Utility\UtmzCookieParser;
+
+class AdwordCampains implements DataProviderInterface
 {
-    public function addData(&$dataArray)
+    public function addData(array &$dataArray)
     {
         /*
         utmz Cookie -- result form search
          */
-        $utmz = new \Mediatis\Formrelay\Utility\UtmzCookieParser();
+        $utmz = new UtmzCookieParser();
         if ($utmz) {
             // track Google Analytics source
             if ($utmz->utmz_source) {

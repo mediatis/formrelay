@@ -2,12 +2,13 @@
 
 namespace Mediatis\Formrelay\DataProvider;
 
+use Mediatis\Formrelay\Service\ConfigurationManager;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\ContentObject\RecordsContentObject;
 
-class ContentElement implements \Mediatis\Formrelay\DataProviderInterface
+class ContentElement implements DataProviderInterface
 {
     /**
      * Adds field with value from a content element to the E-Mail dataArray
@@ -15,9 +16,12 @@ class ContentElement implements \Mediatis\Formrelay\DataProviderInterface
      * @param array $dataArray
      * @return void
      */
-    public function addData(&$dataArray)
+    public function addData(array &$dataArray)
     {
-        $settings = FormrelayUtility::loadPluginTS('tx_formrelay');
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $configurationManager = $objectManager->get(ConfigurationManager::class);
+
+        $settings = $configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
         $fieldName = $settings['settings.']['dataProviders.']['contentElement.']['fieldName'];
         $ttContentUid = $settings['settings.']['dataProviders.']['contentElement.']['ttContentUid'];
 

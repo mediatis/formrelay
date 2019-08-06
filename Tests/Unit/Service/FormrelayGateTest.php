@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Mediatis\Formrelay\Tests\Unit\Service;
 
-use Mediatis\Formrelay\AbstractFormrelayHook;
+use Mediatis\Formrelay\DataProcessor;
 use Mediatis\Formrelay\Command\FormSimulationCommand;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Service\ConfigurationManager;
@@ -34,7 +34,7 @@ class FormrelayGateTest extends UnitTestCase
         $this->subject = new FormrelayGate();
         $this->configurationManagerMock = $this->getMockBuilder(ConfigurationManager::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getSettings', 'getSettingsCount'])
+            ->setMethods(['getFormrelaySettings', 'getFormrelaySettingsCount'])
             ->getMock();
         $this->subject->injectConfigurationmanager($this->configurationManagerMock);
     }
@@ -50,12 +50,12 @@ class FormrelayGateTest extends UnitTestCase
         }
         $this->configurationManagerMock
             ->expects($this->any())
-            ->method('getSettings')
+            ->method('getFormrelaySettings')
             ->will($this->returnValueMap($settingsValueMap));
 
         $this->configurationManagerMock
             ->expects($this->any())
-            ->method('getSettingsCount')
+            ->method('getFormrelaySettingsCount')
             ->will($this->returnValueMap($settingsCountValueMap));
 
     }
@@ -66,9 +66,9 @@ class FormrelayGateTest extends UnitTestCase
     public function noFiltersInvalid()
     {
         $this->setConfiguration(['ext_key_1' => [
-            0 => ['fields.' => ['gate.' => ['validWithNoFilters' => '0']]]
+            0 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '0']]]
         ]]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -82,9 +82,9 @@ class FormrelayGateTest extends UnitTestCase
     public function noFiltersValid()
     {
         $this->setConfiguration(['ext_key_1' => [
-            0 => ['fields.' => ['gate.' => ['validWithNoFilters' => '1']]]
+            0 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '1']]]
         ]]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -98,9 +98,9 @@ class FormrelayGateTest extends UnitTestCase
     public function whitelistMatches()
     {
         $this->setConfiguration(['ext_key_1' => [
-            0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['whitelist.' => ['key' => 'value,otherValue']]]]]]
+            0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['whitelist.' => ['key' => 'value,otherValue']]]]]]
         ]]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -114,9 +114,9 @@ class FormrelayGateTest extends UnitTestCase
     public function whitelistDoesNotMatch()
     {
         $this->setConfiguration(['ext_key_1' => [
-            0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['whitelist.' => ['key' => 'otherValue,yetAnotherValue']]]]]]
+            0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['whitelist.' => ['key' => 'otherValue,yetAnotherValue']]]]]]
         ]]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -130,9 +130,9 @@ class FormrelayGateTest extends UnitTestCase
     public function blacklistMatches()
     {
         $this->setConfiguration(['ext_key_1' => [
-            0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['blacklist.' => ['key' => 'value,otherValue']]]]]]
+            0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['blacklist.' => ['key' => 'value,otherValue']]]]]]
         ]]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -146,9 +146,9 @@ class FormrelayGateTest extends UnitTestCase
     public function blacklistDoesNotMatch()
     {
         $this->setConfiguration(['ext_key_1' => [
-            0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['blacklist.' => ['key' => 'otherValue,yetAnotherValue']]]]]]
+            0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['blacklist.' => ['key' => 'otherValue,yetAnotherValue']]]]]]
         ]]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -162,12 +162,12 @@ class FormrelayGateTest extends UnitTestCase
     public function twoFiltersSecondValid()
     {
         $this->setConfiguration(['ext_key_1' => [
-            0 => ['fields.' => ['gate.' => ['filters.' => [
+            0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => [
                 '1.' => ['blacklist.' => ['key' => 'value,otherValue']],
                 '2.' => ['whitelist.' => ['key' => 'value']]
             ]]]]
         ]]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -181,12 +181,12 @@ class FormrelayGateTest extends UnitTestCase
     public function twoFiltersNoneValid()
     {
         $this->setConfiguration(['ext_key_1' => [
-            0 => ['fields.' => ['gate.' => ['filters.' => [
+            0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => [
                 '1.' => ['blacklist.' => ['key' => 'value,otherValue']],
                 '2.' => ['blacklist.' => ['key' => 'value']]
             ]]]]
         ]]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -201,13 +201,13 @@ class FormrelayGateTest extends UnitTestCase
     {
         $this->setConfiguration([
             'ext_key_1' => [
-                0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['equals' => 'ext_key_2']]]]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['equals' => 'ext_key_2']]]]]
             ],
             'ext_key_2' => [
-                0 => ['fields.' => ['gate.' => ['validWithNoFilters' => '1']]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '1']]]
             ]
         ]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -222,13 +222,13 @@ class FormrelayGateTest extends UnitTestCase
     {
         $this->setConfiguration([
             'ext_key_1' => [
-                0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['equals' => 'ext_key_2']]]]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['equals' => 'ext_key_2']]]]]
             ],
             'ext_key_2' => [
-                0 => ['fields.' => ['gate.' => ['validWithNoFilters' => '0']]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '0']]]
             ]
         ]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -243,13 +243,13 @@ class FormrelayGateTest extends UnitTestCase
     {
         $this->setConfiguration([
             'ext_key_1' => [
-                0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['equalsNot' => 'ext_key_2']]]]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['equalsNot' => 'ext_key_2']]]]]
             ],
             'ext_key_2' => [
-                0 => ['fields.' => ['gate.' => ['validWithNoFilters' => '0']]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '0']]]
             ]
         ]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -264,13 +264,13 @@ class FormrelayGateTest extends UnitTestCase
     {
         $this->setConfiguration([
             'ext_key_1' => [
-                0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['equalsNot' => 'ext_key_2']]]]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['equalsNot' => 'ext_key_2']]]]]
             ],
             'ext_key_2' => [
-                0 => ['fields.' => ['gate.' => ['validWithNoFilters' => '1']]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '1']]]
             ]
         ]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -285,14 +285,14 @@ class FormrelayGateTest extends UnitTestCase
     {
         $this->setConfiguration([
             'ext_key_1' => [
-                0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['equals' => 'ext_key_2']]]]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['equals' => 'ext_key_2']]]]]
             ],
             'ext_key_2' => [
-                0 => ['fields.' => ['gate.' => ['validWithNoFilters' => '0']]],
-                1 => ['fields.' => ['gate.' => ['validWithNoFilters' => '1']]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '0']]],
+                1 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '1']]]
             ]
         ]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0
@@ -307,14 +307,14 @@ class FormrelayGateTest extends UnitTestCase
     {
         $this->setConfiguration([
             'ext_key_1' => [
-                0 => ['fields.' => ['gate.' => ['filters.' => ['1.' => ['equals' => 'ext_key_2']]]]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['filters.' => ['1.' => ['equals' => 'ext_key_2']]]]]
             ],
             'ext_key_2' => [
-                0 => ['fields.' => ['gate.' => ['validWithNoFilters' => '0']]],
-                1 => ['fields.' => ['gate.' => ['validWithNoFilters' => '0']]]
+                0 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '0']]],
+                1 => ['enabled' => '1', 'fields.' => ['gate.' => ['validWithNoFilters' => '0']]]
             ]
         ]);
-        $result = $this->subject->permit(
+        $result = $this->subject->checkPermission(
             ['key' => 'value'],
             'ext_key_1',
             0

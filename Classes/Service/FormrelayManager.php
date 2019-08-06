@@ -27,69 +27,128 @@ namespace Mediatis\Formrelay\Service;
 
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use Mediatis\Formrelay\DataProcessorInterface;
-use Mediatis\Formrelay\DataProviderInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
+use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
+use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException;
 
 class FormrelayManager implements SingletonInterface
 {
+    const SIGNAL_REGISTER_EXTENSION = 'registerExtension';
 
-    /**
-     * @var ConfigurationManager
-     */
+    const SIGNAL_BEFORE_PERMISSION_CHECK = 'beforePermissionCheck';
+    const SIGNAL_AFTER_PERMISSION_CHECK = 'afterPermissionCheck';
+    const SIGNAL_BEFORE_DATA_MAPPING = 'beforeDataMapping';
+    const SIGNAL_AFTER_DATA_MAPPING = 'afterDataMapping';
+    const SIGNAL_DISPATCH = 'dispatch';
+
+    const SIGNAL_ADD_DATA = 'addData';
+
+    /** @var Dispatcher */
+    protected $signalSlotDispatcher;
+
+    /** @var ConfigurationManager */
     protected $configurationManager;
 
-    /**
-     * @var array
-     */
-    protected $settings;
+    /** @var FormrelayGate */
+    protected $formrelayGate;
 
-    public function injectConfigurationManager(ConfigurationManager $configurationManager) {
-        $this->configurationManager = $configurationManager;
-    }
+    /** @var DataMapper */
+    protected $dataMapper;
+
+    /** @var array */
+    protected $settings;
 
     /**
      * @param array $data The original field array
      * @param bool|array $formSettings
      * @param bool $simulate
      * @param bool|array $attachments paths to processed user uploads
+     *
+     * @throws InvalidSlotException
+     * @throws InvalidSlotReturnException
      */
     public function process($data, $formSettings = false, $simulate = false, $attachments = false)
     {
+        // init objects
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->signalSlotDispatcher = $objectManager->get(Dispatcher::class);
+        $this->configurationManager = $objectManager->get(ConfigurationManager::class);
+        $this->dataMapper = $objectManager->get(DataMapper::class);
+        $this->formrelayGate = $objectManager->get(FormrelayGate::class);
+
+        // register form overwrite settings
+        $this->configurationManager->setFormrelaySettingsOverwrite($formSettings);
+
+        // fetch own configuration
         if (!$this->settings) {
             $typoScript = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
             $this->settings = $typoScript['settings.'];
         }
 
+        // call data providers
         if (!$simulate) {
-            $this->getAdditionalData($data);
+            $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_ADD_DATA, [&$data]);
         }
+
+        // log form submit
         $this->logData($data);
-        $this->callPlugins($data, $formSettings, $attachments);
+
+        // call data processor for all extensions
+        $extensionList = [];
+        $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_REGISTER_EXTENSION, [&$extensionList]);
+        foreach ($extensionList as $extKey) {
+            $this->processData($data, $extKey, $attachments);
+        }
     }
 
-    private function getAdditionalData(&$data)
+    /**
+     * @param array $data The original field array
+     * @param string $extKey The key of the extenstion which should be processed next
+     * @param bool|array $attachments paths to processed user uploads
+     * @return bool
+     *
+     * @throws InvalidSlotException
+     * @throws InvalidSlotReturnException
+     */
+    public function processData($data, $extKey, $attachments = false)
     {
-        // Add Additional Data
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'])) {
-            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProvider'] as $classReference) {
-                $dataProvider = $objectManager->get($classReference);
+        $dispatched = false;
+        for ($index = 0; $index < $this->configurationManager->getFormrelaySettingsCount($extKey); $index++) {
 
-                if ($dataProvider instanceof DataProviderInterface) {
-                    $dataProvider->addData($data);
-                } else {
-                    throw new \InvalidArgumentException(
-                        'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProviderInterface.',
-                        1359156192
-                    );
-                }
+            $conf = $this->configurationManager->getFormrelaySettings($extKey, $index);
+            $metaData = ['extKey' => $extKey, 'index' => $index, 'config' => $conf, 'data' => $data, 'attachments' => $attachments, 'result' => null];
+
+            // check permission
+            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_BEFORE_PERMISSION_CHECK, $metaData);
+            if ($metaData['result'] === null) {
+                $metaData['result'] = $this->formrelayGate->checkPermission($metaData['data'], $metaData['extKey'], $metaData['index']);
+            }
+            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_AFTER_PERMISSION_CHECK, $metaData);
+            if (!$metaData['result']) {
+                continue;
+            }
+
+            // data mapping
+            $metaData['result'] = null;
+            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__,static::SIGNAL_BEFORE_DATA_MAPPING, $metaData);
+            if ($metaData['result'] !== null) {
+                $metaData['data'] = $this->dataMapper->processAllFields($metaData['data'], $metaData['extKey'], $metaData['index']);
+            }
+            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_AFTER_DATA_MAPPING, $metaData);
+
+            // dispatch
+            $metaData['result'] = null;
+            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_DISPATCH, $metaData);
+            if ($metaData['result']) {
+                $dispatched = true;
             }
         }
+        return $dispatched;
     }
 
-    private function logData($data = false, $error = false)
+    protected function logData($data = false, $error = false)
     {
         $logfileBase = $this->settings['logfile.']['basePath'];
 
@@ -129,33 +188,5 @@ class FormrelayManager implements SingletonInterface
         }
     }
 
-    /**
-     * call all configures subplugins to process the data
-     * @param  array &$data All the data as key->value array
-     * @param  array $formSettings setting of formrelay
-     * @param bool|array $attachments paths of processed uploads
-     */
-    private function callPlugins(&$data, $formSettings, $attachments = false)
-    {
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'])) {
-            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['formrelay']['dataProcessor'] as $classReference) {
-                $dataHook = $objectManager->get($classReference);
-                $this->configurationManager->setOverwriteSettings($formSettings);
-                if ($dataHook instanceof DataProcessorInterface) {
-                    $dataHook->processData($data, $attachments);
-                } else {
-                    throw new \InvalidArgumentException(
-                        'Error detector "' . $classReference . '" must implement interface Mediatis\Formrelay\DataProcessorInterface.',
-                        1359156192
-                    );
-                }
-            }
-        }
-    }
-
-    public function getSettings()
-    {
-        return $this->settings;
-    }
 }
+

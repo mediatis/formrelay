@@ -1,10 +1,10 @@
 <?php
 
-namespace Mediatis\Formrelay\Plugins;
+namespace Mediatis\Formrelay\Extensions\Form;
 
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
+use Mediatis\Formrelay\Service\ConfigurationManager;
 use Mediatis\Formrelay\Service\FormrelayManager;
-use Mediatis\Formrelay\Utility\FormrelayUtility;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
@@ -17,6 +17,7 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\DatePicker;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FormElementInterface;
 use TYPO3\CMS\Form\Domain\Model\FormElements\GenericFormElement;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 class FormFinisher extends AbstractFinisher
 {
@@ -161,10 +162,12 @@ class FormFinisher extends AbstractFinisher
         if ($file === null) {
             return '';
         }
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $configurationManager = $objectManager->get(ConfigurationManager::class);
 
         $file = $file->getOriginalResource()->getOriginalFile();
 
-        $pluginTs = FormrelayUtility::loadPluginTS('tx_formrelay');
+        $pluginTs = $configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
         if (!empty($pluginTs['settings.']['fileupload.']['prohibitedExtensions'])) {
             $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
             if (in_array($file->getExtension(), $prohibitedExtensions)) {
@@ -176,7 +179,7 @@ class FormFinisher extends AbstractFinisher
                 return '';
             }
         }
-        $resourceFactory = \TYPO3\CMS\Core\Resource\ResourceFactory::getInstance();
+        $resourceFactory = ResourceFactory::getInstance();
         $defaultStorage = $resourceFactory->getDefaultStorage();
 
         $baseUploadPath = rtrim($this->parseOption('baseUploadPath'), '/') .

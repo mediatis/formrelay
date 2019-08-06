@@ -1,6 +1,6 @@
 <?php
 
-namespace Mediatis\Formrelay;
+namespace Mediatis\Formrelay\DataProvider;
 
 /***************************************************************
  *  Copyright notice
@@ -35,8 +35,5 @@ namespace Mediatis\Formrelay;
  */
 interface DataProviderInterface
 {
-    /**
-     * process data.
-     */
-    public function addData(&$dataArray);
+    public function addData(array &$data);
 }

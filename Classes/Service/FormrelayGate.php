@@ -55,12 +55,16 @@ class FormrelayGate implements SingletonInterface
      * @param array $confsPassed Array of keys of configurations which already have been checked (to avoid recursion loops)
      * @return boolean true if the permission is given, otherwise false
      */
-    public function permit(array $data, string $extKey, int $index, array $confsPassed = []) : bool
+    public function checkPermission(array $data, string $extKey, int $index, array $confsPassed = [])
     {
-        $conf = $this->configurationManager->getSettings($extKey, $index);
+        $conf = $this->configurationManager->getFormrelaySettings($extKey, $index);
 
         if (empty($confsPassed)) {
             array_push($confsPassed, $extKey);
+        }
+
+        if (!$conf['enabled']) {
+            return false;
         }
 
         // check required fields
@@ -119,8 +123,8 @@ class FormrelayGate implements SingletonInterface
                             }
                             $confsPassed = array_merge($confsPassed, [$externalKey]);
                             $externalPermission = false;
-                            for ($externalConfIndex = 0; $externalConfIndex < $this->configurationManager->getSettingsCount($externalKey); $externalConfIndex++) {
-                                if ($this->permit($data, $externalKey, $externalConfIndex, $confsPassed)) {
+                            for ($externalConfIndex = 0; $externalConfIndex < $this->configurationManager->getFormrelaySettingsCount($externalKey); $externalConfIndex++) {
+                                if ($this->checkPermission($data, $externalKey, $externalConfIndex, $confsPassed)) {
                                     $externalPermission = true;
                                     break;
                                 }
