@@ -5,7 +5,7 @@ namespace Mediatis\Formrelay\DataDispatcher;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
+class Curl implements DataDispatcherInterface
 {
     protected $url;
     protected $options;
@@ -22,7 +22,7 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
         $this->parameterise = $value;
     }
 
-    public function send($data)
+    public function send(array $data)
     {
         $retval = true;
 
@@ -74,7 +74,7 @@ class Curl implements \Mediatis\Formrelay\DataDispatcherInterface
             }
         }
 
-        GeneralUtility::devLog('Mediatis\\Formrelay\\DataDispatcher\\Curl::send()', __CLASS__, 0, $curlOptions);
+        GeneralUtility::devLog('sending data', __CLASS__, 0, $curlOptions);
 
         $handle = curl_init();
 

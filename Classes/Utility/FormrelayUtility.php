@@ -2,6 +2,14 @@
 
 namespace Mediatis\Formrelay\Utility;
 
+use InvalidArgumentException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
+use Mediatis\Formrelay\DataDispatcher\DataDispatcherInterface;
+use Mediatis\Formrelay\FormrelayExtensionInterface;
+use Mediatis\Formrelay\Service\FormrelayManager;
+
 final class FormrelayUtility
 {
     public static function xmlentities($string)
@@ -40,6 +48,13 @@ final class FormrelayUtility
      * Example
      * Input: array('abc' => array( '10' => array('key' => 'foo', 'value' => 'bar'), 'baz' => 'snafu'), 'cde' => array('10' => array('key' => 'x', 'value' => 'y'), 20 => array('key' => 'g', 'value' => 'h')))
      * Output: array('abc' => array('foo' => 'bar', 'baz' => 'snafu'), 'efg' => array('x' => 'y', 'g' => 'h'))
+     *
+     * @param array $array
+     * @param string $key
+     * @param mixed $value
+     * @param string $multipleKeySeparator
+     * @return array
+     *
      * @see flattenKeyValuesSubArray
      */
     public static function flattenKeyValueSubArrayList($array, $key = 'key', $value = 'value', $multipleKeySeparator = ',')
@@ -56,10 +71,12 @@ final class FormrelayUtility
      * Example
      * Input: array( '10' => array('key' => 'foo', 'value' => 'bar'), 'baz' => 'snafu')
      * Output: array('foo' => 'bar', 'baz' => 'snafu')
+     *
      * @param array $array The key-value pairs that need to be flattened
      * @param string $key The name of the key field in the pair
      * @param string $value The name of the value field in the pair
      * @param string $multipleKeySeparator If not false, it is the separator for the key field having multiple keys. If false, multiple keys are forbidden.
+     * @return array
      */
     public static function flattenKeyValueSubArray($array, $key = 'key', $value = 'value', $multipleKeySeparator = ',')
     {
@@ -102,5 +119,54 @@ final class FormrelayUtility
         $str = str_replace('\\n', PHP_EOL, trim($str));
         $str = str_replace('\\s', ' ', $str);
         return $str;
+    }
+
+    public static function registerExtension(string $classReference)
+    {
+        if (!is_a($classReference, FormrelayExtensionInterface::class)) {
+            throw new InvalidArgumentException(
+                'Error detector "' . $classReference . '" must implement interface ' . FormrelayExtensionInterface::class . '.',
+                1565086200
+            );
+
+        }
+
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $signalSlotDispatcher = $objectManager->get(Dispatcher::class);
+
+        $signals = [
+            FormrelayManager::SIGNAL_REGISTER_EXTENSION,
+            FormrelayManager::SIGNAL_BEFORE_PERMISSION_CHECK,
+            FormrelayManager::SIGNAL_AFTER_PERMISSION_CHECK,
+            FormrelayManager::SIGNAL_BEFORE_DATA_MAPPING,
+            FormrelayManager::SIGNAL_AFTER_DATA_MAPPING,
+            FormrelayManager::SIGNAL_DISPATCH,
+        ];
+        foreach ($signals as $signal) {
+            $signalSlotDispatcher->connect(
+                FormRelayManager::class, // Signal class name
+                $signal,                 // Signal name
+                $classReference,         // Slot class name
+                $signal                  // Slot name
+            );
+        }
+    }
+
+    public static function registerDataProvider(string $classReference)
+    {
+        if (!is_a($classReference, DataDispatcherInterface::class)) {
+            throw new InvalidArgumentException(
+                'Error detector "' . $classReference . '" must implement interface ' . DataDispatcherInterface::class . '.',
+                1565087714
+            );
+        }
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $signalSlotDispatcher = $objectManager->get(Dispatcher::class);
+        $signalSlotDispatcher->connect(
+            FormrelayManager::class,           // Signal class name
+            FormrelayManager::SIGNAL_ADD_DATA, // Signal name
+            $classReference,                   // Slot class name
+            FormrelayManager::SIGNAL_ADD_DATA  // Slot name
+        );
     }
 }

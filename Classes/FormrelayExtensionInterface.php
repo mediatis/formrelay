@@ -25,20 +25,19 @@ namespace Mediatis\Formrelay;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-
 /**
- * Formrelay Data Processor interface
+ * Interface for sub-extensions as signal slot
  *
- * @author Michael Vöhriner
+ * @author  Stephan Ude (mediatis AG) <ude@mediatis.de>
  * @package TYPO3
- * @subpackage formrelay
+ * @subpackage  formrelay
  */
-interface DataProcessorInterface
+interface FormrelayExtensionInterface
 {
-    /**
-     * process data.
-     *
-     * return true if dataProcessor processed data
-     */
-    public function processData($dataArray);
+    public function registerExtension(array &$extensionList);
+    public function beforePermissionCheck($extKey, $index, $conf, $data, $attachments, $result);
+    public function afterPermissionCheck($extKey, $index, $conf, $data, $attachments, $result);
+    public function beforeDataMapping($extKey, $index, $conf, $data, $attachments, $result);
+    public function afterDataMapping($extKey, $index, $conf, $data, $attachments, $result);
+    public function dispatch($extKey, $index, $conf, $data, $attachments, $result);
 }

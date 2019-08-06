@@ -33,7 +33,7 @@ class ConfigurationManagerTest extends UnitTestCase
         ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
             'ext_key_1' => ['some_key' => 'some_value']
         ], true);
-        $result = $this->subject->getSettings('ext_key_1');
+        $result = $this->subject->getFormrelaySettings('ext_key_1');
         $this->assertEquals([0 => ['some_key' => 'some_value']], $result);
     }
 
@@ -51,7 +51,7 @@ class ConfigurationManagerTest extends UnitTestCase
                 '1.' => ['key_1' => 'value_1_c']
             ]
         ], true);
-        $result = $this->subject->getSettings('ext_key_1');
+        $result = $this->subject->getFormrelaySettings('ext_key_1');
         $this->assertEquals([
             0 => ['key_1' => 'value_1_b', 'key_2' => 'value_2'],
             1 => ['key_1' => 'value_1_c', 'key_2' => 'value_2'],
@@ -72,7 +72,7 @@ class ConfigurationManagerTest extends UnitTestCase
                 'key_2' => 'value_2',
             ]
         ], true);
-        $result = $this->subject->getSettings('ext_key_1');
+        $result = $this->subject->getFormrelaySettings('ext_key_1');
         $this->assertEquals([
             0 => ['key_1' => 'value_1', 'key_2' => 'value_2_b'],
         ], $result);
@@ -98,7 +98,7 @@ class ConfigurationManagerTest extends UnitTestCase
                 '1.' => ['key_1' => 'value_1_c']
             ]
         ], true);
-        $result = $this->subject->getSettings('ext_key_1');
+        $result = $this->subject->getFormrelaySettings('ext_key_1');
         $this->assertEquals([
             0 => ['key_1' => 'value_1_d', 'key_2' => 'value_2_b'],
             1 => ['key_1' => 'value_1_c', 'key_2' => 'value_2_b'],
@@ -114,7 +114,7 @@ class ConfigurationManagerTest extends UnitTestCase
         ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
             'ext_key_1' => ['some_array_key.' => ['some_key' => 'some_value']]
         ], true);
-        $result = $this->subject->getSettings('ext_key_1');
+        $result = $this->subject->getFormrelaySettings('ext_key_1');
         $this->assertEquals([0 => ['some_array_key.' => ['some_key' => 'some_value']]], $result);
     }
 }

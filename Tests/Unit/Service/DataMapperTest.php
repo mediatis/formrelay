@@ -3,21 +3,14 @@ declare(strict_types=1);
 
 namespace Mediatis\Formrelay\Tests\Unit\Service;
 
-use Mediatis\Formrelay\AbstractFormrelayHook;
-use Mediatis\Formrelay\Command\FormSimulationCommand;
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Service\DataMapper;
-use Mediatis\Formrelay\Simulation\FormSimulatorService;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
-use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
 class DataMapperTest extends UnitTestCase
 {
     /**
-     * @var MockObject
+     * @var DataMapper
      */
     private $subject;
 
@@ -172,5 +165,7 @@ class DataMapperTest extends UnitTestCase
         ]]);
         $this->assertEquals(['mapped_key_1' => 'mapped_value_2', 'mapped_key_2' => 'mapped_value_1;mapped_value_2'], $result);
     }
+
+    // @TODO add unit tests for DataMapper::processAllFields()
 
 }

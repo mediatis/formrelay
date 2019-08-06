@@ -39,9 +39,7 @@ use TYPO3\CMS\Core\SingletonInterface;
  */
 class DataMapper implements SingletonInterface
 {
-    /**
-     * @var ConfigurationManager
-     */
+    /** @var ConfigurationManager */
     protected $configurationManager;
 
     public function injectConfigurationManager(ConfigurationManager $configurationManager)
@@ -52,12 +50,13 @@ class DataMapper implements SingletonInterface
     /**
      * Builds the whole mapping array for all form fields.
      * @param  array $data The original field array
-     * @param array $conf The configuration to be used
+     * @param string $extKey The key of the extension whose config we use to process
+     * @param int $index The index of the instance of the extension settings we use to process
      * @return array The array with the mapped fields and values
      */
     public function processAllFields($data, $extKey, $index)
     {
-        $conf = $this->configurationManager->getSettings($extKey, $index);
+        $conf = $this->configurationManager->getFormrelaySettings($extKey, $index);
 
         $result = isset($conf['fields.']['defaults.']) ? $conf['fields.']['defaults.'] : [];
 
@@ -110,13 +109,6 @@ class DataMapper implements SingletonInterface
             // ignore empty values (mostly hidden fields)
             if ($ignoreEmptyFields && trim($value) === '') {
                 continue;
-            }
-
-            if ($conf['fields.']['removeFieldNameParts']) {
-                $patterns = explode(',', $conf['fields.']['removeFieldNameParts']);
-                foreach ($patterns as $pattern) {
-                    $key = preg_replace($pattern, '', $key);
-                }
             }
 
             // ignore superfluous meta data

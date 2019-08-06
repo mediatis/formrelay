@@ -2,9 +2,9 @@
 
 namespace Mediatis\Formrelay\DataProvider;
 
-class Adwords implements \Mediatis\Formrelay\DataProviderInterface
+class Adwords implements DataProviderInterface
 {
-    public function addData(&$dataArray)
+    public function addData(array &$dataArray)
     {
         // track LMS Keywords
         if ($_COOKIE['adwords_keywords'] != "") {
