@@ -116,7 +116,7 @@ class ConfigurationManager implements SingletonInterface
 
     public function getExtensionTypoScriptSetup($extKey) {
         $tsSetup = $this->frontendConfigurationManager->getTypoScriptSetup();
-        return $tsSetup['plugin.'][$extKey . '.'] ?: null;
+        return $tsSetup['plugin.'][$extKey . '.'] ?: [];
     }
 
     protected function buildFormrelaySettingsData($tsSettings) {

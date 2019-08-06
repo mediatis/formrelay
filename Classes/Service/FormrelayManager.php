@@ -133,7 +133,7 @@ class FormrelayManager implements SingletonInterface
             // data mapping
             $metaData['result'] = null;
             $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__,static::SIGNAL_BEFORE_DATA_MAPPING, $metaData);
-            if ($metaData['result'] !== null) {
+            if ($metaData['result'] === null) {
                 $metaData['data'] = $this->dataMapper->processAllFields($metaData['data'], $metaData['extKey'], $metaData['index']);
             }
             $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_AFTER_DATA_MAPPING, $metaData);
