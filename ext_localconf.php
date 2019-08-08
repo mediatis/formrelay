@@ -12,4 +12,3 @@ if (!defined('TYPO3_MODE')) {
 \Mediatis\Formrelay\Utility\FormrelayUtility::registerDataProvider(\Mediatis\Formrelay\DataProvider\Timestamp::class);
 \Mediatis\Formrelay\Utility\FormrelayUtility::registerDataProvider(\Mediatis\Formrelay\DataProvider\ContentElement::class);
 
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = \Mediatis\Formrelay\Command\FormSimulationCommandController::class;

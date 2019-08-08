@@ -69,7 +69,7 @@ class FormrelayManager implements SingletonInterface
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
      */
-    public function process($data, $formSettings = false, $simulate = false, $attachments = false)
+    public function process($data, $formSettings = [], $simulate = false, $attachments = false)
     {
         // init objects
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
@@ -87,13 +87,12 @@ class FormrelayManager implements SingletonInterface
             $this->settings = $typoScript['settings.'];
         }
 
-        // call data providers
         if (!$simulate) {
+            // call data providers
             $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_ADD_DATA, [&$data]);
+            // log form submit
+            $this->logData($data);
         }
-
-        // log form submit
-        $this->logData($data);
 
         // call data processor for all extensions
         $extensionList = [];
