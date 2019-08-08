@@ -1,28 +1,70 @@
 {
+  "name": "mediatis/formrelay",
+  "type": "typo3-cms-extension",
+  "description": "Mediatis Formrelay",
+  "license": "GPL-2.0+",
+  "keywords": [
+    "TYPO3",
+    "extension",
+    "form",
+    "formrelay"
+  ],
+  "homepage": "https://www.mediatis.de",
   "authors": [
     {
-      "email": "voehringer@mediatis.de",
-      "homepage": "http://www.mediatis.de",
       "name": "Michael Vöhringer",
+      "role": "Developer"
+    },
+    {
+      "name": "Meelis Karulin",
+      "role": "Developer"
+    },
+    {
+      "name": "Damian Ickler",
+      "role": "Developer"
+    },
+    {
+      "name": "Stephan Ude",
       "role": "Developer"
     }
   ],
+  "require": {
+    "php": "~7.0 || ~7.1  || ~7.2",
+    "typo3/cms-core": "^8.7 || ^9.5",
+    "typo3/cms-form": "^8.7 || ^9.5"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.0",
+    "nimut/testing-framework": "^4.1.5"
+  },
   "autoload": {
-    "classmap": [
-      "Classes/"
-    ],
     "psr-4": {
-      "Mediatis\\Formrelay\\": "Classes/"
+      "Mediatis\\Formrelay\\": "Classes"
     }
   },
-  "license": "GPL-2.0+",
-  "name": "mediatis/formrelay",
+  "autoload-dev": {
+    "psr-4": {
+      "Mediatis\\Formrelay\\Tests\\": "Tests"
+    }
+  },
   "replace": {
+    "formrelay": "self.version",
     "typo3-ter/formrelay": "self.version"
   },
-  "require": {
-    "typo3/cms-core": "^7.6 || ^8.7 || ^9.5"
+  "config": {
+    "vendor-dir": ".Build/vendor",
+    "bin-dir": ".Build/bin"
   },
-  "type": "typo3-cms-extension",
-  "description": "Mediatis Formrelay"
+  "scripts": {
+    "link-extension": [
+      "mkdir -p .Build/Web/typo3conf/ext/",
+      "[ -L .Build/Web/typo3conf/ext/formrelay ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/formrelay"
+    ]
+  },
+  "extra": {
+    "typo3/cms": {
+      "cms-package-dir": "{$vendor-dir}/typo3/cms",
+      "web-dir": ".Build/Web"
+    }
+  }
 }
