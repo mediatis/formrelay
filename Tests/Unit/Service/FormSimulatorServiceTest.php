@@ -17,7 +17,7 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
     /** @var FormSimulatorService */
     private $subject;
 
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
         $subject = new FormSimulatorService();
@@ -26,7 +26,7 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
         $this->buildTestCaseForTsfe(24);
     }
 
-    public function tearDown(): void
+    public function tearDown()
     {
         parent::tearDown();
         GeneralUtility::resetSingletonInstances([]);

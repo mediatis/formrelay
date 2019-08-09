@@ -31,7 +31,7 @@ abstract class FormrelayUnitTestCase extends UnitTestCase
      * @param int $pageId
      * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
-    public function buildTestCaseForTsfe(int $pageId): void
+    public function buildTestCaseForTsfe(int $pageId)
     {
         /** @var \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend|\Prophecy\Prophecy\ObjectProphecy $frontendCache */
         $frontendCache = $this->prophesize(\TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class);

@@ -1,10 +1,94 @@
+# https://gist.github.com/spoonerWeb/53ea8a4bdc6fbb92a74195aba7339e94
+
+cache:
+  key: "$CI_COMMIT_REF_NAME-$CI_JOB_STAGE"
+  paths:
+    - .composer/
+
+before_script:
+  # Install git on machine
+  - apk add git --update
+
 stages:
+  - checkcode
   - test
 
 test_master:
   image: registry.mediatis.de:4567/devops/docker-images/sonar-scanner
-  stage: test
+  stage: checkcode
   script:
     - sonar-scanner -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_LOGIN -Dsonar.password=$SONAR_PASSWORD -Dsonar.projectKey=$CI_PROJECT_NAME:$CI_PROJECT_ID -Dsonar.gitlab.project_id=$CI_PROJECT_ID -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME -Dproject.settings=.sonar.properties -Dsonar.projectName=$CI_PROJECT_PATH
   only:
     - master
+
+
+.test: &testing
+  stage: test
+  image: php:$DOCKER_TAG
+  only:
+    - branches
+    - merge_requests
+  before_script:
+    # Install phpize
+    - apk add $PHPIZE_DEPS
+    # Install Xdebug
+    - pecl install xdebug
+    # Enable Xdebug
+    - docker-php-ext-enable xdebug
+    # Where to locate the DocRoot (needed for Unit Tests)
+    - export TYPO3_PATH_WEB="$PWD/.Build/Web"
+    - export COMPOSER_CACHE_DIR=.composer
+    # Install composer
+    - curl -OLs https://composer.github.io/installer.sig
+    - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    - php -r "if (hash_file('SHA384', 'composer-setup.php') === trim(file_get_contents('installer.sig'))) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+    - php composer-setup.php --no-ansi --install-dir=/usr/bin --filename=composer
+    - php -r "unlink('composer-setup.php'); unlink('installer.sig');"
+    # Get the given TYPO3 core
+    - composer require typo3/minimal="${TYPO3_VERSION}" --update-with-dependencies
+    # Get the TYPO3 testing framework (thx to Nicole and Helmut for that)
+    - composer require nimut/testing-framework
+    # Get the latest PHP_CodeSniffer
+    - composer require squizlabs/php_codesniffer
+  script:
+    # Run Unit Tests
+    - .Build/bin/phpunit -c Tests/UnitTests.xml --coverage-text --colors=never
+    # Run PHP_CodeSniffer (warning_severity is needed due usage of hooks which are not psr2 compliant)
+    - .Build/bin/phpcs --standard=PSR2 --config-set warning_severity 8 Classes Tests/Unit
+
+
+# Build in PHP 7.0 and TYPO3 8 (latest stable release)
+test:php70:typo3_8:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.0-alpine
+    TYPO3_VERSION: ^8
+
+# Build in PHP 7.1 and TYPO3 8 (latest stable release)
+test:php71:typo3_8:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.1-alpine
+    TYPO3_VERSION: ^8
+
+# Build in PHP 7.2 and TYPO3 8 (latest stable release)
+test:php72:typo3_8:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.2-alpine
+    TYPO3_VERSION: ^8
+
+# Build in PHP 7.2 and TYPO3 8 (latest stable release)
+test:php72:typo3_9:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.2-alpine
+    TYPO3_VERSION: ^9
+
+# Build in PHP 7.3 and TYPO3 8 (latest stable release)
+test:php73:typo3_9:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.3-alpine
+    TYPO3_VERSION: ^9
+
