@@ -29,7 +29,7 @@ class FormSimulatorService
     /**
      * @param FormrelayManager $formrelayManager
      */
-    public function injectFormrelayManager(FormrelayManager $formrelayManager): void
+    public function injectFormrelayManager(FormrelayManager $formrelayManager)
     {
         $this->formrelayManager = $formrelayManager;
     }
@@ -56,7 +56,7 @@ class FormSimulatorService
         while ($index !== false) {
             $logEntry = substr($content, $index);
             if (strlen($logEntry) > strlen(self::XML_LOG_PREFIX) + 3) {
-                [$formData, $date] = $this->computeLogEntry($logEntry);
+                list($formData, $date) = $this->computeLogEntry($logEntry);
                 $this->process($formData, $date, $pageId);
             }
 
@@ -130,7 +130,7 @@ class FormSimulatorService
      * @param bool $useCache
      * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
      */
-    private function initializeTsfe(int $pageId, int $language = 0, bool $useCache = true): void
+    private function initializeTsfe(int $pageId, int $language = 0, bool $useCache = true)
     {
         FormSimulatorUtility::initializeTsfe($pageId, $language, $useCache);
     }

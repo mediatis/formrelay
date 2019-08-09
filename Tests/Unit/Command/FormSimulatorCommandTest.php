@@ -23,7 +23,7 @@ class FormSimulatorCommandTest extends UnitTestCase
      */
     private $formSimulatorServiceMock;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         parent::setUp();
         $this->formSimulatorServiceMock = $this->getMockBuilder(FormSimulatorService::class)->setMethods(
@@ -38,7 +38,7 @@ class FormSimulatorCommandTest extends UnitTestCase
         $this->commandTester = new CommandTester($command);
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         parent::tearDown();
         GeneralUtility::resetSingletonInstances([]);
