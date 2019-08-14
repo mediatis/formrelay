@@ -3,8 +3,9 @@
 namespace Mediatis\Formrelay\Extensions\Form;
 
 use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
-use Mediatis\Formrelay\Service\ConfigurationManager;
-use Mediatis\Formrelay\Service\FormrelayManager;
+use Mediatis\Formrelay\Domain\Model\FormFieldUpload;
+use Mediatis\Formrelay\Configuration\ConfigurationManager;
+use Mediatis\Formrelay\Service\Relay;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
@@ -21,15 +22,21 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 class FormFinisher extends AbstractFinisher
 {
-    /**
-     * @var array
-     */
+    /** @var Relay */
+    protected $relay;
+
+    /** @var array */
     protected $defaultOptions = [
         'setup' => '',
         'baseUploadPath' => 'uploads/tx_formrelay/',
     ];
 
     protected $formValueMap = [];
+
+    public function injectRelay(Relay $relay)
+    {
+        $this->relay = $relay;
+    }
 
     protected function executeInternal()
     {
@@ -80,12 +87,10 @@ class FormFinisher extends AbstractFinisher
             } elseif ($element instanceof DatePicker) {
                 $formValues[$name] = $this->processDatePickerField($element, $value);
             } elseif ($element instanceof FileUpload) {
-                /** @var FileInterface $copiedFile */
-                $copiedFile = $this->processUploadField($element, $value);
-                if ($copiedFile instanceof FileInterface) {
-                    $publicUrl = $copiedFile->getPublicUrl();
-                    $attachments[] = $publicUrl;
-                    $formValues[$name] = trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $publicUrl;
+                /** @var FileInterface $uploadFieldValue */
+                $uploadFieldValue = $this->processUploadField($element, $value);
+                if ($uploadFieldValue !== null) {
+                    $formValues[$name] = $uploadFieldValue;
                 }
             } else {
                 GeneralUtility::devLog(
@@ -102,10 +107,7 @@ class FormFinisher extends AbstractFinisher
             }
         }
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $formrelayManager = $objectManager->get(FormrelayManager::class);
-
-        $formrelayManager->process($formValues, $formSettings, false, $attachments);
+        $this->relay->process($formValues, $formSettings, false);
     }
 
     protected function processStandardField(&$element, $value)
@@ -136,14 +138,14 @@ class FormFinisher extends AbstractFinisher
 
     /**
      * @param FormElementInterface $element
-     * @param FileReference|null $file
+     * @param FormFieldUpload|null $file
      * @return null|file
      * @throws \Exception
      */
     protected function processUploadField(FormElementInterface $element, FileReference $file = null)
     {
         if ($file === null) {
-            return '';
+            return null;
         }
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $configurationManager = $objectManager->get(ConfigurationManager::class);
@@ -159,7 +161,7 @@ class FormFinisher extends AbstractFinisher
                     __CLASS__,
                     $file->getExtension()
                 );
-                return '';
+                return null;
             }
         }
         $resourceFactory = ResourceFactory::getInstance();
@@ -182,7 +184,7 @@ class FormFinisher extends AbstractFinisher
                 $folder = $defaultStorage->createFolder($folderObject->getIdentifier());
             } catch (\Exception $e) {
                 GeneralUtility::devLog("Upload folder for this form can not be created", __CLASS__, 0, $baseUploadPath);
-                return '';
+                return null;
             }
         }
 
@@ -190,7 +192,11 @@ class FormFinisher extends AbstractFinisher
         $copiedFile = $file->copyTo($folder);
 
         if ($copiedFile) {
-            return $copiedFile;
+            if ($copiedFile instanceof FileInterface) {
+                $filePath = $copiedFile->getPublicUrl();
+                $value = trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $filePath;
+                return new FormFieldUpload($value, $filePath);
+            }
         } else {
             GeneralUtility::devLog(
                 'Failed to copy uploaded file "' . $fileName . '" to destination "' . $folder->getIdentifier() . '"!',
@@ -198,5 +204,6 @@ class FormFinisher extends AbstractFinisher
                 3
             );
         }
+        return null;
     }
 }

@@ -2,8 +2,7 @@
 
 namespace Mediatis\Formrelay\DataProvider;
 
-use Mediatis\Formrelay\Service\ConfigurationManager;
-use Mediatis\Formrelay\Utility\FormrelayUtility;
+use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\ContentObject\RecordsContentObject;
