@@ -5,7 +5,7 @@ namespace Mediatis\Formrelay\Test\Unit\Service;
 
 use Mediatis\Formrelay\Exceptions\InvalidXmlException;
 use Mediatis\Formrelay\Exceptions\InvalidXmlFileException;
-use Mediatis\Formrelay\Service\FormrelayManager;
+use Mediatis\Formrelay\Service\Relay;
 use Mediatis\Formrelay\Service\FormSimulatorService;
 use Mediatis\Formrelay\Tests\Unit\FormrelayUnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -38,10 +38,10 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
      */
     public function runWithInvaliFileThrowsError()
     {
-        /** @var FormrelayManager|MockObject $formrelayManager */
-        $formrelayManagerMock = $this->getMockBuilder(FormrelayManager::class)->setMethods(['process'])->getMock();
-        $formrelayManagerMock->expects($this->never())->method('process');
-        $this->subject->injectFormrelayManager($formrelayManagerMock);
+        /** @var Relay|MockObject $formrelayManager */
+        $relayMock = $this->getMockBuilder(Relay::class)->setMethods(['process'])->getMock();
+        $relayMock->expects($this->never())->method('process');
+        $this->subject->injectRelay($relayMock);
 
         $this->expectException(InvalidXmlFileException::class);
         $this->subject->run(__DIR__ . 'This_file_does_not_exist', 24);
@@ -52,10 +52,10 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
      */
     public function runWithInvalidXmlDataThrowsError()
     {
-        /** @var FormrelayManager|MockObject $formrelayManager */
-        $formrelayManagerMock = $this->getMockBuilder(FormrelayManager::class)->setMethods(['process'])->getMock();
-        $formrelayManagerMock->expects($this->never())->method('process');
-        $this->subject->injectFormrelayManager($formrelayManagerMock);
+        /** @var Relay|MockObject $formrelayManager */
+        $relayMock = $this->getMockBuilder(Relay::class)->setMethods(['process'])->getMock();
+        $relayMock->expects($this->never())->method('process');
+        $this->subject->injectRelay($relayMock);
 
         $this->expectException(InvalidXmlException::class);
         $this->subject->run(__DIR__ . '/../../Fixtures/invalid_log.xml', 24);
@@ -66,10 +66,10 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
      */
     public function runReturnsResultMessageAfterNothingIsParsed()
     {
-        /** @var FormrelayManager|MockObject $formrelayManager */
-        $formrelayManagerMock = $this->getMockBuilder(FormrelayManager::class)->setMethods(['process'])->getMock();
-        $formrelayManagerMock->expects($this->never())->method('process');
-        $this->subject->injectFormrelayManager($formrelayManagerMock);
+        /** @var Relay|MockObject $formrelayManager */
+        $relayMock = $this->getMockBuilder(Relay::class)->setMethods(['process'])->getMock();
+        $relayMock->expects($this->never())->method('process');
+        $this->subject->injectRelay($relayMock);
 
         $this->assertEquals(
             'INFO: 0 log entries re-sent.',
@@ -144,15 +144,15 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
         ];
 
 
-        /** @var FormrelayManager|MockObject $formrelayManager */
-        $formrelayManagerMock = $this->getMockBuilder(FormrelayManager::class)->setMethods(['process'])->getMock();
+        /** @var Relay|MockObject $formrelayManager */
+        $relayMock = $this->getMockBuilder(Relay::class)->setMethods(['process'])->getMock();
 
-        $formrelayManagerMock->expects($this->atLeast(2))->method('process')->withConsecutive(
+        $relayMock->expects($this->atLeast(2))->method('process')->withConsecutive(
             [$data[1], [], true],
             [$data[0], [], true]
         );
 
-        $this->subject->injectFormrelayManager($formrelayManagerMock);
+        $this->subject->injectRelay($relayMock);
 
         $this->buildTestCaseForTsfe(24);
         $this->assertEquals(

@@ -12,9 +12,9 @@ class FormSimulatorService
     const XML_LOG_PREFIX = '<?xml version="1.0" encoding="UTF-8"?>';
 
     /**
-     * @var \Mediatis\Formrelay\Service\FormrelayManager
+     * @var \Mediatis\Formrelay\Service\Relay
      */
-    protected $formrelayManager;
+    protected $relay;
 
     /**
      * @var int
@@ -27,11 +27,11 @@ class FormSimulatorService
     protected $submitDelay = 20;
 
     /**
-     * @param FormrelayManager $formrelayManager
+     * @param Relay $relay
      */
-    public function injectFormrelayManager(FormrelayManager $formrelayManager)
+    public function injectRelay(Relay $relay)
     {
-        $this->formrelayManager = $formrelayManager;
+        $this->relay = $relay;
     }
 
     /**
@@ -114,7 +114,7 @@ class FormSimulatorService
         if (!empty($formData)) {
             echo 'INFO: re-sending log entry from ' . $date . PHP_EOL;
             $this->initializeTsfe($pageId);
-            $this->formrelayManager->process($formData, [], true);
+            $this->relay->process($formData, [], true);
             $this->logEntryCounter++;
             sleep($this->submitDelay);
         } else {

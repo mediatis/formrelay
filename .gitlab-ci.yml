@@ -27,14 +27,9 @@ test_master:
   image: php:$DOCKER_TAG
   only:
     - branches
-    - merge_requests
   before_script:
     # Install phpize
     - apk add $PHPIZE_DEPS
-    # Install Xdebug
-    - pecl install xdebug
-    # Enable Xdebug
-    - docker-php-ext-enable xdebug
     # Where to locate the DocRoot (needed for Unit Tests)
     - export TYPO3_PATH_WEB="$PWD/.Build/Web"
     - export COMPOSER_CACHE_DIR=.composer

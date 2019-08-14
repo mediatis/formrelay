@@ -3,12 +3,9 @@ declare(strict_types=1);
 
 namespace Mediatis\Formrelay\Tests\Unit\Service;
 
-use Mediatis\Formrelay\Command\FormSimulationCommand;
-use Mediatis\Formrelay\Service\ConfigurationManager;
-use Mediatis\Formrelay\Simulation\FormSimulatorService;
+use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
 class ConfigurationManagerTest extends UnitTestCase
@@ -22,6 +19,9 @@ class ConfigurationManagerTest extends UnitTestCase
     {
         parent::setUp();
         $this->subject = new ConfigurationManager();
+        ObjectAccess::setProperty($this->subject, 'formrelayExtSettingsRaw', [], true);
+        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [], true);
+        ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [], true);
     }
 
     /**
@@ -29,7 +29,6 @@ class ConfigurationManagerTest extends UnitTestCase
      */
     public function loadBaseSettings()
     {
-        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [], true);
         ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
             'ext_key_1' => ['some_key' => 'some_value']
         ], true);
@@ -42,7 +41,6 @@ class ConfigurationManagerTest extends UnitTestCase
      */
     public function loadSubSettings()
     {
-        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [], true);
         ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
             'ext_key_1' => [
                 'key_1' => 'value_1',

@@ -25,25 +25,30 @@ namespace Mediatis\Formrelay\Service;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Mediatis\Formrelay\Utility\FormrelayUtility;
+use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
 use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException;
+use Mediatis\Formrelay\Utility\FormrelayUtility;
+use Mediatis\Formrelay\ConfigurationResolver\Evaluation\GateEvaluation;
 
-class FormrelayManager implements SingletonInterface
+class Relay implements SingletonInterface
 {
-    const SIGNAL_REGISTER_EXTENSION = 'registerExtension';
+    const SIGNAL_REGISTER = 'register';
 
-    const SIGNAL_BEFORE_PERMISSION_CHECK = 'beforePermissionCheck';
-    const SIGNAL_AFTER_PERMISSION_CHECK = 'afterPermissionCheck';
+    const SIGNAL_BEFORE_GATE_EVALUATION = 'beforeGateEvaluation';
+    const SIGNAL_AFTER_GATE_EVALUATION = 'afterGateEvaluation';
     const SIGNAL_BEFORE_DATA_MAPPING = 'beforeDataMapping';
     const SIGNAL_AFTER_DATA_MAPPING = 'afterDataMapping';
     const SIGNAL_DISPATCH = 'dispatch';
 
     const SIGNAL_ADD_DATA = 'addData';
+
+    /** @var ObjectManager */
+    protected $objectManager;
 
     /** @var Dispatcher */
     protected $signalSlotDispatcher;
@@ -51,40 +56,49 @@ class FormrelayManager implements SingletonInterface
     /** @var ConfigurationManager */
     protected $configurationManager;
 
-    /** @var FormrelayGate */
-    protected $formrelayGate;
-
     /** @var DataMapper */
     protected $dataMapper;
 
     /** @var array */
     protected $settings;
 
+    public function injectObjectManager(ObjectManager $objectManager)
+    {
+        $this->objectManager = $objectManager;
+    }
+
+    public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
+    {
+        $this->signalSlotDispatcher = $signalSlotDispatcher;
+    }
+
+    public function injectConfigurationManager(ConfigurationManager $configurationManager)
+    {
+        $this->configurationManager = $configurationManager;
+    }
+
+    public function injectDataMapper(DataMapper $dataMapper)
+    {
+        $this->dataMapper = $dataMapper;
+    }
+
     /**
      * @param array $data The original field array
      * @param bool|array $formSettings
      * @param bool $simulate
-     * @param bool|array $attachments paths to processed user uploads
      *
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
      */
-    public function process($data, $formSettings = [], $simulate = false, $attachments = false)
+    public function process($data, $formSettings = [], $simulate = false)
     {
-        // init objects
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->signalSlotDispatcher = $objectManager->get(Dispatcher::class);
-        $this->configurationManager = $objectManager->get(ConfigurationManager::class);
-        $this->dataMapper = $objectManager->get(DataMapper::class);
-        $this->formrelayGate = $objectManager->get(FormrelayGate::class);
-
         // register form overwrite settings
         $this->configurationManager->setFormrelaySettingsOverwrite($formSettings);
 
         // fetch own configuration
         if (!$this->settings) {
             $typoScript = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
-            $this->settings = $typoScript['settings.'];
+            $this->settings = $typoScript['settings'];
         }
 
         if (!$simulate) {
@@ -96,51 +110,64 @@ class FormrelayManager implements SingletonInterface
 
         // call data processor for all extensions
         $extensionList = [];
-        $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_REGISTER_EXTENSION, [&$extensionList]);
+        $extensionList = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_REGISTER, [$extensionList])[0];
+        $dispatched = false;
         foreach ($extensionList as $extKey) {
-            $this->processData($data, $extKey, $attachments);
+            if ($this->processData($data, $extKey)) {
+                $dispatched = true;
+            }
+        }
+        if (!$dispatched) {
+            die(print_r(['no endpoint triggered'], true));
+            // @TODO what to do if no endpoint had been triggered?
         }
     }
 
     /**
      * @param array $data The original field array
      * @param string $extKey The key of the extenstion which should be processed next
-     * @param bool|array $attachments paths to processed user uploads
      * @return bool
      *
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
      */
-    public function processData($data, $extKey, $attachments = false)
+    public function processData($data, $extKey)
     {
         $dispatched = false;
         for ($index = 0; $index < $this->configurationManager->getFormrelaySettingsCount($extKey); $index++) {
 
-            $conf = $this->configurationManager->getFormrelaySettings($extKey, $index);
-            $metaData = ['extKey' => $extKey, 'index' => $index, 'config' => $conf, 'data' => $data, 'attachments' => $attachments, 'result' => null];
+            // all relevant data for the signal slots (and for processing)
+            $signal = [
+                null,                                                               // 0: result
+                $data,                                                              // 1: data
+                $this->configurationManager->getFormrelaySettings($extKey, $index), // 2: conf
+                ['extKey' => $extKey, 'index' => $index]                            // 3: context
+            ];
 
-            // check permission
-            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_BEFORE_PERMISSION_CHECK, $metaData);
-            if ($metaData['result'] === null) {
-                $metaData['result'] = $this->formrelayGate->checkPermission($metaData['data'], $metaData['extKey'], $metaData['index']);
+            // evaluate gate
+            $signal[0] = null;
+            $signal = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_BEFORE_GATE_EVALUATION, $signal);
+            if ($signal[0] === null) {
+                $gateEvaluation = $this->objectManager->get(GateEvaluation::class, $signal[3]);
+                $signal[0] = $gateEvaluation->eval(['data' => $signal[1]]);
             }
-            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_AFTER_PERMISSION_CHECK, $metaData);
-            if (!$metaData['result']) {
+            $signal = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_AFTER_GATE_EVALUATION, $signal);
+            if (!$signal[0]) {
                 continue;
             }
 
             // data mapping
-            $metaData['result'] = null;
-            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__,static::SIGNAL_BEFORE_DATA_MAPPING, $metaData);
-            if ($metaData['result'] === null) {
-                $metaData['data'] = $this->dataMapper->processAllFields($metaData['data'], $metaData['extKey'], $metaData['index']);
+            $signal[0] = null;
+            $signal = $this->signalSlotDispatcher->dispatch(__CLASS__,static::SIGNAL_BEFORE_DATA_MAPPING, $signal);
+            if ($signal[0] === null) {
+                $signal[1] = $this->dataMapper->process($signal[1], $signal[3]['extKey'], $signal[3]['index']);
             }
-            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_AFTER_DATA_MAPPING, $metaData);
+            $signal = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_AFTER_DATA_MAPPING, $signal);
 
             // dispatch
-            $metaData['result'] = null;
-            $metaData = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_DISPATCH, $metaData);
-            if ($metaData['result']) {
+            $signal[0] = null;
+            $signal = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_DISPATCH, $signal);
+            if ($signal[0]) {
                 $dispatched = true;
             }
         }
@@ -149,11 +176,11 @@ class FormrelayManager implements SingletonInterface
 
     protected function logData($data = false, $error = false)
     {
-        $logfileBase = $this->settings['logfile.']['basePath'];
+        $logfileBase = $this->settings['logfile']['basePath'];
 
         // Only write a logfile if path is set in TS Config and logdata is not empty
         if (strlen($logfileBase) > 0) {
-            $logfilePath = $logfileBase . DIRECTORY_SEPARATOR . $this->settings['logfile.']['system'] . '.xml';
+            $logfilePath = $logfileBase . DIRECTORY_SEPARATOR . $this->settings['logfile']['system'] . '.xml';
 
             $xmlLog = simplexml_load_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?><log />");
             $xmlLog->addAttribute('type', $error ? 'error' : 'notice');
