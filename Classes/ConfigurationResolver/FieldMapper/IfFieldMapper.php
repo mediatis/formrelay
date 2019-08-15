@@ -14,7 +14,7 @@ class IfFieldMapper extends FieldMapper
     {
         $evaluation = $this->objectManager->get(GeneralEvaluation::class, $this->config);
         $evalResult = $evaluation->resolve($context);
-        if (gettype($evalResult) !== 'boolean') {
+        if ($evalResult !== null) {
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $evalResult);
             $fieldMapper->process($result, $context);
             return true;

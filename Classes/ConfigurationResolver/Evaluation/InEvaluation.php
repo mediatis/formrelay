@@ -10,7 +10,7 @@ class InEvaluation extends Evaluation
         return true;
     }
 
-    public function eval(array $context = [], array $keysEvaluated = [])
+    public function eval(array $context = [], array $keysEvaluated = []) : bool
     {
         return in_array(
             $context['data'][$context['key']],

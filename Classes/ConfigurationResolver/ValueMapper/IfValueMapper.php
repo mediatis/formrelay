@@ -12,7 +12,7 @@ class IfValueMapper extends ValueMapper
         $evaluation = $this->objectManager->get(GeneralEvaluation::class, $this->config);
         if ($evaluation) {
             $result = $evaluation->resolve($context);
-            if (gettype($result !== 'boolean')) {
+            if ($result !== null) {
                 $valueMapper = $this->objectManager->get(GeneralValueMapper::class, $result);
                 return $valueMapper->process($context);
             }

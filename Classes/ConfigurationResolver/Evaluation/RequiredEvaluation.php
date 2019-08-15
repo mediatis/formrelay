@@ -9,7 +9,7 @@ class RequiredEvaluation extends Evaluation
         return true;
     }
 
-    public function eval(array $context = [], array $keysEvaluated = [])
+    public function eval(array $context = [], array $keysEvaluated = []) : bool
     {
         $fields = $this->config;
         foreach ($fields as $field) {

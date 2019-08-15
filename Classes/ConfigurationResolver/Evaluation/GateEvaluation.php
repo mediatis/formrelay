@@ -65,7 +65,7 @@ class GateEvaluation extends Evaluation
         return $evaluation->eval($context, $keysEvaluated);
     }
 
-    public function eval(array $context = [], array $keysEvaluated = [])
+    public function eval(array $context = [], array $keysEvaluated = []) : bool
     {
         if (!is_array($this->config)) {
             return $this->evaluateMultipleExtensions($context, $keysEvaluated);

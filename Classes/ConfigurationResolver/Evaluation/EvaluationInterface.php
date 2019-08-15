@@ -15,5 +15,5 @@ interface EvaluationInterface
      * @param array $keysEvaluated
      * @return bool
      */
-    public function eval(array $context = [], array $keysEvaluated = []);
+    public function eval(array $context = [], array $keysEvaluated = []) : bool;
 }

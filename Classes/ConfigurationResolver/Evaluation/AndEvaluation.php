@@ -15,7 +15,7 @@ class AndEvaluation extends Evaluation
         return $result && $evaluation->eval($context, $keysEvaluated);
     }
 
-    public function eval(array $context = [], array $keysEvaluated = [])
+    public function eval(array $context = [], array $keysEvaluated = []) : bool
     {
         $result = $this->initialValue();
         foreach ($this->config as $key => $value) {
