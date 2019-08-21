@@ -6,12 +6,11 @@ use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
 use Mediatis\Formrelay\Domain\Model\FormFieldUpload;
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use Mediatis\Formrelay\Service\Relay;
-use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\AbstractFormElement;
 use TYPO3\CMS\Form\Domain\Model\FormElements\DatePicker;
@@ -22,6 +21,9 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 class FormFinisher extends AbstractFinisher
 {
+    /** @var ConfigurationManager */
+    protected $configurationManager;
+
     /** @var Relay */
     protected $relay;
 
@@ -32,6 +34,11 @@ class FormFinisher extends AbstractFinisher
     ];
 
     protected $formValueMap = [];
+
+    public function injectConfigurationManager(ConfigurationManager $configurationManager)
+    {
+        $this->configurationManager = $configurationManager;
+    }
 
     public function injectRelay(Relay $relay)
     {
@@ -52,14 +59,11 @@ class FormFinisher extends AbstractFinisher
         $setup = trim($this->parseOption('setup'));
 
         if ($setup) {
-            $TSparserObject = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-                \TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser::class
-            );
-            $TSparserObject->parse($setup);
-            $typoscript = $TSparserObject->setup;
-            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-            $formSettings = $objectManager->get(TypoScriptService::class)
-                ->convertTypoScriptArrayToPlainArray($typoscript);
+            $typoScriptParser = $this->objectManager->get(TypoScriptParser::class);
+            $typoScriptService = $this->objectManager->get(TypoScriptService::class);
+            $typoScriptParser->parse($setup);
+            $typoScript = $typoScriptParser->setup;
+            $formSettings = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
         } else {
             $formSettings = [];
         }
@@ -138,8 +142,8 @@ class FormFinisher extends AbstractFinisher
 
     /**
      * @param FormElementInterface $element
-     * @param FormFieldUpload|null $file
-     * @return null|file
+     * @param FileReference|null $file
+     * @return null|FormFieldUpload
      * @throws \Exception
      */
     protected function processUploadField(FormElementInterface $element, FileReference $file = null)
@@ -147,12 +151,9 @@ class FormFinisher extends AbstractFinisher
         if ($file === null) {
             return null;
         }
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $configurationManager = $objectManager->get(ConfigurationManager::class);
-
         $file = $file->getOriginalResource()->getOriginalFile();
 
-        $pluginTs = $configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
+        $pluginTs = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
         if (!empty($pluginTs['settings.']['fileupload.']['prohibitedExtensions'])) {
             $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
             if (in_array($file->getExtension(), $prohibitedExtensions)) {
