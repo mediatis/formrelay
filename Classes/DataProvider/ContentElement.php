@@ -3,12 +3,27 @@
 namespace Mediatis\Formrelay\DataProvider;
 
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\ContentObject\RecordsContentObject;
 
 class ContentElement implements DataProviderInterface
 {
+    /** @var ObjectManager */
+    protected $objectManager;
+
+    /** @var ConfigurationManager */
+    protected $configurationManager;
+
+    public function injectObjectManager(ObjectManager $objectManager)
+    {
+        $this->objectManager = $objectManager;
+    }
+
+    public function injectConfigurationManager(ConfigurationManager $configurationManager)
+    {
+        $this->configurationManager = $configurationManager;
+    }
+
     /**
      * Adds field with value from a content element to the E-Mail dataArray
      *
@@ -17,10 +32,7 @@ class ContentElement implements DataProviderInterface
      */
     public function addData(array &$dataArray)
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $configurationManager = $objectManager->get(ConfigurationManager::class);
-
-        $settings = $configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
+        $settings = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
         $fieldName = $settings['settings.']['dataProviders.']['contentElement.']['fieldName'];
         $ttContentUid = $settings['settings.']['dataProviders.']['contentElement.']['ttContentUid'];
 
@@ -46,12 +58,11 @@ class ContentElement implements DataProviderInterface
      */
     protected function prepareContents(array $uids)
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class, __CLASS__);
         $contents = '';
         $count = 0;
 
         foreach ($uids as $uid) {
-            $content = $objectManager->get(RecordsContentObject::class)->render(
+            $content = $this->objectManager->get(RecordsContentObject::class)->render(
                 [
                     'tables' => 'tt_content',
                     'source' => $uid,
