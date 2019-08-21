@@ -5,7 +5,7 @@ namespace Mediatis\Formrelay\DataDispatcher;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\Exception\GuzzleException;
-use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
+use Mediatis\Formrelay\Domain\Model\FormField\DiscreteMultiValueFormField;
 use Mediatis\Formrelay\Exceptions\InvalidUrlException;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -53,7 +53,7 @@ class RequestDispatcher implements DataDispatcherInterface
     {
         $params = [];
         foreach ($data as $key => $value) {
-            if ($value instanceof FormFieldMultiValueDiscrete) {
+            if ($value instanceof DiscreteMultiValueFormField) {
                 foreach ($value as $multiValue) {
                     $params[] = rawurlencode($key) . '=' . rawurlencode($multiValue);
                 }

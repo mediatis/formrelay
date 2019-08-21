@@ -5,8 +5,8 @@ namespace Mediatis\Formrelay\Tests\Unit\DataDispatcher;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
 use Mediatis\Formrelay\DataDispatcher\RequestDispatcher;
-use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
-use Mediatis\Formrelay\Domain\Model\FormFieldMultiValueDiscrete;
+use Mediatis\Formrelay\Domain\Model\FormField\MultiValueFormField;
+use Mediatis\Formrelay\Domain\Model\FormField\DiscreteMultiValueFormField;
 use Mediatis\Formrelay\Exceptions\InvalidUrlException;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Http\RequestFactory;
@@ -32,8 +32,8 @@ class RequestDispatcherTest extends UnitTestCase
         $postFields = [
             'name' => 'Max',
             'lastname' => 'Mustermann',
-            'multifieldDiscrete' => new FormFieldMultiValueDiscrete(['a', 'b', 'c']),
-            'multifield' => new FormFieldMultiValue(['a', 'b', 'c'])
+            'multifieldDiscrete' => new DiscreteMultiValueFormField(['a', 'b', 'c']),
+            'multifield' => new MultiValueFormField(['a', 'b', 'c'])
         ];
         $testCookies = ['cookiename' => 'cookievalue'];
         $host = 'https://www.example.com';
