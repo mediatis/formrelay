@@ -2,8 +2,8 @@
 
 namespace Mediatis\Formrelay\Extensions\Form;
 
-use Mediatis\Formrelay\Domain\Model\FormFieldMultiValue;
-use Mediatis\Formrelay\Domain\Model\FormFieldUpload;
+use Mediatis\Formrelay\Domain\Model\FormField\MultiValueFormField;
+use Mediatis\Formrelay\Domain\Model\FormField\UploadFormField;
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use Mediatis\Formrelay\Service\Relay;
 use TYPO3\CMS\Core\Resource\FileInterface;
@@ -119,7 +119,7 @@ class FormFinisher extends AbstractFinisher
         if ($element->getType() === 'Checkbox' && !$value) {
             $value = 0;
         }
-        return is_array($value) ? new FormFieldMultiValue($value) : $value;
+        return is_array($value) ? new MultiValueFormField($value) : $value;
     }
 
     protected function processDatePickerField(&$element, $dateObject)
@@ -143,7 +143,7 @@ class FormFinisher extends AbstractFinisher
     /**
      * @param FormElementInterface $element
      * @param FileReference|null $file
-     * @return null|FormFieldUpload
+     * @return null|UploadFormField
      * @throws \Exception
      */
     protected function processUploadField(FormElementInterface $element, FileReference $file = null)
@@ -184,7 +184,7 @@ class FormFinisher extends AbstractFinisher
             try {
                 $folder = $defaultStorage->createFolder($folderObject->getIdentifier());
             } catch (\Exception $e) {
-                GeneralUtility::devLog("Upload folder for this form can not be created", __CLASS__, 0, $baseUploadPath);
+                GeneralUtility::devLog("UploadFormField folder for this form can not be created", __CLASS__, 0, $baseUploadPath);
                 return null;
             }
         }
@@ -194,9 +194,9 @@ class FormFinisher extends AbstractFinisher
 
         if ($copiedFile) {
             if ($copiedFile instanceof FileInterface) {
-                $filePath = $copiedFile->getPublicUrl();
-                $value = trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $filePath;
-                return new FormFieldUpload($value, $filePath);
+                $relativePath = $copiedFile->getPublicUrl();
+                $publicUrl = trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $relativePath;
+                return new UploadFormField($publicUrl, $relativePath);
             }
         } else {
             GeneralUtility::devLog(
