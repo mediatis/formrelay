@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use Mediatis\Formrelay\DataProvider\DataProviderInterface;
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\Evaluation;
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\EvaluationInterface;
-use Mediatis\Formrelay\Endpoint\EndpointInterface;
+use Mediatis\Formrelay\Destination\DestinationInterface;
 use Mediatis\Formrelay\ConfigurationResolver\FieldMapper\FieldMapper;
 use Mediatis\Formrelay\ConfigurationResolver\FieldMapper\FieldMapperInterface;
 use Mediatis\Formrelay\ConfigurationResolver\ValueMapper\ValueMapper;
@@ -44,11 +44,11 @@ class Registry implements SingletonInterface
         }
     }
 
-    public function registerEndpoint(string $classReference)
+    public function registerDestination(string $classReference)
     {
         $this->register(
             $classReference,
-            EndpointInterface::class,
+            DestinationInterface::class,
             Relay::class,
             [
                 Relay::SIGNAL_REGISTER,

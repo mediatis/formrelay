@@ -56,7 +56,7 @@ This extension is not bound to forms exclusively. You can implement a "form subm
 ## Configuration Update
 ### updateConfig
 
-## Formrelay Endpoint
+## Formrelay Destination
 ### beforeGateEvaluation
 ### afterGateEvaluation
 ### beforeDataMapping
