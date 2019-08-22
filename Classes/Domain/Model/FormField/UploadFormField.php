@@ -16,17 +16,17 @@ class UploadFormField implements FormFieldInterface
         $this->relativePath = $relativePath;
     }
 
-    public function getPublicUrl() : string
+    public function getPublicUrl(): string
     {
         return $this->publicUrl;
     }
 
-    public function getRelativePath() : string
+    public function getRelativePath(): string
     {
         return $this->relativePath;
     }
 
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->getPublicUrl();
     }

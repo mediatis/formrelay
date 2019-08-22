@@ -68,7 +68,7 @@ class RequestDispatcher implements DataDispatcherInterface
      * @param array $data
      * @return bool
      */
-    public function send(array $data)
+    public function send(array $data): bool
     {
         $params = $this->parameterize($data);
 
