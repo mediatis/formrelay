@@ -1,10 +1,10 @@
 <?php
 
-namespace Mediatis\Formrelay\Endpoint;
+namespace Mediatis\Formrelay\Destination;
 
 use Mediatis\Formrelay\Service\Registerable;
 
-interface EndpointInterface extends Registerable
+interface DestinationInterface extends Registerable
 {
     /**
      * @param bool|null $result

@@ -1,6 +1,6 @@
 <?php
 
-namespace Mediatis\Formrelay\Endpoint;
+namespace Mediatis\Formrelay\Destination;
 
 use InvalidArgumentException;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -8,7 +8,7 @@ use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use Mediatis\Formrelay\DataDispatcher\DataDispatcherInterface;
 
-abstract class AbstractEndpoint implements EndpointInterface
+abstract class AbstractDestination implements DestinationInterface
 {
     /** @var ObjectManager */
     protected $objectManager;
