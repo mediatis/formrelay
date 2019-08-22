@@ -6,9 +6,48 @@ use Mediatis\Formrelay\Service\Registerable;
 
 interface EndpointInterface extends Registerable
 {
-    public function beforeGateEvaluation($result, $data, $conf, $context);
-    public function afterGateEvaluation($result, $data, $conf, $context);
-    public function beforeDataMapping($result, $data, $conf, $context);
-    public function afterDataMapping($result, $data, $conf, $context);
-    public function dispatch($result, $data, $conf, $context);
+    /**
+     * @param bool|null $result
+     * @param array $data
+     * @param array $conf
+     * @param array $context
+     * @return array
+     */
+    public function beforeGateEvaluation($result, array $data, array $conf, array $context): array;
+
+    /**
+     * @param bool|null $result
+     * @param array $data
+     * @param array $conf
+     * @param array $context
+     * @return array
+     */
+    public function afterGateEvaluation($result, array $data, array $conf, array $context): array;
+
+    /**
+     * @param bool|null $result
+     * @param array $data
+     * @param array $conf
+     * @param array $context
+     * @return array
+     */
+    public function beforeDataMapping($result, array $data, array $conf, array $context): array;
+
+    /**
+     * @param bool|null $result
+     * @param array $data
+     * @param array $conf
+     * @param array $context
+     * @return array
+     */
+    public function afterDataMapping($result, array $data, array $conf, array $context): array;
+
+    /**
+     * @param bool|null $result
+     * @param array $data
+     * @param array $conf
+     * @param array $context
+     * @return array
+     */
+    public function dispatch($result, array $data, array $conf, array $context): array;
 }

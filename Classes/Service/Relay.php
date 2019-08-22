@@ -118,7 +118,6 @@ class Relay implements SingletonInterface
             }
         }
         if (!$dispatched) {
-            die(print_r(['no endpoint triggered'], true));
             // @TODO what to do if no endpoint had been triggered?
         }
     }

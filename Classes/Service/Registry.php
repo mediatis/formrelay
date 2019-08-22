@@ -29,13 +29,13 @@ class Registry implements SingletonInterface
         $implementedInterfaces = class_implements($classReference);
         if (!in_array($interfaceReference, $implementedInterfaces)) {
             throw new InvalidArgumentException(
-                'Error detector "' . $classReference . '" must implement interface ' . $interfaceReference . '.',
+                'Error detected - "' . $classReference . '" must implement interface ' . $interfaceReference . '.',
                 1565086200
             );
         }
         if ($registerable && !in_array(Registerable::class, $implementedInterfaces)) {
             throw new InvalidArgumentException(
-                'Error detector "' . $classReference . '" must implement interface ' . Registerable::class . '.',
+                'Error detected - "' . $classReference . '" must implement interface ' . Registerable::class . '.',
                 1565156253
             );
         }

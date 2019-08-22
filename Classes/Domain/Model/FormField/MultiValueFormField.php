@@ -6,7 +6,7 @@ use ArrayObject;
 
 class MultiValueFormField extends ArrayObject implements FormFieldInterface
 {
-    public function __toString() : string
+    public function __toString(): string
     {
         return implode(',', iterator_to_array($this));
     }

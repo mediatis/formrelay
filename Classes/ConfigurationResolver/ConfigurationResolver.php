@@ -47,7 +47,7 @@ abstract class ConfigurationResolver
      * @param array $list
      * @return array
      */
-    public function register(array $list)
+    public function register(array $list): array
     {
         $keyword = $this->getKeyword();
         if ($keyword) {
@@ -72,7 +72,7 @@ abstract class ConfigurationResolver
         $interfaceName = $this->getResolverClass() . 'Interface';
         if (!in_array($interfaceName, class_implements($className))) {
             throw new InvalidArgumentException(
-                'Error detector "' . $className . '" must implement interface ' . $interfaceName . '.',
+                'Error detected - "' . $className . '" must implement interface ' . $interfaceName . '.',
                 1565086200
             );
         }

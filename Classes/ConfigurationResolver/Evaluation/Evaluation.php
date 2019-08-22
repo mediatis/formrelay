@@ -48,5 +48,5 @@ abstract class Evaluation extends ConfigurationResolver implements EvaluationInt
      * @param array $keysEvaluated
      * @return bool
      */
-    abstract public function eval(array $context = [], array $keysEvaluated = []) : bool;
+    abstract public function eval(array $context = [], array $keysEvaluated = []): bool;
 }
