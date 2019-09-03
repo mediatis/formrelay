@@ -7,10 +7,13 @@ use Mediatis\Formrelay\Service\Registerable;
 
 abstract class ValueMapper extends ConfigurationResolver implements ValueMapperInterface, Registerable
 {
-    abstract public function process($context);
-
-    protected function getResolverClass()
+    protected function getResolverClass(): string
     {
         return ValueMapper::class;
+    }
+
+    public function resolve(array $context): string
+    {
+        return $context['data'][$context['key']];
     }
 }

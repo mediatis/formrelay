@@ -3,6 +3,8 @@
 namespace Mediatis\Formrelay\Service;
 
 use InvalidArgumentException;
+use Mediatis\Formrelay\ConfigurationResolver\ContentResolver\ContentResolver;
+use Mediatis\Formrelay\ConfigurationResolver\ContentResolver\ContentResolverInterface;
 use Mediatis\Formrelay\DataProvider\DataProviderInterface;
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\Evaluation;
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\EvaluationInterface;
@@ -101,6 +103,17 @@ class Registry implements SingletonInterface
             ValueMapperInterface::class,
             ValueMapper::class,
             [ValueMapper::SIGNAL_REGISTER],
+            true
+        );
+    }
+
+    public function registerContentResolver(string $classReference)
+    {
+        $this->register(
+            $classReference,
+            ContentResolverInterface::class,
+            ContentResolver::class,
+            [ContentResolver::SIGNAL_REGISTER],
             true
         );
     }

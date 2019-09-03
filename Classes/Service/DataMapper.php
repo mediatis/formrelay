@@ -56,14 +56,14 @@ class DataMapper implements SingletonInterface
                 GeneralValueMapper::class,
                 $this->settings['values']['mapping'][$key] ?: []
             );
-            $context['value'] = $valueMapper->process($context);
+            $context['value'] = $valueMapper->resolve($context);
 
             // field mapping, which does the rest of the data mapping
             $fieldMapper = $this->objectManager->get(
                 GeneralFieldMapper::class,
                 $this->settings['fields']['mapping'][$key] ?: $this->settings['fields']['unmapped']
             );
-            $fieldMapper->process($result, $context);
+            $result = $fieldMapper->resolve($context, $result);
         }
 
         return $result;

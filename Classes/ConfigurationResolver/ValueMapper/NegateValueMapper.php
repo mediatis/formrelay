@@ -9,7 +9,7 @@ class NegateValueMapper extends ValueMapper
         return true;
     }
 
-    public function process($context)
+    public function resolve(array $context): string
     {
         $true = '1';
         if (isset($this->config['true'])) {

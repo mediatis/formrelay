@@ -4,38 +4,29 @@ namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
 class GeneralValueMapper extends ValueMapper
 {
-
-    public function process($context)
+    public function resolve(array $context): string
     {
-        if (!is_array($this->config)) {
-            return $this->config;
-        } elseif (!empty($this->config)) {
-            foreach ($this->config as $key => $value) {
+        $config = $this->preprocessConfigurationArray(['if'], ['plain']);
+        foreach ($config as $key => $value) {
+            // try to instantiate sub-mapper
+            $valueMapper = $this->resolveKeyword($key, $value);
 
-                // try to instantiate sub-mapper
-                $valueMapper = $this->resolveKeyword($key, $value);
+            // if not successful, create a general mapper as sub-mapper if the config key is the data value
+            if (!$valueMapper && $key === $context['data'[$context['key']]]) {
+                $valueMapper = $this->resolveKeyword('general', $value);
+            }
 
-                // if not successful, create a general mapper as sub-mapper if the config key is the data value
-                if (!$valueMapper && $key === $context['data'][$context['key']]) {
-                    $valueMapper = $this->objectManager->get(GeneralValueMapper::class, $value);
-                }
-
+            if ($valueMapper) {
                 // calculate the result
-                $result = false;
-                if ($valueMapper) {
-                    $result = $valueMapper->process($context);
-                }
-
-                // if the result is not a boolean (may be returned from an evaluation process without a then/else part)
+                $result = $valueMapper->resolve($context);
+                // if the result is not null (may be returned from an evaluation process without a then/else part)
                 // then stop and return the result
-                if (gettype($result) !== 'boolean') {
+                if ($result !== null) {
                     return $result;
                 }
-
             }
         }
         // if no result was found, return the original value
-        return $context['data'][$context['key']];
+        return parent::resolve($context);
     }
-
 }

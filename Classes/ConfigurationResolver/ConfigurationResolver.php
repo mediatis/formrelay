@@ -18,6 +18,7 @@ abstract class ConfigurationResolver
     /** @var Dispatcher */
     protected $signalSlotDispatcher;
 
+    /** @var array|string */
     protected $config;
 
     public function injectObjectManager(ObjectManager $objectManager)
@@ -30,6 +31,10 @@ abstract class ConfigurationResolver
         $this->signalSlotDispatcher = $signalSlotDispatcher;
     }
 
+    /**
+     * ConfigurationResolver constructor.
+     * @param array|string $config
+     */
     public function __construct($config = [])
     {
         if ($this->ignoreScalarConfig() && !is_array($config)) {
@@ -172,5 +177,89 @@ abstract class ConfigurationResolver
         return false;
     }
 
-    abstract protected function getResolverClass();
+    /**
+     * Returns the class of the type of resolver
+     * which must be (excluding the namespace) the postfix of all resolver classes of its type
+     * if they want to be linked to their typoscript keyword automatically
+     *
+     * example
+     * resolver class: Mediatis\Formrelay\ConfigurationResolver\Evaluation\Evaluation
+     * resolver type:  Evaluation
+     * resolver:       SomeVendor\FormrelayXyz\ConfigurationResolver\Evaluation\FoobarEvaluation
+     * keyword:        foobar
+     *
+     * @return string
+     */
+    abstract protected function getResolverClass(): string;
+
+    /**
+     * The main method to resolve a configuration
+     *
+     * @param array $context
+     * @return mixed
+     */
+    public function resolve(array $context)
+    {
+        $config = $this->preprocessConfigurationArray($this->config);
+        foreach ($config as $key => $value) {
+            $resolver = $this->resolveKeyword($key, $value);
+            if ($resolver) {
+                $result = $resolver->resolve($context);
+                if ($result !== null) {
+                    return $result;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * converts the typoscript configuration into a format that is better to process
+     * the result is an array of pairs, each having a key and a config-value
+     *
+     * respects scalar config and the config key "_typoScriptNodeValue" (both translated to the key "plain")
+     * respects numeric keys as sub-config, which need to be addressed by a new general resolver each
+     * can change ordering by pre- or appending given keys to the result
+     *
+     * @param array $prepend
+     * @param array $append
+     * @return array
+     */
+    protected function preprocessConfigurationArray(array $prepend = [], array $append = []): array
+    {
+        $result = [];
+
+        if (!is_array($this->config)) {
+            $result['plain'] = $this->config;
+        } else {
+
+            // process prepended keys
+            foreach ($prepend as $key) {
+                $preProcessedKey = $key === 'plain' ? '_typoScriptNodeValue' : $key;
+                if (isset($this->config[$preProcessedKey])) {
+                    $result[$key] = $this->config[$preProcessedKey];
+                }
+            }
+
+            // process other keys
+            $orderedKeys = array_merge($prepend, $append);
+            ksort($this->config, SORT_NUMERIC);
+            foreach ($this->config as $key => $value) {
+                $processedKey = $key === '_typoScriptNodeValue' ? 'plain' : $key;
+                if (in_array($processedKey, $orderedKeys)) {
+                    continue;
+                }
+                $result[$processedKey] = $value;
+            }
+
+            // process appended keys
+            foreach ($append as $key) {
+                $preProcessedKey = $key === 'plain' ? '_typoScriptNodeValue' : $key;
+                if (isset($this->config[$preProcessedKey])) {
+                    $result[$key] = $this->config[$preProcessedKey];
+                }
+            }
+        }
+        return $result;
+    }
 }

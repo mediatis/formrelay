@@ -7,7 +7,7 @@ use Mediatis\Formrelay\ConfigurationResolver\Evaluation\GeneralEvaluation;
 class IfValueMapper extends ValueMapper
 {
 
-    public function process($context)
+    public function resolve(array $context): string
     {
         $evaluation = $this->objectManager->get(GeneralEvaluation::class, $this->config);
         if ($evaluation) {
@@ -17,6 +17,6 @@ class IfValueMapper extends ValueMapper
                 return $valueMapper->process($context);
             }
         }
-        return false;
+        return null;
     }
 }

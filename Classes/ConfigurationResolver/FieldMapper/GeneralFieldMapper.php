@@ -6,57 +6,32 @@ class GeneralFieldMapper extends FieldMapper
 {
     protected $fieldMappers = [];
 
-    protected function getKeyword()
-    {
-        return '';
-    }
-
-    public function process(&$result, $context)
+    public function resolve(array $context, array $result = []): array
     {
         $this->fieldMappers = [];
-        if (!is_array($this->config)) {
-            $fieldMapper = $this->objectManager->get(PlainFieldMapper::class, $this->config);
-            $this->fieldMappers[] = $fieldMapper;
-        } else {
-            // plain values will be computed last and thus be added to the fieldMapper list first
-            if (isset($this->config['_typoScriptNodeValue'])) {
-                $fieldMapper = $this->objectManager->get(PlainFieldMapper::class, $this->config['_typoScriptNodeValue']);
+        $config = $this->preprocessConfigurationArray(['if'], ['plain']);
+        foreach ($config as $key => $value) {
+            $fieldMapper = $this->resolveKeyword($key, $value);
+            if (!$fieldMapper && is_numeric($key)) {
+                $fieldMapper = $this->resolveKeyword('general', $value);
+            }
+            if ($fieldMapper) {
                 $this->fieldMappers[] = $fieldMapper;
             }
-
-            // all other mappers are called in the reverse order of their appearance (last mapper wins)
-            foreach ($this->config as $key => $value) {
-                if ($key === '_typoScriptNodeValue' || $key === 'if') {
-                    continue;
-                }
-                $fieldMapper = $this->resolveKeyword($key, $value);
-                if ($fieldMapper) {
-                    $this->fieldMappers[] = $fieldMapper;
-                }
-            }
-
-            // if-constructs will be computed first and thus be added to the fieldMapper list last
-            if (isset($this->config['if'])) {
-                $fieldMapper = $this->resolveKeyword('if', $this->config['if']);
-                if ($fieldMapper) {
-                    $this->fieldMappers[] = $fieldMapper;
-                }
-            }
         }
-        $this->prepare($result, $context);
-        $this->finish($result, $context);
+        return parent::resolve($context, $result);
     }
 
-    public function prepare(&$result, &$context) {
+    public function prepare(&$context, &$result) {
         foreach ($this->fieldMappers as $fieldMapper) {
-            $fieldMapper->prepare($result, $context);
+            $fieldMapper->prepare($context, $result);
         }
     }
 
-    public function finish(&$result, &$context)
+    public function finish(&$context, &$result)
     {
-        foreach (array_reverse($this->fieldMappers) as $fieldMapper) {
-            if ($fieldMapper->finish($result, $context)) {
+        foreach ($this->fieldMappers as $fieldMapper) {
+            if ($fieldMapper->finish($context, $result)) {
                 break;
             }
         }

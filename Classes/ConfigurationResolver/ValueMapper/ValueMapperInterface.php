@@ -4,5 +4,5 @@ namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
 interface ValueMapperInterface
 {
-    public function process($context);
+    public function resolve(array $context);
 }

@@ -10,13 +10,13 @@ class IfFieldMapper extends FieldMapper
     /** @var GeneralFieldMapper */
     protected $fieldMapper;
 
-    public function finish(&$result, &$context)
+    public function finish(&$context, &$result)
     {
         $evaluation = $this->objectManager->get(GeneralEvaluation::class, $this->config);
         $evalResult = $evaluation->resolve($context);
         if ($evalResult !== null) {
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $evalResult);
-            $fieldMapper->process($result, $context);
+            $fieldMapper->resolve($context, $result);
             return true;
         }
         return false;

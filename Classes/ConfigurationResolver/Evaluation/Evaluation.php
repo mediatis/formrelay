@@ -10,7 +10,7 @@ abstract class Evaluation extends ConfigurationResolver implements EvaluationInt
     protected $then = null;
     protected $else = null;
 
-    protected function getResolverClass()
+    protected function getResolverClass(): string
     {
         return Evaluation::class;
     }
@@ -24,7 +24,7 @@ abstract class Evaluation extends ConfigurationResolver implements EvaluationInt
      * @param array $keysEvaluated
      * @return mixed|null
      */
-    public function resolve(array $context = [], array $keysEvaluated = [])
+    public function resolve(array $context, array $keysEvaluated = [])
     {
         if (is_array($this->config)) {
             if (isset($this->config['then'])) {
