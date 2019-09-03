@@ -4,17 +4,12 @@ namespace Mediatis\Formrelay\ConfigurationResolver\FieldMapper;
 
 class PlainFieldMapper extends FieldMapper
 {
-    protected function getKeyword()
-    {
-        return '';
-    }
-
-    public function prepare(&$result, &$context)
+    public function prepare(&$context, &$result)
     {
         $context['mappedKey'] = $this->config;
     }
 
-    public function finish(&$result, &$context)
+    public function finish(&$context, &$result)
     {
         $result[$context['mappedKey']] = $context['value'];
         return true;

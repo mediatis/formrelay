@@ -7,17 +7,24 @@ use Mediatis\Formrelay\Service\Registerable;
 
 abstract class FieldMapper extends ConfigurationResolver implements FieldMapperInterface, Registerable
 {
-    protected function getResolverClass()
+    protected function getResolverClass(): string
     {
         return FieldMapper::class;
     }
 
-    public function prepare(&$result, &$context)
+    public function prepare(&$context, &$result)
     {
     }
 
-    public function finish(&$result, &$context)
+    public function finish(&$context, &$result)
     {
         return false;
+    }
+
+    public function resolve(array $context, array $result = []): array
+    {
+        $this->prepare($context, $result);
+        $this->finish($context, $result);
+        return $result;
     }
 }

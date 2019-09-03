@@ -4,7 +4,6 @@ namespace Mediatis\Formrelay\ConfigurationResolver\Evaluation;
 
 class AndEvaluation extends Evaluation
 {
-
     protected function initialValue()
     {
         return true;
@@ -18,26 +17,29 @@ class AndEvaluation extends Evaluation
     public function eval(array $context = [], array $keysEvaluated = []): bool
     {
         $result = $this->initialValue();
-        foreach ($this->config as $key => $value) {
+        $config = $this->preprocessConfigurationArray();
+        foreach ($config as $key => $value) {
+
+            if ($key === 'field' && !is_array($value)) {
+                $context['key'] = $value;
+                continue;
+            }
+
             $evaluation = $this->resolveKeyword($key, $value);
+
             if (!$evaluation) {
                 if (is_numeric($key)) {
-                    // '10' => $subConfig
-                    $evaluation = $this->objectManager->get(GeneralEvaluation::class, $value);
-                } elseif ($key === 'field' && !is_array($value)) {
-                    // 'field' => field_name
-                    $context['key'] = $value;
+                    $evaluation = $this->resolveKeyword('general', $value);
                 } else {
                     $context['key'] = $key;
                     if (is_array($value)) {
-                        // 'field_name' => $subConfig
-                        $evaluation = $this->objectManager->get(GeneralEvaluation::class, $value);
+                        $evaluation = $this->resolveKeyword('general', $value);
                     } else {
-                        // 'field_name' => 'some_value'
-                        $evaluation = $this->objectManager->get(EqualsEvaluation::class, $value);
+                        $evaluation = $this->resolveKeyword('equals', $value);
                     }
                 }
             }
+
             if ($evaluation) {
                 $result = $this->calculate($result, $evaluation, $context, $keysEvaluated);
             }

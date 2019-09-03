@@ -11,7 +11,7 @@ class AppendValueFieldMapper extends FieldMapper
         return true;
     }
 
-    public function finish(&$result, &$context)
+    public function finish(&$context, &$result)
     {
         $separator = FormrelayUtility::parseSeparatorString($this->config['separator'] ?: '\\n');
         if (!isset($result[$context['mappedKey']])) {

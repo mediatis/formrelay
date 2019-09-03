@@ -84,7 +84,7 @@ class AndEvaluationTest extends UnitTestCase
         $this->objectManagerMock->expects($this->atLeast(1))->method('get')
             ->withConsecutive(
                 [$fieldName, $config[$fieldName]],
-                [GeneralEvaluation::class, $config[$fieldName]]
+                ['general', $config[$fieldName]]
             )
             ->willReturnOnConsecutiveCalls(
                 null,
@@ -110,7 +110,7 @@ class AndEvaluationTest extends UnitTestCase
         $this->objectManagerMock->expects($this->atLeast(1))->method('get')
             ->withConsecutive(
                 [$configKey, $configValue],
-                [EqualsEvaluation::class, $configValue]
+                ['equals', $configValue]
             )
             ->willReturnOnConsecutiveCalls(
                 null,
@@ -135,19 +135,15 @@ class AndEvaluationTest extends UnitTestCase
             $configKeys[1] => $configValues[1],
         ];
         ObjectAccess::setProperty($this->subject, 'config', $config, true);
-        $this->objectManagerMock->expects($this->atLeast(2))->method('get')
-            ->withConsecutive(
-                [$configKeys[0], $configValues[0]],
-                [EqualsEvaluation::class, $configValues[0]],
-                [$configKeys[1], $configValues[1]],
-                [EqualsEvaluation::class, $configValues[1]]
-            )
-            ->willReturnOnConsecutiveCalls(
-                null,
-                $this->buildEvaluationMock(true, ['key' => $configKeys[0]]),
-                null,
-                $this->buildEvaluationMock($expectedResult, ['key' => $configKeys[1]])
-            );
+        $this->objectManagerMock
+            ->expects($this->any())
+            ->method('get')
+            ->willReturnMap([
+                [$configKeys[1], $configValues[1], null],
+                [$configKeys[0], $configValues[0], null],
+                ['equals', $configValues[0], $this->buildEvaluationMock(true, ['key' => $configKeys[0]])],
+                ['equals', $configValues[1], $this->buildEvaluationMock($expectedResult, ['key' => $configKeys[1]])],
+            ]);
         $result = $this->subject->eval();
         $this->assertEquals($expectedResult, $result);
     }
@@ -170,9 +166,9 @@ class AndEvaluationTest extends UnitTestCase
         $this->objectManagerMock->expects($this->atLeast(2))->method('get')
             ->withConsecutive(
                 [$configKeys[0], $configValues[0]],
-                [EqualsEvaluation::class, $configValues[0]],
+                ['equals', $configValues[0]],
                 [$configKeys[1], $configValues[1]],
-                [EqualsEvaluation::class, $configValues[1]]
+                ['equals', $configValues[1]]
             )
             ->willReturnOnConsecutiveCalls(
                 null,

@@ -7,7 +7,7 @@ use Mediatis\Formrelay\Utility\FormrelayUtility;
 
 class JoinFieldMapper extends FieldMapper
 {
-    public function prepare(&$result, &$context)
+    public function prepare(&$context, &$result)
     {
         if ($context['value'] instanceof MultiValueFormField) {
             $glue = FormrelayUtility::parseSeparatorString($this->config['glue'] ?: '\\n');

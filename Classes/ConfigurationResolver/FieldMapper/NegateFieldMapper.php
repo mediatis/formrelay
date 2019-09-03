@@ -9,7 +9,7 @@ class NegateFieldMapper extends FieldMapper
         return true;
     }
 
-    public function prepare(&$result, &$context)
+    public function prepare(&$context, &$result)
     {
         $context['value'] = !!$context['value']
             ? ($this->config['false'] ?: '0')

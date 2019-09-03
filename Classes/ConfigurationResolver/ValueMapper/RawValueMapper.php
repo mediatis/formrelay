@@ -2,10 +2,24 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
-class RawValueMapper extends GeneralValueMapper
+class RawValueMapper extends ValueMapper
 {
-    protected function resolveKeyword(string $keyword, $config)
+    public function resolve(array $context): string
     {
-        return null;
+        foreach ($this->config as $key => $value) {
+            $valueMapper = null;
+
+            if ($key === $context['data'[$context['key']]]) {
+                $valueMapper = $this->resolveKeyword('general', $value);
+            }
+
+            if ($valueMapper) {
+                $result = $valueMapper->resolve($context);
+                if ($result !== null) {
+                    return $result;
+                }
+            }
+        }
+        return parent::resolve($context);
     }
 }
