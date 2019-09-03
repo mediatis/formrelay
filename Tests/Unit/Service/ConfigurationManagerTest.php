@@ -20,8 +20,9 @@ class ConfigurationManagerTest extends UnitTestCase
         parent::setUp();
         $this->subject = new ConfigurationManager();
         ObjectAccess::setProperty($this->subject, 'formrelayExtSettingsRaw', [], true);
-        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [], true);
+        ObjectAccess::setProperty($this->subject, 'overwriteFormrelayExtSettingsRaw', [], true);
         ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [], true);
+        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [], true);
     }
 
     /**
