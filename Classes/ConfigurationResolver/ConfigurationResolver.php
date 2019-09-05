@@ -5,6 +5,7 @@ namespace Mediatis\Formrelay\ConfigurationResolver;
 use InvalidArgumentException;
 use TYPO3\CMS\Extbase\Object\Container\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Reflection\Exception\UnknownClassException;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Extbase\Object\Exception;
 
@@ -100,6 +101,10 @@ abstract class ConfigurationResolver
                 return $result;
             }
         } catch (UnknownObjectException $e) {
+            // TYPO3 8
+            // that's okay, we will try to gather more information
+        }  catch (UnknownClassException $e) {
+            // TYPO3 9
             // that's okay, we will try to gather more information
         }
 
