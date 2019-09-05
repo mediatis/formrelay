@@ -9,7 +9,7 @@ class PlainFieldMapper extends FieldMapper
         $context['mappedKey'] = $this->config;
     }
 
-    public function finish(&$context, &$result)
+    public function finish(&$context, &$result): bool
     {
         $result[$context['mappedKey']] = $context['value'];
         return true;

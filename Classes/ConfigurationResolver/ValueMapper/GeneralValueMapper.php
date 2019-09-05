@@ -2,7 +2,9 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
-class GeneralValueMapper extends ValueMapper
+use Mediatis\Formrelay\ConfigurationResolver\GeneralConfigurationResolverInterface;
+
+class GeneralValueMapper extends ValueMapper implements GeneralConfigurationResolverInterface
 {
     public function resolve(array $context): string
     {

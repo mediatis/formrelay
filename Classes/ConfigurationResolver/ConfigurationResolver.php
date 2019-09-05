@@ -127,7 +127,7 @@ abstract class ConfigurationResolver
             }
         }
 
-        // maybe this isn't a keyword at all (but rather data/content
+        // maybe this isn't a keyword at all (but rather data/content)
         return null;
     }
 

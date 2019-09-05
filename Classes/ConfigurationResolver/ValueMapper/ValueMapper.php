@@ -12,7 +12,11 @@ abstract class ValueMapper extends ConfigurationResolver implements ValueMapperI
         return ValueMapper::class;
     }
 
-    public function resolve(array $context): string
+    /**
+     * @param array $context
+     * @return string|null
+     */
+    public function resolve(array $context)
     {
         return $context['data'][$context['key']];
     }

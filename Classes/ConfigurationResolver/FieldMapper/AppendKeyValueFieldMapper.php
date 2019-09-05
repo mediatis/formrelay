@@ -12,7 +12,7 @@ class AppendKeyValueFieldMapper extends FieldMapper
         return true;
     }
 
-    public function finish(&$context, &$result)
+    public function finish(&$context, &$result): bool
     {
         $keyValueSeparator = FormrelayUtility::parseSeparatorString($this->config['keyValueSeparator'] ?: '\\s=\\s');
         $separator = FormrelayUtility::parseSeparatorString($this->config['separator'] ?: '\\n');

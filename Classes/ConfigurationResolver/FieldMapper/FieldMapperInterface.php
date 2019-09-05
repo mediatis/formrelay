@@ -2,9 +2,10 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\FieldMapper;
 
-interface FieldMapperInterface
+use Mediatis\Formrelay\ConfigurationResolver\ConfigurationResolverInterface;
+
+interface FieldMapperInterface extends ConfigurationResolverInterface
 {
-    public function __construct($config = []);
     public function prepare(&$context, &$result);
-    public function finish(&$context, &$result);
+    public function finish(&$context, &$result): bool;
 }
