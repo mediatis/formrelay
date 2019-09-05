@@ -2,7 +2,9 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\FieldMapper;
 
-class GeneralFieldMapper extends FieldMapper
+use Mediatis\Formrelay\ConfigurationResolver\GeneralConfigurationResolverInterface;
+
+class GeneralFieldMapper extends FieldMapper implements GeneralConfigurationResolverInterface
 {
     protected $fieldMappers = [];
 
@@ -19,7 +21,9 @@ class GeneralFieldMapper extends FieldMapper
                 $this->fieldMappers[] = $fieldMapper;
             }
         }
-        return parent::resolve($context, $result);
+        $this->prepare($context, $result);
+        $this->finish($context, $result);
+        return $result;
     }
 
     public function prepare(&$context, &$result) {
@@ -28,13 +32,13 @@ class GeneralFieldMapper extends FieldMapper
         }
     }
 
-    public function finish(&$context, &$result)
+    public function finish(&$context, &$result): bool
     {
         foreach ($this->fieldMappers as $fieldMapper) {
             if ($fieldMapper->finish($context, $result)) {
-                break;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }

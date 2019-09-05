@@ -25,7 +25,7 @@ class FormSimulatorCommand extends Command
      */
     protected function configure()
     {
-        $this->setDescription('Re-send form submits from the XML log to endpoints.');
+        $this->setDescription('Re-send form submits from the XML log to destinations.');
         $this->setHelp($this->getDescription());
         $this->addUsage('--pageId=<pageId> --filePath=<filePath>');
         $this->addOption('filePath', null, InputOption::VALUE_REQUIRED, 'Path to file to import from');

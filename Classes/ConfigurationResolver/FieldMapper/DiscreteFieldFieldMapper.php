@@ -8,7 +8,7 @@ use Mediatis\Formrelay\Domain\Model\FormField\DiscreteMultiValueFormField;
 class DiscreteFieldFieldMapper extends FieldMapper
 {
 
-    public function finish(&$context, &$result)
+    public function finish(&$context, &$result): bool
     {
         if (!isset($result[$context['mappedKey']])) {
             // if not set yet, create a discrete multi-value field
@@ -34,5 +34,6 @@ class DiscreteFieldFieldMapper extends FieldMapper
             // else append just the value in a whole
             $result[$context['mappedKey']]->append($context['value']);
         }
+        return true;
     }
 }

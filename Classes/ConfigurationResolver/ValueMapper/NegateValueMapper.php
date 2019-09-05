@@ -24,7 +24,7 @@ class NegateValueMapper extends ValueMapper
         }
 
         $valueMapper = $this->objectManager->get(GeneralValueMapper::class, $this->config);
-        $result = $valueMapper->process($context);
+        $result = $valueMapper->resolve($context);
 
         return !!$result ? $false : $true;
     }

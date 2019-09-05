@@ -2,52 +2,16 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\ContentResolver;
 
+use Mediatis\Formrelay\ConfigurationResolver\GeneralConfigurationResolverInterface;
 
-use Mediatis\Formrelay\ConfigurationResolver\Evaluation\GeneralEvaluation;
-
-class GeneralContentResolver extends ContentResolver
+class GeneralContentResolver extends ContentResolver implements GeneralConfigurationResolverInterface
 {
-    /*
-     * sender = foo@bar.de
-     *
-     * sender = {email}, foo@bar.de
-     * sender.insertData = 1
-     *
-     * sender.field = email
-     *
-     * sender {
-     *   10 = Hello
-     *   20.field = email
-     * }
-     *
-     * sender {
-     *   config {
-     *     delimiter = \s
-     *   }
-     *   10 = Hello
-     *   20.field = email
-     * }
-     *
-     * sender {
-     *   10 = Hello
-     *   20.field = email
-     * }
-     *
-     * sender = Hello
-     * sender.if {
-     *   language = es
-     *   then = Hola
-     * }
-     *
-     * sender {
-     *   10 = Hello
-     *   10.if {
-     *     language = es
-     *     then Hola
-     *   }
-     *   20.field = name
-     * }
-     */
+    public function resolve(array $context): string
+    {
+        $result = $this->build($context);
+        $this->finish($context, $result);
+        return $result;
+    }
 
     public function build(array &$context): string
     {

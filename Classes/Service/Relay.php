@@ -83,14 +83,15 @@ class Relay implements SingletonInterface
     }
 
     /**
-     * @param array $data The original field array
-     * @param bool|array $formSettings
-     * @param bool $simulate
+     * @param array $data         The original field array
+     * @param array $formSettings Overwrite settings for the different formrelay-destinations
+     * @param bool $simulate      This flag will suppress all data providers and the formrelay-log of this submission
+     *                            It is used to re-send past submissions.
      *
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
      */
-    public function process($data, $formSettings = [], $simulate = false)
+    public function process(array $data, array $formSettings = [], bool $simulate = false)
     {
         // register form overwrite settings
         $this->configurationManager->setFormrelaySettingsOverwrite($formSettings);
@@ -118,7 +119,7 @@ class Relay implements SingletonInterface
             }
         }
         if (!$dispatched) {
-            // @TODO what to do if no endpoint had been triggered?
+            // @TODO what to do if no destination had been triggered?
         }
     }
 

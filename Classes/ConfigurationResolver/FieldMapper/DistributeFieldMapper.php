@@ -4,14 +4,14 @@ namespace Mediatis\Formrelay\ConfigurationResolver\FieldMapper;
 
 class DistributeFieldMapper extends FieldMapper
 {
-    public function finish(&$context, &$result)
+    public function convertScalarConfigToArray()
     {
-        if (!is_array($this->config)) {
-            $this->config = ['fields' => explode(',', $this->config)];
-        } elseif (!is_array($this->config['fields'])) {
-            $this->config['fields'] = explode(',', $this->config['fields']);
-        }
-        foreach ($this->config['fields'] as $field) {
+        return true;
+    }
+
+    public function finish(&$context, &$result): bool
+    {
+         foreach ($this->config as $field) {
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $field);
             $fieldMapper->resolve($context, $result);
         }

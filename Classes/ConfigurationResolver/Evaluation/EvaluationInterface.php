@@ -2,14 +2,10 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\Evaluation;
 
-interface EvaluationInterface
-{
-    /**
-     * EvaluationInterface constructor.
-     * @param array|string $config
-     */
-    public function __construct($config = []);
+use Mediatis\Formrelay\ConfigurationResolver\ConfigurationResolverInterface;
 
+interface EvaluationInterface extends ConfigurationResolverInterface
+{
     /**
      * @param array $context
      * @param array $keysEvaluated

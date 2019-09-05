@@ -2,7 +2,9 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\ContentResolver;
 
-interface ContentResolverInterface
+use Mediatis\Formrelay\ConfigurationResolver\ConfigurationResolverInterface;
+
+interface ContentResolverInterface extends ConfigurationResolverInterface
 {
     public function build(array &$context): string;
     public function finish(array &$context, string &$result): bool;

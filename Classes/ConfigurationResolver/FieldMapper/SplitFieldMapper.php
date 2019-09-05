@@ -7,7 +7,7 @@ use Mediatis\Formrelay\Utility\FormrelayUtility;
 class SplitFieldMapper extends FieldMapper
 {
 
-    public function finish(&$context, &$result)
+    public function finish(&$context, &$result): bool
     {
         $token = FormrelayUtility::parseSeparatorString($this->config['token'] ?: '\\s');
         $splitFields = $this->config['fields'];
@@ -17,7 +17,7 @@ class SplitFieldMapper extends FieldMapper
             $splitField = array_shift($splitFields);
             $splitValue = array_shift($splitValues);
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $splitField);
-            $fieldMapper->process($result, [
+            $fieldMapper->resolve($result, [
                 'data' => $context['data'],
                 'key' => $context['key'],
                 'value' => $splitValue,
@@ -28,7 +28,7 @@ class SplitFieldMapper extends FieldMapper
             $splitField = array_shift($splitFields);
             $splitValue = implode($token, $splitValues);
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $splitField);
-            $fieldMapper->process($result, [
+            $fieldMapper->resolve($result, [
                 'data' => $context['data'],
                 'key' => $context['key'],
                 'value' => $splitValue,

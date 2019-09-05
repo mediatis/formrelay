@@ -16,15 +16,8 @@ abstract class FieldMapper extends ConfigurationResolver implements FieldMapperI
     {
     }
 
-    public function finish(&$context, &$result)
+    public function finish(&$context, &$result): bool
     {
         return false;
-    }
-
-    public function resolve(array $context, array $result = []): array
-    {
-        $this->prepare($context, $result);
-        $this->finish($context, $result);
-        return $result;
     }
 }
