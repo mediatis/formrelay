@@ -14,14 +14,6 @@ abstract class ContentResolver extends ConfigurationResolver implements ContentR
         return ContentResolver::class;
     }
 
-    protected function add($context, $result, $content): string
-    {
-        $delimiter = FormrelayUtility::parseSeparatorString($context['delimiter'] ?: '');
-        return $result
-            . ($content && $result && $delimiter ? $delimiter : '')
-            . $content;
-    }
-
     public function build(array &$context): string
     {
         return '';
