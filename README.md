@@ -1370,5 +1370,6 @@ settings so this configuration can serve as a template:
   in your project folder
 
 ## Generating changelog
-- CHANGELOG.md must be generated together with every git release and commited together with ext_emconf.php. 
-`git log --since=1/1/2019 --no-merges --format=%B > CHANGELOG.txt`
+- CHANGELOG.md must be generated together with every git release and commited together with ext_emconf.php.  
+`printf '%s\n%s\n' "$(git log $(git describe --tags --abbrev=0)..HEAD --no-merges --format=%B)" "$(cat CHANGELOG.txt)" > CHANGELOG.txt`
+
