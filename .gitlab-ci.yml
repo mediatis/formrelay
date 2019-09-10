@@ -5,10 +5,6 @@ cache:
   paths:
     - .composer/
 
-before_script:
-  # Install git on machine
-  - apk add git --update
-
 stages:
   - checkcode
   - test
@@ -28,6 +24,8 @@ test_master:
   only:
     - branches
   before_script:
+    # Install git on machine
+    - apk add git --update
     # Install phpize
     - apk add $PHPIZE_DEPS
     # Where to locate the DocRoot (needed for Unit Tests)
