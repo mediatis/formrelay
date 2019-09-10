@@ -31,11 +31,6 @@ TYPO3:
                           templateName: 'Inspector-TextareaEditor'
                           label: 'Setup'
                           propertyPath: 'options.setup'
-                        250:
-                          identifier: 'addHiddenFields'
-                          templateName: 'Inspector-TextareaEditor'
-                          label: 'Add / set hidden field values'
-                          propertyPath: 'options.addHiddenFields'
             Fieldset:
               formEditor:
                 editors:
@@ -55,7 +50,6 @@ TYPO3:
                   options:
                     setup: ''
                     baseUploadPath: 'uploads/tx_formrelay/'
-                    addHiddenFields: ''
       mixins:
         formElementMixins:
           FormElementMixin:

@@ -2,9 +2,9 @@
 
 namespace Mediatis\Formrelay\DataProvider;
 
-class LanguageCode implements \Mediatis\Formrelay\DataProviderInterface
+class LanguageCode implements DataProviderInterface
 {
-    public function addData(&$dataArray)
+    public function addData(array &$dataArray)
     {
         $dataArray['language'] = $GLOBALS['TSFE']->tmpl->setup['config.']['language'];
     }

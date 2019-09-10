@@ -2,9 +2,9 @@
 
 namespace Mediatis\Formrelay\DataProvider;
 
-class Timestamp implements \Mediatis\Formrelay\DataProviderInterface
+class Timestamp implements DataProviderInterface
 {
-    public function addData(&$dataArray)
+    public function addData(array &$dataArray)
     {
         $dataArray['timestamp'] = date('c');
     }

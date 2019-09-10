@@ -5,4 +5,4 @@ TYPO3:
         standard:
           finishersDefinition:
             Formrelay:
-              implementationClassName: 'Mediatis\Formrelay\Plugins\FormFinisher'
+              implementationClassName: 'Mediatis\Formrelay\Extensions\Form\FormFinisher'

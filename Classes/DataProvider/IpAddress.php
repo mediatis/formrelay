@@ -2,9 +2,9 @@
 
 namespace Mediatis\Formrelay\DataProvider;
 
-class IpAddress implements \Mediatis\Formrelay\DataProviderInterface
+class IpAddress implements DataProviderInterface
 {
-    public function addData(&$dataArray)
+    public function addData(array &$dataArray)
     {
         $dataArray['ip_address'] = \Mediatis\Formrelay\Utility\IpAddress::getUserIpAdress();
     }

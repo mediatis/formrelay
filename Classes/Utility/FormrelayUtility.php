@@ -22,19 +22,9 @@ final class FormrelayUtility
         return $content;
     }
 
-    public static function loadPluginTS($extKey, $overwriteKey = null)
-    {
-        $conf = $GLOBALS['TSFE']->tmpl->setup['plugin.'][$extKey . '.'];
-        if (!$conf) {
-            $frontendConfigurationManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-                'TYPO3\\CMS\\Extbase\\Configuration\\FrontendConfigurationManager'
-            );
-            $tsSetup = $frontendConfigurationManager->getTypoScriptSetup();
-            $conf = $tsSetup['plugin.'][$extKey . '.'];
-        }
-        if ($overwriteKey) {
-            return $conf['configurationOverwrite.'][$overwriteKey . '.'] ?: $conf;
-        }
-        return $conf;
+    public static function parseSeparatorString($str) {
+        $str = str_replace('\\n', PHP_EOL, trim($str));
+        $str = str_replace('\\s', ' ', $str);
+        return $str;
     }
 }

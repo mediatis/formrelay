@@ -1,0 +1,16 @@
+
+2.0.0
+
+[TASK] Added documentation (MEDO-223)
+
+[BUGFIX] Fixed exception handling for TYPO3 9
+
+[FEATURE] Added new configuration resolver type: content resolver (MEDO-241)
+
+[BUGFIX] ConfigurationManager missed some cases of configuration overwrites (MEDO-269)
+
+[FEATURE] Introduced configuration resolver: evaluation, field mapper, value mapper (MEDO-238)
+
+[TASK] Removed bulky features (MEDO-232)
+
+[FEATURE] Reworked data flow, introduced signals (MEDO-230)

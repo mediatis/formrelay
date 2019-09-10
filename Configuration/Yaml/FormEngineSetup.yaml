@@ -16,7 +16,3 @@ TYPO3:
                     label: 'Base upload path'
                     config:
                       type: 'text'
-                  addHiddenFields:
-                    label: 'Add / set hidden field values'
-                    config:
-                      type: 'text'
