@@ -1,4 +1,12 @@
 
+2.0.1
+
+[BUGFIX] configuration manager: fixed unset feature (value "__UNSET") in merge mechanics
+
+2.0.0.1
+
+[BUGFIX] fixed build pipeline
+
 2.0.0
 
 [TASK] Added documentation (MEDO-223)
