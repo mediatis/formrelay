@@ -156,7 +156,8 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
 
         $this->buildTestCaseForTsfe(24);
         $this->assertEquals(
-            'INFO: 2 log entries re-sent.', $this->subject->run(__DIR__ . '/../../Fixtures/valid_log.xml', 24)
+            'INFO: 2 log entries re-sent.',
+            $this->subject->run(__DIR__ . '/../../Fixtures/valid_log.xml', 24)
         );
         $this->assertEquals(24, $GLOBALS['TSFE']->id);
     }

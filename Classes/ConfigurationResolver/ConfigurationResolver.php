@@ -219,6 +219,15 @@ abstract class ConfigurationResolver
         return null;
     }
 
+    private function appendConfigKeys(array $keys, array &$result) {
+        foreach ($keys as $key) {
+            $processedKey = $key === 'plain' ? '_typoScriptnodeValue' : $key;
+            if (isset($this->config[$processedKey])) {
+                $result[$key] = $this->config[$processedKey];
+            }
+        }
+    }
+
     /**
      * converts the typoscript configuration into a format that is better to process
      * the result is an array of pairs, each having a key and a config-value
@@ -240,12 +249,7 @@ abstract class ConfigurationResolver
         } else {
 
             // process prepended keys
-            foreach ($prepend as $key) {
-                $preProcessedKey = $key === 'plain' ? '_typoScriptNodeValue' : $key;
-                if (isset($this->config[$preProcessedKey])) {
-                    $result[$key] = $this->config[$preProcessedKey];
-                }
-            }
+            $this->appendConfigKeys($prepend, $result);
 
             // process other keys
             $orderedKeys = array_merge($prepend, $append);
@@ -259,12 +263,7 @@ abstract class ConfigurationResolver
             }
 
             // process appended keys
-            foreach ($append as $key) {
-                $preProcessedKey = $key === 'plain' ? '_typoScriptNodeValue' : $key;
-                if (isset($this->config[$preProcessedKey])) {
-                    $result[$key] = $this->config[$preProcessedKey];
-                }
-            }
+            $this->appendConfigKeys($append, $result);
         }
         return $result;
     }
