@@ -72,7 +72,6 @@ class FormFinisher extends AbstractFinisher
         $formRuntime = $this->finisherContext->getFormRuntime();
 
         $formValues = [];
-        $attachments = [];
         $elements = $formRuntime->getFormDefinition()->getRenderablesRecursively();
         /** @var AbstractFormElement $element */
         foreach ($elements as $element) {
@@ -86,7 +85,7 @@ class FormFinisher extends AbstractFinisher
             $name = $element->getProperties()['fluidAdditionalAttributes']['name'] ?: $id;
             $value = $this->formValueMap[$id];
 
-            if (($element instanceof GenericFormElement)) {
+            if ($element instanceof GenericFormElement) {
                 $formValues[$name] = $this->processStandardField($element, $value);
             } elseif ($element instanceof DatePicker) {
                 $formValues[$name] = $this->processDatePickerField($element, $value);

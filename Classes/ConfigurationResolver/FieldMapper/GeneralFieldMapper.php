@@ -26,7 +26,8 @@ class GeneralFieldMapper extends FieldMapper implements GeneralConfigurationReso
         return $result;
     }
 
-    public function prepare(&$context, &$result) {
+    public function prepare(&$context, &$result)
+    {
         foreach ($this->fieldMappers as $fieldMapper) {
             $fieldMapper->prepare($context, $result);
         }

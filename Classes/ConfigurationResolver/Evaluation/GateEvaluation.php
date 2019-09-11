@@ -15,7 +15,8 @@ class GateEvaluation extends Evaluation
         $this->configurationManager = $configurationManager;
     }
 
-    protected function evaluateMultipleExtensions($context, $keysEvaluated) {
+    protected function evaluateMultipleExtensions($context, $keysEvaluated)
+    {
         /*
          * # case 1: multiple extension keys, no indices
          *

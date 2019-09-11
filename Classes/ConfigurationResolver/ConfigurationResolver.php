@@ -141,7 +141,8 @@ abstract class ConfigurationResolver
      *
      * @return string
      */
-    protected function getKeyword() {
+    protected function getKeyword()
+    {
         $resolverClassPath = explode('\\', $this->getResolverClass());
         $resolverClassBase = array_pop($resolverClassPath);
         if (preg_match('/([^\\\\]+)' . $resolverClassBase . '$/', static::class, $matches)) {
@@ -205,8 +206,8 @@ abstract class ConfigurationResolver
      */
     public function resolve(array $context)
     {
-        $config = $this->preprocessConfigurationArray($this->config);
-        foreach ($config as $key => $value) {
+        $processedConfig = $this->preprocessConfigurationArray($this->config);
+        foreach ($processedConfig as $key => $value) {
             $resolver = $this->resolveKeyword($key, $value);
             if ($resolver) {
                 $result = $resolver->resolve($context);

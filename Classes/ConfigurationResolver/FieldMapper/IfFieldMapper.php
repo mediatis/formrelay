@@ -6,10 +6,6 @@ use Mediatis\Formrelay\ConfigurationResolver\Evaluation\GeneralEvaluation;
 
 class IfFieldMapper extends FieldMapper
 {
-
-    /** @var GeneralFieldMapper */
-    protected $fieldMapper;
-
     public function finish(&$context, &$result): bool
     {
         $evaluation = $this->objectManager->get(GeneralEvaluation::class, $this->config);

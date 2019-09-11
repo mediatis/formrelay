@@ -17,7 +17,8 @@ class ConfigurationManager implements SingletonInterface
     /**
      * Functionality:
      *
-     * formrelay extension settings consist of one set of base settings and a list of instance settings, which can overwrite the base settings
+     * formrelay extension settings consist of one set of base settings and a list of instance settings,
+     * which can overwrite the base settings
      *
      * plugin.tx_formrelay_xyz.settings {
      *     key_1 = value_1
@@ -32,7 +33,8 @@ class ConfigurationManager implements SingletonInterface
      *     }
      * }
      *
-     * the formrelay settings themselves can provide basic settings which are used as defaults if plugin.tx_formrelay_xyz does not overwrite them
+     * the formrelay settings themselves can provide basic settings which are used as defaults
+     * if plugin.tx_formrelay_xyz does not overwrite them
      *
      * plugin.tx_formrelay.settings {
      *     # other settings...
@@ -123,12 +125,11 @@ class ConfigurationManager implements SingletonInterface
 
     protected function updateConfig(array $settings, array $context = []): array
     {
-        $settings = $this->signalSlotDispatcher->dispatch(
+        return $this->signalSlotDispatcher->dispatch(
             __CLASS__,
             static::SIGNAL_UPDATE_CONFIG,
             [$settings, $context]
         )[0];
-        return $settings;
     }
 
     public function setFormrelaySettingsOverwrite(array $overwriteSettings)
@@ -164,7 +165,7 @@ class ConfigurationManager implements SingletonInterface
                 $base[$key] = $value;
             }
         }
-        $settings = [];
+        $cascadedSettings = [];
         if (count($instances) > 0) {
             foreach ($instances as $instance) {
                 $mergeResult = [];
@@ -172,15 +173,15 @@ class ConfigurationManager implements SingletonInterface
                 ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $base);
                 // merge base settings array with the settings instance array, and resolve their unset feature
                 ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $instance);
-                $settings[] = $mergeResult;
+                $cascadedSettings[] = $mergeResult;
             }
         } else {
             $mergeResult = [];
             // resolve unset feature on the merged base settings array
             ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $base);
-            $settings[] = $mergeResult;
+            $cascadedSettings[] = $mergeResult;
         }
-        return $settings;
+        return $cascadedSettings;
     }
 
     protected function buildFormrelaySettings($extKey)
