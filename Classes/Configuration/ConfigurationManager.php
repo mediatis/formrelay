@@ -168,12 +168,15 @@ class ConfigurationManager implements SingletonInterface
         if (count($instances) > 0) {
             foreach ($instances as $instance) {
                 $mergeResult = [];
+                // resolve unset feature on the merged base settings array
                 ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $base);
+                // merge base settings array with the settings instance array, and resolve their unset feature
                 ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $instance);
                 $settings[] = $mergeResult;
             }
         } else {
             $mergeResult = [];
+            // resolve unset feature on the merged base settings array
             ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $base);
             $settings[] = $mergeResult;
         }
@@ -194,13 +197,43 @@ class ConfigurationManager implements SingletonInterface
         }
 
         $mergedSettingsRaw = [];
-        // we disable unsetFeature because it should happen in the last merge in buildFormrelaySettingsCascade @TODO write a test case for this
-        ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergedSettingsRaw, $this->formrelayExtSettingsRaw, true, true, false);
-        ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergedSettingsRaw, $this->overwriteFormrelayExtSettingsRaw, true, true, false);
-        ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergedSettingsRaw, $this->extSettingsRaw[$extKey], true, true, false);
-        ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergedSettingsRaw, $this->overwriteSettingsRaw[$extKey] ?: [], true, true, false);
-        $settings = $this->buildFormrelaySettingsCascade($mergedSettingsRaw);
-        $this->settings[$extKey] = $settings;
+        // we disable unsetFeature because it should happen in the last merge in buildFormrelaySettingsCascade
+        // @TODO write a test case for this
+
+        // a) formrelay.settings.ext typoscript
+        ArrayUtility::plainArrayMergeRecursiveWithOverrule(
+            $mergedSettingsRaw,
+            $this->formrelayExtSettingsRaw,
+            true,
+            true,
+            false
+        );
+        // b) formrelay.settings.ext backend
+        ArrayUtility::plainArrayMergeRecursiveWithOverrule(
+            $mergedSettingsRaw,
+            $this->overwriteFormrelayExtSettingsRaw,
+            true,
+            true,
+            false
+        );
+        // c) formrelay_xyz.settings typoscript
+        ArrayUtility::plainArrayMergeRecursiveWithOverrule(
+            $mergedSettingsRaw,
+            $this->extSettingsRaw[$extKey],
+            true,
+            true,
+            false
+        );
+        // d) formrelay_xyz.settings backend
+        ArrayUtility::plainArrayMergeRecursiveWithOverrule(
+            $mergedSettingsRaw,
+            $this->overwriteSettingsRaw[$extKey] ?: [],
+            true,
+            true,
+            false
+        );
+        // e) build cascade from settings.1 - settings.n
+        $this->settings[$extKey] = $this->buildFormrelaySettingsCascade($mergedSettingsRaw);
     }
 
     public function getFormrelaySettingsCount($extKey)
