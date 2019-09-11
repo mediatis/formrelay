@@ -15,11 +15,6 @@ use TYPO3\CMS\Frontend\Page\PageRepository;
  */
 abstract class FormrelayUnitTestCase extends UnitTestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-    }
-
     public function tearDown()
     {
         parent::tearDown();

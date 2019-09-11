@@ -2,9 +2,7 @@
 
 namespace Mediatis\Formrelay\Utility;
 
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Core\Utility\ArrayUtility as CoreArrayUtility;
 
 final class ArrayUtility
 {
@@ -71,52 +69,28 @@ final class ArrayUtility
     }
 
     /**
-     * (copied from TYPO3\CMS\Core\Utility\ArrayUtility, changed to also unset the sub values of a key ("xyz" and "xyz.")
+     * Crawls recursively through the array, finds every key "<key>" whose value is "__UNSET"
+     * and then deletes array entries "<key>" and "<key>."
      *
-     * Merges two arrays recursively and "binary safe" (integer keys are
-     * overridden as well), overruling similar values in the original array
-     * with the values of the overrule array.
-     * In case of identical keys, ie. keeping the values of the overrule array.
-     *
-     * This method takes the original array by reference for speed optimization with large arrays
-     *
-     * The differences to the existing PHP function array_merge_recursive() are:
-     *  * Keys of the original array can be unset via the overrule array. ($enableUnsetFeature)
-     *  * Much more control over what is actually merged. ($addKeys, $includeEmptyValues)
-     *  * Elements or the original array get overwritten if the same key is present in the overrule array.
-     *
-     * @param array $original Original array. It will be *modified* by this method and contains the result afterwards!
-     * @param array $overrule Overrule array, overruling the original array
-     * @param bool $addKeys If set to FALSE, keys that are NOT found in $original will not be set. Thus only existing value can/will be overruled from overrule array.
-     * @param bool $includeEmptyValues If set, values from $overrule will overrule if they are empty or zero.
-     * @param bool $enableUnsetFeature If set, special values "__UNSET" can be used in the overrule array in order to unset array keys in the original array.
+     * @param array $data
      */
-    public static function mergeRecursiveWithOverrule(array &$original, array $overrule, $addKeys = true, $includeEmptyValues = true, $enableUnsetFeature = true)
+    protected static function resolveUnsetFeature(array &$data)
     {
-        foreach ($overrule as $key => $_) {
-            if ($enableUnsetFeature && $overrule[$key] === '__UNSET') {
-                unset($original[$key]);
-                unset($original[$key . '.']); // line added by ude@mediatis.de Sep 2019
-                continue;
-            }
-            if (isset($original[$key]) && is_array($original[$key])) {
-                if (is_array($overrule[$key])) {
-                    self::mergeRecursiveWithOverrule($original[$key], $overrule[$key], $addKeys, $includeEmptyValues, $enableUnsetFeature);
-                }
-            } elseif (
-                ($addKeys || isset($original[$key])) &&
-                ($includeEmptyValues || $overrule[$key])
-            ) {
-                $original[$key] = $overrule[$key];
+        foreach ($data as $key => $_)
+        {
+            if (is_array($data[$key])) {
+                static::resolveUnsetFeature($data[$key]);
+            } elseif ($data[$key] === '__UNSET') {
+                unset($data[$key]);
+                unset($data[$key . '.']);
             }
         }
-        // This line is kept for backward compatibility reasons.
-        reset($original);
     }
 
     /**
-     * Like mergeRecursiveWithOverrule, but for plain arrays
-     * which are converted to typoScript arrays, then merged, then converted back to plain arrays
+     * Based on mergeRecursiveWithOverrule, but for plain arrays
+     * - plain arrays are converted to typoScript arrays, then merged, then converted back to plain arrays
+     * - changes the unset feature so that "key" => "__UNSET" also unsets "key."
      *
      * @see mergeRecursiveWithOverrule
      * @param array $original
@@ -129,7 +103,10 @@ final class ArrayUtility
     {
         $tsOriginal = static::convertPlainArrayToTypoScriptArray($original);
         $tsOverrule = static::convertPlainArrayToTypoScriptArray($overrule);
-        static::mergeRecursiveWithOverrule($tsOriginal, $tsOverrule, $addKeys, $includeEmptyValues, $enableUnsetFeature);
+        CoreArrayUtility::mergeRecursiveWithOverrule($tsOriginal, $tsOverrule, $addKeys, $includeEmptyValues, false);
+        if ($enableUnsetFeature) {
+            static::resolveUnsetFeature($tsOriginal);
+        }
         $original = static::convertTypoScriptArrayToPlainArray($tsOriginal);
     }
 }

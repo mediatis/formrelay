@@ -158,7 +158,7 @@ class Relay implements SingletonInterface
 
             // data mapping
             $signal[0] = null;
-            $signal = $this->signalSlotDispatcher->dispatch(__CLASS__,static::SIGNAL_BEFORE_DATA_MAPPING, $signal);
+            $signal = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_BEFORE_DATA_MAPPING, $signal);
             if ($signal[0] === null) {
                 $signal[1] = $this->dataMapper->process($signal[1], $signal[3]['extKey'], $signal[3]['index']);
             }

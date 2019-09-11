@@ -46,7 +46,8 @@ class FormSimulatorCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         if (!$this->formSimulatorService) {
-            $this->formSimulatorService = GeneralUtility::makeInstance(ObjectManager::class)->get(FormSimulatorService::class);
+            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+            $this->formSimulatorService = $objectManager->get(FormSimulatorService::class);
         }
         $result = $this->formSimulatorService->run($input->getOption('filePath'), (int)$input->getOption('pageId'));
         $output->writeln($result);

@@ -49,7 +49,8 @@ class AndEvaluationTest extends UnitTestCase
         return $evaluationMock;
     }
 
-    public function provideBothSides() {
+    public function provideBothSides()
+    {
         return [[true], [false]];
     }
 

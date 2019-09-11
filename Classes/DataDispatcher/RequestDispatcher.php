@@ -74,7 +74,7 @@ class RequestDispatcher implements DataDispatcherInterface
 
         $postFields = implode('&', $params);
 
-        $cookies = [];
+        $requestCookies = [];
         if (!empty($this->cookies)) {
             $host = parse_url($this->url, PHP_URL_HOST);
             foreach ($this->cookies as $cKey => $cValue) {
@@ -83,10 +83,10 @@ class RequestDispatcher implements DataDispatcherInterface
                 $cookie->setName($cKey);
                 $cookie->setValue(rawurlencode($cValue));
                 $cookie->setDomain($host);
-                $cookies[] = $cookie;
+                $requestCookies[] = $cookie;
             }
         }
-        $jar = new CookieJar(false, $cookies);
+        $jar = new CookieJar(false, $requestCookies);
 
         try {
             $this->requestFactory->request($this->method, $this->url, ['body' => $postFields, 'cookies' => $jar]);
