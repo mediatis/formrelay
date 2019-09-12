@@ -191,10 +191,10 @@ class ConfigurationManager implements SingletonInterface
         }
         if (!isset($this->extSettingsRaw[$extKey])) {
             $this->extSettingsRaw[$extKey] = $this->updateConfig(
-                $this->getExtensionTypoScriptSetup($extKey),
+                $this->getExtensionTypoScriptSetup($extKey) ?: [],
                 ['environment' => 'typoscript'],
                 $extKey
-            )['settings'];
+            )['settings'] ?: [];
         }
 
         $mergedSettingsRaw = [];

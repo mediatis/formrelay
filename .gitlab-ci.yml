@@ -9,7 +9,7 @@ stages:
   - checkcode
   - test
 
-test_master:
+test_sonarcube:
   image: registry.mediatis.de:4567/devops/docker-images/sonar-scanner
   stage: checkcode
   script:
