@@ -1,4 +1,8 @@
 
+2.0.2
+
+[BUGFIX] handling empty (typoscript) settings
+
 2.0.1
 
 [BUGFIX] configuration manager: fixed unset feature (value "__UNSET") in merge mechanics
