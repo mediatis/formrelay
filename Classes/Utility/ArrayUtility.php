@@ -76,8 +76,7 @@ final class ArrayUtility
      */
     protected static function resolveUnsetFeature(array &$data)
     {
-        foreach ($data as $key => $_)
-        {
+        foreach ($data as $key => $_) {
             if (is_array($data[$key])) {
                 static::resolveUnsetFeature($data[$key]);
             } elseif ($data[$key] === '__UNSET') {
