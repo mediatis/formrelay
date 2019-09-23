@@ -20,6 +20,7 @@ if (!defined('TYPO3_MODE')) {
     $registry->registerEvaluation(\Mediatis\Formrelay\ConfigurationResolver\Evaluation\AndEvaluation::class);
     $registry->registerEvaluation(\Mediatis\Formrelay\ConfigurationResolver\Evaluation\EmptyEvaluation::class);
     $registry->registerEvaluation(\Mediatis\Formrelay\ConfigurationResolver\Evaluation\EqualsEvaluation::class);
+    $registry->registerEvaluation(\Mediatis\Formrelay\ConfigurationResolver\Evaluation\ExistsEvaluation::class);
     $registry->registerEvaluation(\Mediatis\Formrelay\ConfigurationResolver\Evaluation\GateEvaluation::class);
     $registry->registerEvaluation(\Mediatis\Formrelay\ConfigurationResolver\Evaluation\GeneralEvaluation::class);
     $registry->registerEvaluation(\Mediatis\Formrelay\ConfigurationResolver\Evaluation\InEvaluation::class);

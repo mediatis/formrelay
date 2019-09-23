@@ -404,6 +404,22 @@ field_name_a {
 field_name_a = field_value_a_1
 ```
 
+#### ExistsEvaluation
+
+This evaluation must have a context (a field name) already. It expects a scalar value which determines whether the field value is evaluated as existent or not existent.
+
+```
+# the field named "field_name_a" must exist
+field_name_a {
+  exists = 1
+}
+```
+
+```
+# the field named "field_name_a" must not exist
+field_name_a.exists = 0
+```
+
 #### GateEvaluation
 
 This evaluation will load the gate configuration of the given extension (other than the one being currently evaluated) and will return its evaluation.
@@ -817,24 +833,30 @@ form_field_name_a.split.fields {
 }
 ```
 
+We can omit the array and give a comma-separated list instead.
+
+```
+form_field_name_a.split.fields = external_field_name_a_1,external_field_name_a_2,external_field_name_a_3
+```
+
 The split token is the space character by default, but it can be configured, too, where `\s` is replaced with the space character and `\n` is replaced with a line break character.
 ```
 form_field_name_a.split {
   token = .
-  fields {
-    1 = external_field_name_a_1
-    2 = external_field_name_a_2
-  }
+  fields = external_field_name_a_1,external_field_name_a_2
 }
+```
+
+If we do not want to overwrite the split token, we can also omit the `fields` object.
+
+```
+form_field_name_a.split = external_field_name_a_1,external_field_name_a_2
 ```
 
 Example:
 
 ```
-name.split.fields {
-  1 = first_name
-  2 = last_name
-}
+name.split = first_name,last_name
 ```
 
 ```
