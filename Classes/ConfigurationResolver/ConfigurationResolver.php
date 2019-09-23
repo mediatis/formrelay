@@ -221,7 +221,7 @@ abstract class ConfigurationResolver
 
     private function appendConfigKeys(array $keys, array &$result) {
         foreach ($keys as $key) {
-            $processedKey = $key === 'plain' ? '_typoScriptnodeValue' : $key;
+            $processedKey = $key === 'plain' ? '_typoScriptNodeValue' : $key;
             if (isset($this->config[$processedKey])) {
                 $result[$key] = $this->config[$processedKey];
             }

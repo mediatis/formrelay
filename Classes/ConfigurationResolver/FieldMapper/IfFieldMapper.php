@@ -12,7 +12,7 @@ class IfFieldMapper extends FieldMapper
         $evalResult = $evaluation->resolve($context);
         if ($evalResult !== null) {
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $evalResult);
-            $fieldMapper->resolve($context, $result);
+            $result = $fieldMapper->resolve($context, $result);
             return true;
         }
         return false;

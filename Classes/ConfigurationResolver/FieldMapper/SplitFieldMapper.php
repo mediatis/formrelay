@@ -31,22 +31,28 @@ class SplitFieldMapper extends FieldMapper
             $splitField = array_shift($splitFields);
             $splitValue = array_shift($splitValues);
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $splitField);
-            $fieldMapper->resolve($result, [
-                'data' => $context['data'],
-                'key' => $context['key'],
-                'value' => $splitValue,
-            ]);
+            $result = $fieldMapper->resolve(
+                [
+                    'data' => $context['data'],
+                    'key' => $context['key'],
+                    'value' => $splitValue,
+                ],
+                $result
+            );
         }
         if (count($splitValues) > 0) {
             // concat the remaining split values again and use them for the last field
             $splitField = array_shift($splitFields);
             $splitValue = implode($token, $splitValues);
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $splitField);
-            $fieldMapper->resolve($result, [
-                'data' => $context['data'],
-                'key' => $context['key'],
-                'value' => $splitValue,
-            ]);
+            $result = $fieldMapper->resolve(
+                [
+                    'data' => $context['data'],
+                    'key' => $context['key'],
+                    'value' => $splitValue,
+                ],
+                $result
+            );
         }
         return true;
     }
