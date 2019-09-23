@@ -1,4 +1,10 @@
 
+2.0.3
+
+[BUGFIX] fixed configuration resolver (general)
+
+[FEATURE] updated field mappers (split, exists)
+
 2.0.2
 
 [BUGFIX] handling empty (typoscript) settings
