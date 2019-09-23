@@ -7,10 +7,24 @@ use Mediatis\Formrelay\Utility\FormrelayUtility;
 class SplitFieldMapper extends FieldMapper
 {
 
+    /**
+     * SplitFieldMapper constructor.
+     * @param array|string $config
+     */
+    public function __construct($config = [])
+    {
+        if (!is_array($config)) {
+            $config = [
+                'fields' => $config,
+            ];
+        }
+        parent::__construct($config);
+    }
+
     public function finish(&$context, &$result): bool
     {
         $token = FormrelayUtility::parseSeparatorString($this->config['token'] ?: '\\s');
-        $splitFields = $this->config['fields'];
+        $splitFields = is_array($this->config['fields']) ? $this->config['fields'] : explode(',', $this->config['fields']);
         $splitValues = explode($token, $context['value']);
         while (count($splitFields) > 1 && count($splitValues) > 0) {
             // split for all fields but the last
