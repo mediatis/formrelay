@@ -1,3 +1,6 @@
+2.0.4
+
+[TASK] Update logo
 
 2.0.3
 
