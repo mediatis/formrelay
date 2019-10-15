@@ -1,3 +1,7 @@
+2.0.5
+
+[FEATURE] introduced element processors for ext:form finisher (used via signal slot)
+
 2.0.4
 
 [TASK] Update logo
