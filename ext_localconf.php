@@ -8,6 +8,13 @@ if (!defined('TYPO3_MODE')) {
     $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
     $registry = $objectManager->get(\Mediatis\Formrelay\Service\Registry::class);
 
+    // add form element processors (ext:form)
+    if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('form')) {
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\GenericElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DatePickerElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\FileUploadElementProcessor::class);
+    }
+
     // add data providers
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\AdwordCampains::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\Adwords::class);
