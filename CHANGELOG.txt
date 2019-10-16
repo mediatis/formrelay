@@ -1,3 +1,8 @@
+
+2.0.6
+
+[BUGFIX] fixed value mapper return type and algorithms of raw- and switch-value mappers
+
 2.0.5
 
 [FEATURE] introduced element processors for ext:form finisher (used via signal slot)
