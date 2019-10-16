@@ -2,6 +2,8 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
+use Mediatis\Formrelay\Domain\Model\FormField\FormFieldInterface;
+
 class NegateValueMapper extends ValueMapper
 {
     protected function ignoreScalarConfig()

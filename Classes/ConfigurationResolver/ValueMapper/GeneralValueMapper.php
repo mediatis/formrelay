@@ -3,10 +3,15 @@
 namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
 use Mediatis\Formrelay\ConfigurationResolver\GeneralConfigurationResolverInterface;
+use Mediatis\Formrelay\Domain\Model\FormField\FormFieldInterface;
 
 class GeneralValueMapper extends ValueMapper implements GeneralConfigurationResolverInterface
 {
-    public function resolve(array $context): string
+    /**
+     * @param array $context
+     * @return string|FormFieldInterface|null
+     */
+    public function resolve(array $context)
     {
         $config = $this->preprocessConfigurationArray(['if'], ['plain']);
         foreach ($config as $key => $value) {
