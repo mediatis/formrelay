@@ -3,13 +3,14 @@
 namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\GeneralEvaluation;
+use Mediatis\Formrelay\Domain\Model\FormField\FormFieldInterface;
 
 class IfValueMapper extends ValueMapper
 {
 
     /**
      * @param array $context
-     * @return string|null
+     * @return string|FormFieldInterface|null
      */
     public function resolve(array $context)
     {

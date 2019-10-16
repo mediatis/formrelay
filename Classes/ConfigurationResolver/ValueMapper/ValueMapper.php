@@ -3,6 +3,7 @@
 namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
 use Mediatis\Formrelay\ConfigurationResolver\ConfigurationResolver;
+use Mediatis\Formrelay\Domain\Model\FormField\FormFieldInterface;
 use Mediatis\Formrelay\Service\Registerable;
 
 abstract class ValueMapper extends ConfigurationResolver implements ValueMapperInterface, Registerable
@@ -14,7 +15,7 @@ abstract class ValueMapper extends ConfigurationResolver implements ValueMapperI
 
     /**
      * @param array $context
-     * @return string|null
+     * @return string|FormFieldInterface|null
      */
     public function resolve(array $context)
     {
