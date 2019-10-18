@@ -14,7 +14,7 @@ settings.enabled
 
 A boolean flag that enables this destination. The destination will not receive any data if it is disabled.
 
-Default should be 0, but depends on the implementation of the Formrelay extension.
+Default should be ``0``, but depends on the implementation of the Formrelay extension.
 
 settings.gate
 *************
@@ -80,6 +80,7 @@ settings.fields.unmapped
 ************************
 
 All fields, that are not mapped explicitly by ``settings.fields.mapping.<field_name>`` are implicitly mapped by ``settings.fields.unmapped``.
+
 The logic applied is the sames as the one used for ``settings.fields.mapping``.
 
 Common settings are:
