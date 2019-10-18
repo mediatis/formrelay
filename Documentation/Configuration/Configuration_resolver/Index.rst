@@ -15,6 +15,7 @@ Evaluation
 ##########
 
 Interface: ``\Mediatis\Formrelay\ConfigurationResolver\Evaluation\EvaluationInterface``
+
 Optional abstract class to extend: ``\Mediatis\Formrelay\ConfigurationResolver\Evaluation\Evaluation``
 
 Resolvers of the type ``Evaluation`` will try to make some kind of decision. They can be used in multiple places, while their result can be processed differently depending on the context in which they are used.
@@ -28,6 +29,7 @@ The method ``eval`` will process the actual logic and return a boolean value. Th
 	public function eval(array $context = [], array $keysEvaluated = []): bool;
 
 The ``$context`` will contain the context of the current evaluation, which is at minimum the form data, which is used as input variables for the logic.
+
 The ``$keysEvaluated`` is a list of extension keys, that have been evaluated so far. This is important for the ``GateEvaluation`` to avoid evaluation loops. Other evaluations should just pass this value to sub-evaluations, if there are any.
 
 ::
@@ -39,7 +41,7 @@ The ``$keysEvaluated`` is a list of extension keys, that have been evaluated so 
 	  }
 	}
 
-The method resolve will call the method ``eval` and will return the TypoScript object path ``then`` or ``else` depending on the result. If the corresponding object path does not exist, it will return ``null`` instead.
+The method resolve will call the method ``eval`` and will return the TypoScript object path ``then`` or ``else`` depending on the result. If the corresponding object path does not exist, it will return ``null`` instead.
 
 ::
 
@@ -234,7 +236,7 @@ The shorthand to the index ``any`` is to use a scalar value for the configuratio
 
 	gate = tx_formrelay_some_other_extension
 
-We can also list (comma-separated) multiple extension which shall be evaluated together. In such a case the ``GateEvaluation`` will return true as soon as one of the extensions evaluates to ``true``.
+We can also list (comma-separated) multiple extension which shall be evaluated together. In such a case the ``GateEvaluation`` will return ``true`` as soon as one of the extensions evaluates to ``true``.
 
 ::
 
@@ -286,7 +288,7 @@ This evaluation acts exactly like the ``AndEvaluation`` except that the sub-eval
 RequiredEvaluation
 ******************
 
-This evaluation expects either an array of field names or a comma-separated list of field names. It will check whether all of them exist and contain values that do not evaluate to false (non-empty values).
+This evaluation expects either an array of field names or a comma-separated list of field names. It will check whether all of them exist and contain values that do not evaluate to ``false`` (non-empty values).
 
 ::
 
@@ -303,6 +305,7 @@ FieldMapper
 ###########
 
 Interface: ``\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\FieldMapperInterface``
+
 Optional abstract class to extend: ``\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\FieldMapper``
 
 Resolvers of the type ``FieldMapper`` will add processed form fields and their (processed) values into the result array. They can add, change and even delete multiple output fields which is why they get the current result passed as reference, so that they can modify it however needed.
@@ -321,6 +324,7 @@ All other field mappers do not have to implement the method ``resolve``. Instead
 	public function finish(&$context, &$result): bool;
 
 The method ``prepare`` is used to change the context of the process for all field mappers that are operating on the current data.
+
 The method ``finish`` will apply the actual changes on the result object. The return value ``true`` indicates, that the processing is complete and no further field mappers should be called for the current form field. The return value ``false`` indicates that the field mapper was not able to finish the processing of the field an the following field mappers should be called.
 
 Here are all default field mappers, shipped with EXT:formrelay.
@@ -333,7 +337,9 @@ This field mapper is the entry point and provides the method ``resolve``. It is 
 It is applying the method ``prepare`` on all sub-field mappers. After that it is applying the method ``finish`` on all sub-field mappers until one of them reports success (returns ``true``).
 
 In general the ``GeneralFieldMapper`` is using the order of field mappers as they appear in the configuration, but it makes two exceptions.
+
 The ``PlainFieldMapper`` will be applied last so that specialised field mappers can overwrite its behaviour.
+
 The ``IfFieldMapper`` will be applied first because it shall be able to overwrite every other field mapper.
 
 PlainFieldMapper
@@ -358,6 +364,7 @@ This field mapper has to be combined with another field mapper, that is providin
 	form_field_name_a.appendKeyValue = 1
 
 You can also configure the separators used between field name and field value as well as the separators used between different name-value-pairs.
+
 This example shows the default values, where ``\s`` is mapped to the space character and ``\n`` is mapped to a line break character.
 
 ::
@@ -439,7 +446,7 @@ This field mapper will abort the processing if the result field already contains
 	form_field_name_a = external_field_name_a
 	form_field_name_a.ifEmpty = 1
 
-Note: This feature exists for legacy reasons only. It should not be used anymore, since it relies on the consistent order of the form data which can not be guaranteed. A better way to get this behaviour is to check the other input values that want to write to the same result field.
+.. Note:: This feature exists for legacy reasons only. It should not be used anymore, since it relies on the consistent order of the form data which can not be guaranteed. A better way to get this behaviour is to check the other input values that want to write to the same result field.
 
 ::
 
@@ -539,14 +546,14 @@ It can also be used in conditioned field mappers.
 JoinFieldMapper
 ***************
 
-This field mapper has to be combined with another field mapper, that is providing an actual mapping (like the ``PlainFieldMapper``). It will check whether the given form field value is a ``MultiValueFormField`` and will then implode the values to a single string.
+This field mapper has to be combined with another field mapper, that is providing an actual mapping (like the ``PlainFieldMapper``). It will check whether the given form field value is a ``MultiValueFormField`` and will then implode the values to a single ``string``.
 
 ::
 
 	form_field_name_a = external_field_name_a
 	form_field_name_a.join = 1
 
-We can also configure the ``glue`` of the ``implode`` call. The example below shows the default, where \s is replaced with the space character and ``\n`` is replaced with a line break character.
+We can also configure the ``glue`` of the ``implode`` call. The example below shows the default, where ``\s`` is replaced with the space character and ``\n`` is replaced with a line break character.
 
 ::
 
@@ -645,7 +652,7 @@ The split token is the space character by default, but it can be configured, too
 	  fields = external_field_name_a_1,external_field_name_a_2
 	}
 
-If we do not want to overwrite the split token, we can also omit the fields object.
+If we do not want to overwrite the split token, we can also omit the ``fields`` object.
 
 ::
 
@@ -680,9 +687,11 @@ ValueMapper
 ###########
 
 Interface: ``\Mediatis\Formrelay\ConfigurationResolver\ValueMapper\ValueMapperInterface``
+
 Optional abstract class to extend: ``\Mediatis\Formrelay\ConfigurationResolver\ValueMapper\ValueMapper``
 
 Resolvers of the type ``ValueMapper`` will map the value of a given form field to an appropriate value of the current destination.
+
 If there is no mapping provided the original form field value is used.
 
 The Formrelay will use the ``GeneralValueMapper`` to resolve the configuration ``settings.values.mapping.<field_name>``.
@@ -703,9 +712,11 @@ GeneralValueMapper
 ******************
 
 This value mapper processes its configuration in search for sub-value mappers that will eventually return a mapped value.
+
 Generally speaking the configuration is processed in order of its appearance, but there are two exceptions.
 
 The ``PlainValueMapper`` will be applied last so that specialised value mappers can overwrite its behaviour.
+
 The ``IfValueMapper`` will be applied first because it shall be able to overwrite every other value mapper.
 
 If a configuration key can be resolved as sub-value mapper, it will be resolved and used if its result is not ``null``. Otherwise the configuration processing will continue.
@@ -752,17 +763,17 @@ Theoretically speaking it can be applied to the field itself, though this doesn'
 	settings.values.mapping.form_field_name_a = constant_external_value_a_for_all_internal_values
 
 It is more common to use it for specific internal values or as result for other sub-value mappers.
-
-settings.values.mapping.form_field_name_a {
-  form_field_value_a_1 = external_field_value_a_1
-}
+::
+	settings.values.mapping.form_field_name_a {
+		form_field_value_a_1 = external_field_value_a_1
+	}
 
 IfValueMapper
 *************
 
 This value mapper applies a ``GeneralEvaluation`` (using its ``resolve`` method). If the result is not null (if the corresponding configuration path ``then`` or ``else`` exists) it will be used for a new ``GeneralValueMapper`` to resolve the value mapping.
 
-If the corresponding path (``then`` or ``else``) does not exist, it will return ``null` (as does the ``GeneralEvaluation``) and therefore will be ignored by its parent value mapper.
+If the corresponding path (``then`` or ``else``) does not exist, it will return ``null`` (as does the ``GeneralEvaluation``) and therefore will be ignored by its parent value mapper.
 
 ::
 
@@ -852,6 +863,7 @@ If the ``negate`` value mapper is configured, we do not need to enable it specif
 	}
 
 The ``negate`` value mapper triggers actually a new ``GeneralValueMapper`` which means that there can even be sub-value mappers.
+
 As the ``GeneralValueMapper`` does, the original form value is used if no sub-value mapper exists (or no sub-value mapper returns a valid result).
 
 ::
@@ -870,6 +882,7 @@ RawValueMapper
 **************
 
 This value mapper behaves like a ``GeneralValueMapper`` except that it will not search for any keywords for sub-value mappers.
+
 It is helpful if the form values may contain keywords of value mappers.
 
 ::
@@ -884,6 +897,7 @@ SwitchValueMapper
 
 This value mapper allows field values to be TypoScript configuration values instead of configuration keys.
 This is helpful for values which do not follow the rules of TypoScript keys.
+
 The configuration of a ``switch`` value mapper is an array of cases where each has one value ``case`` which is compared to the actual form field value and one value ``value`` which is the result if the comparison succeeds.
 
 ::
@@ -929,6 +943,7 @@ ContentResolver
 ###############
 
 Interface: ``\Mediatis\Formrelay\ConfigurationResolver\ContentResolver\ContentResolverInterface``
+
 Optional abstract class to extend: ``\Mediatis\Formrelay\ConfigurationResolver\ContentResolver\ContentResolver``
 
 Resolvers of the type ``ContentResolver`` will generate a string by parsing the given configuration as a kind of template.
@@ -969,7 +984,7 @@ Numeric keys will indicate sub-content resolvers, each starting as a new ``Gener
 	  10 = This is a scalar configuration...
 	  20 = in two parts.
 	}
-# result === This is a scalar configuration...in two parts.
+	# result === This is a scalar configuration...in two parts.
 
 The keyword ``glue`` will be used to set a glue string that is written between the (non-empty) results of its sub-content resolvers, where ``\s`` is replaced with the space character and ``\n`` is replaced with a line break character.
 The default ``glue`` is an empty string.
@@ -1029,7 +1044,7 @@ This content resolver applies a ``GeneralEvaluation`` (using its ``resolve`` met
 	  then = Hello Universe
 	}
 
-If the ``IfContentResolver`` produces any output, it will disable all other content resolvers on this configuration. All content resolvers that want to apply in this case, will have to be set in the ``then`` or ``else`` path of the ``if` structure.
+If the ``IfContentResolver`` produces any output, it will disable all other content resolvers on this configuration. All content resolvers that want to apply in this case, will have to be set in the ``then`` or ``else`` path of the ``if`` structure.
 If the corresponding path (``then`` or ``else``) does not exist, the content resolver won't do anything.
 
 ::

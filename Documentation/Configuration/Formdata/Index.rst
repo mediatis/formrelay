@@ -8,7 +8,9 @@ Form Data
 =========
 
 The usual data coming from a form submission is quite simple, since it is a list of string-pairs: field name and field value.
+
 However, while every field value must behave like a string (it must either be a string or an object that implements the method ``__toString())``, it doesn't have to be a string in itself.
+
 Here are such those cases, that are shipped with EXT:formrelay, all located in the namespace ``Mediatis\Formrelay\Domain\Model\FormField``.
 
 MultiValueFormField
@@ -24,8 +26,9 @@ Technically speaking the class ``DiscreteMultiValueFormField`` is equivalent to 
 UploadFormField
 ***************
 
-The class ``UploadFormField´´ holds data about a file that has been uploaded through a form submission.
-If it is handled as a simple string, it will return the absolute URL to this file, which is stored on the server publicly.
+The class ``UploadFormField`` holds data about a file that has been uploaded through a form submission.
+
+If it is handled as a simple ``string``, it will return the absolute URL to this file, which is stored on the server publicly.
 
 ::
 

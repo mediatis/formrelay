@@ -26,6 +26,6 @@ In order to implement other input systems for EXT:formrelay, you can implement t
 
 To feed data into EXT:formrelay, you need to instantiate ``\Mediatis\Formrelay\Service\Relay``.
 
-Call its method ``process(array $data, array $formSettings = [])`` to trigger a form submission, where $data is an associative array with field names as keys and field values as values. The second parameter $formsettings can overwrite global settings for all destinations registered in the system.
+Call its method ``process(array $data, array $formSettings = [])`` to trigger a form submission, where ``$data`` is an associative array with field names as keys and field values as values. The second parameter $formsettings can overwrite global settings for all destinations registered in the system.
 
 This extension is not bound to forms exclusively. You can implement a "form submission" where ever you like. After all it is just a set of key-value-pairs. But make sure that the keys (field names) are configured properly.
