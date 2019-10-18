@@ -3,35 +3,21 @@
 
 .. _configuration:
 
-=============
-Configuration
-=============
+============================
+Setup Formrelay Destinations
+============================
 
-Target group: **Developers, Integrators**
+Every Formrelay destination is a separate package or extension. It brings both custom settings that are specific for this package (like an email address if the data shall be sent via email) and basic settings that is similar for all Formrelay extensions.
 
-
-
-Typical Example
-===============
+All settings, basic and custom should be within the TypoScript ``plugin.tx_formrelay_<my_extension>.settings``.
 
 
+.. toctree::
+	:maxdepth: 2
+	:hidden:
 
-TypoScript Reference
-====================
-
-Possible subsections: Reference of TypoScript options.
-The construct below show the recommended structure for
-TypoScript properties listing and description.
-
-When detailing data types or standard TypoScript
-features, don't hesitate to cross-link to the TypoScript
-Reference as shown below.
-
-
-See `Hyperlinks & Cross-Referencing <https://docs.typo3.org/typo3cms/HowToDocument/WritingReST/Hyperlinks.html>`
-for information about how to use cross-references.
-
-See the :file:`Settings.cgf` file for the declaration of cross-linking keys.
-You can add more keys besides tsref.
-
-
+	Custom/Index
+	Basic/Index
+	Formdata/Index
+	Configuration_resolver/Index
+	Configuration_overwrite/Index
