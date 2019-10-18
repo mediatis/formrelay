@@ -41,7 +41,7 @@ The ``$keysEvaluated`` is a list of extension keys, that have been evaluated so 
 	  }
 	}
 
-The method resolve will call the method ``eval`` and will return the TypoScript object path ``then`` or ``else`` depending on the result. If the corresponding object path does not exist, it will return ``null`` instead.
+The method ``resolve`` will call the method ``eval`` and will return the TypoScript object path ``then`` or ``else`` depending on the result. If the corresponding object path does not exist, it will return ``null`` instead.
 
 ::
 
@@ -987,6 +987,7 @@ Numeric keys will indicate sub-content resolvers, each starting as a new ``Gener
 	# result === This is a scalar configuration...in two parts.
 
 The keyword ``glue`` will be used to set a glue string that is written between the (non-empty) results of its sub-content resolvers, where ``\s`` is replaced with the space character and ``\n`` is replaced with a line break character.
+
 The default ``glue`` is an empty string.
 
 ::
@@ -1101,7 +1102,9 @@ InsertDataContentResolver
 
 This content resolver is modifying the result that is built by all content resolvers, that are involved.
 It is going through all form fields ``form_field_name_x`` and is replacing all occurrences of the string ``{form_field_name_x}`` with the value of the form field.
+
 Afterwards it will also remove all such placeholders ``{...}`` which were not replaced.
+
 And it will replace all ``\s`` with the space character and all ``\n`` with a line break character.
 
 ::
