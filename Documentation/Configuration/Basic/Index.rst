@@ -19,7 +19,7 @@ Default should be ``0``, but depends on the implementation of the Formrelay exte
 settings.gate
 *************
 
-The ``gate`` is determining whether or not a destination will receive a form submission. The logic by which this is determined is described in the section ``Evaluation``.
+The ``gate`` is determining whether or not a destination will receive a form submission. The logic by which this is determined is described in the section `Evaluation <https://docs.typo3.org/p/mediatis/formrelay/draft/en-us/Configuration/Configuration_resolver/Index.html#evaluation>`__.
 
 If the ``gate`` is not set and the enabled flag is set, then all submissions will be sent to the destination.
 
@@ -64,7 +64,7 @@ This is a comma-separated list of form fields that will be ignored completely by
 settings.fields.mapping.<field_name>
 ************************************
 
-The object ``settings.fields.mapping`` contains a list of all form field names that shall have a customised mapping to an external field defined by the destination. The logic by which the mapping of a field is happening is described in the section ``FieldMapper``.
+The object ``settings.fields.mapping`` contains a list of all form field names that shall have a customised mapping to an external field defined by the destination. The logic by which the mapping of a field is happening is described in the section `FieldMapper <https://docs.typo3.org/p/mediatis/formrelay/draft/en-us/Configuration/Configuration_resolver/Index.html#fieldmapper>`__.
 
 The easiest way to setup a mapping is to use a simple string:
 
@@ -74,7 +74,7 @@ The easiest way to setup a mapping is to use a simple string:
 	  form_field_name_x = external_field_name_x
 	}
 
-More complex features can be found in the section ``FieldMapper``.
+More complex features can be found in the section `FieldMapper <https://docs.typo3.org/p/mediatis/formrelay/draft/en-us/Configuration/Configuration_resolver/Index.html#fieldmapper>`__.
 
 settings.fields.unmapped
 ************************
@@ -101,7 +101,7 @@ Common settings are:
 	settings.fields.unmapped = comments
 	settings.fields.unmapped.appendKeyValue = 1
 
-All features can be found in the section ``FieldMapper``.
+All features can be found in the section `FieldMapper <https://docs.typo3.org/p/mediatis/formrelay/draft/en-us/Configuration/Configuration_resolver/Index.html#fieldmapper>`__.
 
 settings.values.ignoreIfEmpty
 *****************************
@@ -115,7 +115,7 @@ This flag determines whether empty form fields shall be ignored. This value usua
 settings.values.mapping.<field_name>
 ************************************
 
-The object ``settings.values.mapping`` contains a list of all form field names that shall have a customised value mapping to match the needs of the destination. The logic by which the mapping of the field's values is happening is described in the section ``ValueMapper``.
+The object ``settings.values.mapping`` contains a list of all form field names that shall have a customised value mapping to match the needs of the destination. The logic by which the mapping of the field's values is happening is described in the section `ValueMapper <https://docs.typo3.org/p/mediatis/formrelay/draft/en-us/Configuration/Configuration_resolver/Index.html#valuemapper>`__.
 
 The most common way to map a field value is to use simple pairs of strings for the internal and external value.
 
@@ -128,7 +128,7 @@ The most common way to map a field value is to use simple pairs of strings for t
 	  }
 	}
 
-More complex features can be found in the section ``ValueMapper``.
+More complex features can be found in the section `ValueMapper <https://docs.typo3.org/p/mediatis/formrelay/draft/en-us/Configuration/Configuration_resolver/Index.html#valuemapper>`__.
 
 If either a field or the value of a field is not defined in the value-mapping, the original form value is used. So if there no value-mapping needed, the setting object ``settings.values.mapping`` can be omitted completely. This is also why there is no such object as ``settings.values.unmapped``.
 
