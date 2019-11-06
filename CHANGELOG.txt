@@ -1,4 +1,8 @@
 
+2.0.6.2
+
+[BUGFIX] fixed handling of empty upload fields
+
 2.0.6.1
 
 [BUGFIX] fixed formatting of form field datepicker for ext:form

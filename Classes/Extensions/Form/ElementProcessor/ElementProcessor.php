@@ -66,9 +66,7 @@ abstract class ElementProcessor implements ElementProcessorInterface
             $id = $element->getIdentifier();
             $name = $element->getProperties()['fluidAdditionalAttributes']['name'] ?: $id;
             $value = $this->process($element, $elementValue);
-            if ($value !== null) {
-                $result[$name] = $value;
-            }
+            $result[$name] = $value;
             $processed = true;
         }
     }
