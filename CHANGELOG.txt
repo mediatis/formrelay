@@ -1,4 +1,8 @@
 
+2.0.6.1
+
+[BUGFIX] fixed formatting of form field datepicker for ext:form
+
 2.0.6
 
 [BUGFIX] fixed value mapper return type and algorithms of raw- and switch-value mappers
