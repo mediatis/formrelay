@@ -6,9 +6,14 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\DatePicker;
 
 class DatePickerElementProcessor extends ElementProcessor
 {
-    protected function getElementClass()
+    protected function getElementType()
     {
-        return DatePicker::class;
+        return 'Date';
+    }
+
+    protected function override()
+    {
+        return true;
     }
 
     protected function process($element, $elementValue)
