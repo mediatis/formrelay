@@ -11,6 +11,7 @@ if (!defined('TYPO3_MODE')) {
     // add form element processors (ext:form)
     if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('form')) {
         $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\GenericElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DateElementProcessor::class);
         $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DatePickerElementProcessor::class);
         $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\FileUploadElementProcessor::class);
     }
