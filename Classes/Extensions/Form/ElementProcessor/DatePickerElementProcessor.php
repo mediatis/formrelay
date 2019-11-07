@@ -2,13 +2,14 @@
 
 namespace Mediatis\Formrelay\Extensions\Form\ElementProcessor;
 
+use DateTime;
 use TYPO3\CMS\Form\Domain\Model\FormElements\DatePicker;
 
 class DatePickerElementProcessor extends ElementProcessor
 {
-    protected function getElementType()
+    protected function getElementClass()
     {
-        return 'Date';
+        return DatePicker::class;
     }
 
     protected function override()
@@ -20,14 +21,14 @@ class DatePickerElementProcessor extends ElementProcessor
     {
         $value = '';
         $properties = $element->getProperties();
-        if ($elementValue instanceof \DateTime) {
+        if ($elementValue instanceof DateTime) {
             if (isset($properties['dateFormat'])) {
                 $dateFormat = $properties['dateFormat'];
                 if (isset($properties['displayTimeSelector']) && $properties['displayTimeSelector'] === true) {
                     $dateFormat .= ' H:i';
                 }
             } else {
-                $dateFormat = \DateTime::W3C;
+                $dateFormat = DateTime::W3C;
             }
             $value = $elementValue->format($dateFormat);
         }
