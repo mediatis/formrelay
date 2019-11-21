@@ -4,6 +4,7 @@ plugin.tx_formrelay {
     enabled = {$plugin.tx_formrelay.settings.enabled}
 
     logfile {
+      enabled = {$plugin.tx_formrelay.settings.logfile.enabled}
       system = {$plugin.tx_formrelay.settings.logfile.system}
       basePath = {$plugin.tx_formrelay.settings.logfile.basePath}
     }

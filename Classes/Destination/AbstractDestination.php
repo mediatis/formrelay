@@ -13,9 +13,6 @@ abstract class AbstractDestination implements DestinationInterface
     /** @var ObjectManager */
     protected $objectManager;
 
-    /** @var LogManager */
-    protected $logManager;
-
     /** @var Logger */
     protected $logger;
 
@@ -24,14 +21,10 @@ abstract class AbstractDestination implements DestinationInterface
         $this->objectManager = $objectManager;
     }
 
-    public function injectLogManager(LogManager $logManager)
-    {
-        $this->logManager = $logManager;
-    }
-
     public function initializeObject()
     {
-        $this->logger = $this->logManager->getLogger(static::class);
+        $logManager = $this->objectManager->get(LogManager::class);
+        $this->logger = $logManager->getLogger(static::class);
     }
 
     public function register(array $list): array

@@ -1,4 +1,12 @@
 
+2.0.8
+
+[FEATURE] updated logging algorithm
+
+2.0.7
+
+[BUGFIX] distinguished between Date and DatePicker for ext:form elements
+
 2.0.6.2
 
 [BUGFIX] fixed handling of empty upload fields
