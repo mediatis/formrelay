@@ -13,7 +13,7 @@ Formrelay
    en
 
 :Authors:
-   Stephan Ude, Michael Voehringer, Meelis Karulin
+   Stephan Ude, Michael Voehringer, Meelis Karulin, Damian Ickler
 
 :License:
    GNU General Public License, either version 2 of the License
@@ -25,8 +25,6 @@ Formrelay
 
    Introduction/Index
    Installation/Index
-   Editor/Index
    Configuration/Index
-   Developer/Index
-   KnownProblems/Index
-
+   Developer/Index  
+   Miscellaneous/Index
