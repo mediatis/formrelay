@@ -3,7 +3,7 @@ TYPO3 Form Relay
 
 endpoints like e.g. e-mail, data storage as CSV, connection of external services like Salesforce, Pardot ....
 
-Often you want to process data from forms on your own website in different ways. FormRealy offers the basis to address different services. Complex logics can be configured when which endpoint is used.
+Often you want to process data from forms on your own website in different ways. FormRelay offers the basis to address different services. Complex logics can be configured when which endpoint is used.
 
 ## Features
 * Extend the plugin with your own code
