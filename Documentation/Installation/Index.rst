@@ -8,32 +8,24 @@
 Installation
 ============
 
-Target group: **Administrators**
+The extension is enabled by default. You simply have to install it and include its TypoScript template.
 
-.. important::
+::
 
-   Use the TYPO3 CMS 8.7 LTS OR TYPO3 CMS 9.5 LTS
+	plugin.tx_formrelay.settings.enabled = 1
 
-The extension needs to be installed as any other extension of TYPO3 CMS:
+How you can use it depends on the use case.
 
-#. Switch to the module “Extension Manager”.
+EXT:form
+********
+The extension EXT:form is using FormFinishers. EXT:formrelay is providing such a finisher, which can be used in any form, using the form editor in the backend module "Forms".
 
-#. Get the extension
+Other (Form) Extensions
+***********************
+In order to implement other input systems for EXT:formrelay, you can implement those where ever you want. For example you can implement a Finisher for EXT:powermail. Or you can hook into any other system that is providing data which shall be sent to various destinations.
 
-   #. **Get it from the Extension Manager:** Press the “Retrieve/Update”
-      button and search for the extension key *formrelay* and import the
-      extension from the repository.
+To feed data into EXT:formrelay, you need to instantiate ``\Mediatis\Formrelay\Service\Relay``.
 
-   #. **Use composer**: Use `composer require mediatis/formrelay`.
+Call its method ``process(array $data, array $formSettings = [])`` to trigger a form submission, where ``$data`` is an associative array with field names as keys and field values as values. The second parameter $formsettings can overwrite global settings for all destinations registered in the system.
 
-Latest version from git
------------------------
-You can get the latest version from git by using the git command:
-
-.. code-block:: bash
-
-   git clone ToDos: Add Github
-
-.. important::
-
-   The master branch supports TYPO3 CMS 8 and TYPO3 CMS 9
+This extension is not bound to forms exclusively. You can implement a "form submission" where ever you like. After all it is just a set of key-value-pairs. But make sure that the keys (field names) are configured properly.
