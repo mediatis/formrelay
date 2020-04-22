@@ -2,11 +2,11 @@
 
 namespace Mediatis\Formrelay\Configuration;
 
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
-use TYPO3\CMS\Extbase\Configuration\FrontendConfigurationManager;
-use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use Mediatis\Formrelay\Utility\ArrayUtility;
+use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Extbase\Configuration\FrontendConfigurationManager;
+use TYPO3\CMS\Extbase\Service\TypoScriptService;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 class ConfigurationManager implements SingletonInterface
 {
@@ -192,8 +192,7 @@ class ConfigurationManager implements SingletonInterface
         if (!isset($this->extSettingsRaw[$extKey])) {
             $this->extSettingsRaw[$extKey] = $this->updateConfig(
                 $this->getExtensionTypoScriptSetup($extKey) ?: [],
-                ['environment' => 'typoscript'],
-                $extKey
+                ['environment' => 'typoscript', 'extKey' => $extKey]
             )['settings'] ?: [];
         }
 

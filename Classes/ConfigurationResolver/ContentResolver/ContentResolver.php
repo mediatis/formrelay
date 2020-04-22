@@ -4,7 +4,6 @@ namespace Mediatis\Formrelay\ConfigurationResolver\ContentResolver;
 
 use Mediatis\Formrelay\ConfigurationResolver\ConfigurationResolver;
 use Mediatis\Formrelay\Service\Registerable;
-use Mediatis\Formrelay\Utility\FormrelayUtility;
 
 abstract class ContentResolver extends ConfigurationResolver implements ContentResolverInterface, Registerable
 {

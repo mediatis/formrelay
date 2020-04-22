@@ -3,16 +3,20 @@ declare(strict_types=1);
 
 namespace Mediatis\Formrelay\Service;
 
+use LibXMLError;
 use Mediatis\Formrelay\Exceptions\InvalidXmlException;
 use Mediatis\Formrelay\Exceptions\InvalidXmlFileException;
 use Mediatis\Formrelay\Utility\FormSimulatorUtility;
+use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
+use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
+use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException;
 
 class FormSimulatorService
 {
     const XML_LOG_PREFIX = '<?xml version="1.0" encoding="UTF-8"?>';
 
     /**
-     * @var \Mediatis\Formrelay\Service\Relay
+     * @var Relay
      */
     protected $relay;
 
@@ -40,9 +44,9 @@ class FormSimulatorService
      * @return string
      * @throws InvalidXmlException
      * @throws InvalidXmlFileException
-     * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
+     * @throws ServiceUnavailableException
+     * @throws InvalidSlotException
+     * @throws InvalidSlotReturnException
      */
     public function run(string $file, int $pageId): string
     {
@@ -75,7 +79,7 @@ class FormSimulatorService
     {
         libxml_use_internal_errors(true);
         $xml = simplexml_load_string($logEntry);
-        /** @var \LibXMLError $e */
+        /** @var LibXMLError $e */
         if (empty($xml)) {
             foreach (libxml_get_errors() as $e) {
                 throw new InvalidXmlException($logEntry . ' ERROR: ' . $e->message);
@@ -105,9 +109,9 @@ class FormSimulatorService
      * @param array $formData
      * @param string $date
      * @param int $pageId
-     * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
+     * @throws ServiceUnavailableException
+     * @throws InvalidSlotException
+     * @throws InvalidSlotReturnException
      */
     protected function process(array $formData, string $date, int $pageId)
     {
@@ -126,9 +130,9 @@ class FormSimulatorService
      * Initializes TypoScriptFrontendController for current page and language
      *
      * @param int $pageId
-     * @param bool $language
+     * @param bool|int $language
      * @param bool $useCache
-     * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
+     * @throws ServiceUnavailableException
      */
     private function initializeTsfe(int $pageId, int $language = 0, bool $useCache = true)
     {

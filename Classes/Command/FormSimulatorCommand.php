@@ -2,11 +2,14 @@
 
 namespace Mediatis\Formrelay\Command;
 
+use Mediatis\Formrelay\Exceptions\InvalidXmlException;
+use Mediatis\Formrelay\Exceptions\InvalidXmlFileException;
 use Mediatis\Formrelay\Service\FormSimulatorService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -39,9 +42,9 @@ class FormSimulatorCommand extends Command
      * @param OutputInterface $output
      * @return void
      * @cli
-     * @throws \Mediatis\Formrelay\Exceptions\InvalidXmlFileException
-     * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
-     * @throws \Mediatis\Formrelay\Exceptions\InvalidXmlException
+     * @throws InvalidXmlFileException
+     * @throws ServiceUnavailableException
+     * @throws InvalidXmlException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
