@@ -2,34 +2,10 @@
 
 namespace Mediatis\Formrelay\Service;
 
-/***************************************************************
- *  Copyright notice
- *
- *  (c) 2016 Michael Vöhringer (Mediatis AG) <voehringer@mediatis.de>
- *  All rights reserved
- *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
-
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
@@ -198,7 +174,9 @@ class Relay implements SingletonInterface
                 . DIRECTORY_SEPARATOR
                 . $this->settings['logfile']['system']
                 . '.xml';
-        } else {
+        } elseif (class_exists(Environment::class)) {
+            // @TODO: when we drop TYPO3 v8 support, we can remove this condition
+            //        since the class Environment was introduced in v9
             $logFileDirectory = Environment::getVarPath() . DIRECTORY_SEPARATOR . 'log';
             if (is_dir($logFileDirectory)) {
                 $logFilePath = $logFileDirectory

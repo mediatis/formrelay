@@ -11,9 +11,9 @@ class DistributeFieldMapper extends FieldMapper
 
     public function finish(&$context, &$result): bool
     {
-         foreach ($this->config as $field) {
+        foreach ($this->config as $field) {
             $fieldMapper = $this->objectManager->get(GeneralFieldMapper::class, $field);
-            $fieldMapper->resolve($context, $result);
+            $result = $fieldMapper->resolve($context, $result);
         }
         return true;
     }
