@@ -683,6 +683,115 @@ If the form field value can be split into more parts than external fields are co
 	name === "Foo Bar Baz"
 	result === [first_name => "Foo", last_name => "Bar Baz"]
 
+ValueMapFieldMapper
+****************
+
+This field mapper can update the field values, by applying a ``ValueMapper`` during the field mapping.
+
+::
+
+	form_field_name_a = external_field_name_a
+	form_field_name_a.valueMap {
+	  form_field_a_value_1 = external_field_a_value_1
+	  form_field_a_value_2 = external_field_a_value_2
+	}
+
+While this seems redundant because we already have a value mapping in the settings under ``settings.values.mapping``, this opens up the possibility to provide different value mappings for multiple external fields, e.g. reached via the distribute field mapper.
+
+::
+
+	form_field_name_a.distribute {
+	  10 = external_field_name_a1
+	  10.valueMap {
+	    form_field_a_value_1 = external_field_a1_value_1
+	    form_field_a_value_2 = external_field_a1_value_2
+	  }
+	  20 = external_field_name_a2
+	  20.valueMap {
+	    form_field_a_value_1 = external_field_a2_value_1
+	    form_field_a_value_2 = external_field_a2_value_2
+	  }
+	}
+
+Note: Even if a general value mapping via ``settings.values.mapping`` is provided, the value-map field mapper will use the original form field values.
+This means that a field-specific value mapping is overwriting the general value mapping completely.
+This is intended because the original form field values will guarantee maximum availability of information, while the general value mapping may already have reduced the information, e.g. by mapping two different form field values to the same external value.
+
+::
+
+	settings {
+	  values.mapping {
+	    form_field_name_a {
+	      form_field_a_value_1 = general_external_field_a_value_1
+	      form_field_a_value_2 = general_external_field_a_value_2
+	    }
+	  }
+	  fields.mapping {
+	    form_field_name_a.distribute {
+
+	      # this mapping will work
+	      # since it overwrites all mapped values of the general value mapping
+	      10 = external_field_name_a1
+	      10.valueMap {
+	        form_field_a_value_1 = external_field_a1_value_1
+	        form_field_a_value_2 = external_field_a1_value_2
+	      }
+
+	      # this mapping will NOT work
+	      # since it tries to map the generally mapped values instead of the original form field values
+	      # and this will actually overwrite the general mapping
+	      # so the original form field values will be used
+	      20 = external_field_name_a2
+	      20.valueMap {
+	        general_external_field_a_value_1 = external_field_a2_value_1
+	        general_external_field_a_value_2 = external_field_a2_value_2
+	      }
+
+	      # this will work in principle
+	      # but all unmapped fields will NOT fall back to the general mapping
+	      # and instead their original form field values will be used
+	      30 = external_field_name_a3
+	      30.valueMap {
+	        form_field_a_value_2 = external_field_a3_value_2
+	      }
+
+	      # this will work since
+	      # it copies the general value mapping first
+	      # and is then changing the mapping specific for this external field
+	      40 = external_field_name_a4
+	      40.valueMap < plugin.tx_formrelay_xyz.settings.values.mapping.form_field_name_a
+	      40.valueMap {
+	        form_field_a_value_2 = external_field_a4_value_2
+	      }
+
+	      # without an explicit mapping, the general mapping will be used
+	      50 = external_field_name_a5
+	    }
+	  }
+	}
+
+The above settings will result in this behaviour:
+
+::
+
+	form_field_name_a === "form_field_a_value_1"
+	result === [
+	  external_field_name_a1 => "external_field_a1_value_1",
+	  external_field_name_a2 => "form_field_a_value_1",
+	  external_field_name_a3 => "form_field_a_value_1",
+	  external_field_name_a4 => "general_external_field_a_value_1",
+	  external_field_name_a5 => "general_external_field_a_value_1",
+	]
+
+	form_field_name_a === "form_field_a_value_2"
+	result === [
+	  external_field_name_a1 => "external_field_a1_value_2",
+	  external_field_name_a2 => "form_field_a_value_2",
+	  external_field_name_a3 => "external_field_a3_value_2",
+	  external_field_name_a4 => "external_field_a4_value_2",
+	  external_field_name_a5 => "general_external_field_a_value_2",
+	]
+
 ValueMapper
 ###########
 
