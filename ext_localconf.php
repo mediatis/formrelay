@@ -46,6 +46,7 @@ if (!defined('TYPO3_MODE')) {
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\IfFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\IgnoreFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\JoinFieldMapper::class);
+    $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\ValueMapFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\NegateFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\PassthroughFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\PlainFieldMapper::class);
