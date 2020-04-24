@@ -1,4 +1,14 @@
 
+2.1.0
+
+[FEATURE] New FieldMapper: ValueMapFieldMapper (MEDO-352)
+
+[BUGFIX] fixed distribute field mapper, restored TYPO3 8 compatibility (MEDO-351)
+
+2.0.9
+
+[TASK] updated documentation
+
 2.0.8
 
 [FEATURE] updated logging algorithm
