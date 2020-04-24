@@ -2,6 +2,7 @@
 
 namespace Mediatis\Formrelay\Extensions\Form\ElementProcessor;
 
+use Exception;
 use Mediatis\Formrelay\Domain\Model\FormField\UploadFormField;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -58,10 +59,10 @@ class FileUploadElementProcessor extends ElementProcessor
 
         try {
             $folder = $defaultStorage->getFolder($folderObject->getIdentifier());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             try {
                 $folder = $defaultStorage->createFolder($folderObject->getIdentifier());
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 GeneralUtility::devLog("UploadFormField folder for this form can not be created", __CLASS__, 0, $baseUploadPath);
                 return null;
             }

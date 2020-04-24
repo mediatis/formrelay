@@ -2,7 +2,11 @@
 
 namespace Mediatis\Formrelay\Utility;
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Http\ImmediateResponseException;
+use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\TimeTracker\TimeTracker;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -15,8 +19,8 @@ class FormSimulatorUtility
      * @param int $language System language uid, optional, defaults to 0
      * @param bool $useCache Use cache to reuse TSFE
      * @return void
-     * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
-     * @throws \TYPO3\CMS\Core\Http\ImmediateResponseException
+     * @throws ServiceUnavailableException
+     * @throws ImmediateResponseException
      * @todo When we drop TYPO3 8 support we should use a middleware stack to initialize a TSFE for our needs
      */
     public static function initializeTsfe($pageId, $language = 0, $useCache = true)
@@ -53,13 +57,13 @@ class FormSimulatorUtility
 
         static $hosts = [];
         // relevant for realURL environments, only
-        if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('realurl')) {
+        if (ExtensionManagementUtility::isLoaded('realurl')) {
             $rootpageId = $pageId;
             $hostFound = !empty($hosts[$rootpageId]);
 
             if (!$hostFound) {
-                $rootline = \TYPO3\CMS\Backend\Utility\BackendUtility::BEgetRootLine($rootpageId);
-                $host = \TYPO3\CMS\Backend\Utility\BackendUtility::firstDomainRecord($rootline);
+                $rootline = BackendUtility::BEgetRootLine($rootpageId);
+                $host = BackendUtility::firstDomainRecord($rootline);
 
                 $hosts[$rootpageId] = $host;
             }
