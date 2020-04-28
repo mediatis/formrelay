@@ -8,10 +8,11 @@ use Mediatis\Formrelay\Domain\Model\FormField\FormFieldInterface;
 class GeneralValueMapper extends ValueMapper implements GeneralConfigurationResolverInterface
 {
     /**
+     * @param string|FormFieldInterface|null $fieldValue
      * @param array $context
      * @return string|FormFieldInterface|null
      */
-    public function resolve(array $context)
+    public function resolveValue($fieldValue, array $context)
     {
         $config = $this->preprocessConfigurationArray(['if'], ['plain']);
         foreach ($config as $key => $value) {
@@ -19,17 +20,13 @@ class GeneralValueMapper extends ValueMapper implements GeneralConfigurationReso
             $valueMapper = $this->resolveKeyword($key, $value);
 
             // if not successful, create a general mapper as sub-mapper if the config key is the data value
-            if (
-                !$valueMapper
-                && isset($context['data'][$context['key']])
-                && $key === $context['data'][$context['key']]
-            ) {
+            if (!$valueMapper && $key === $fieldValue) {
                 $valueMapper = $this->resolveKeyword('general', $value);
             }
 
             if ($valueMapper) {
                 // calculate the result
-                $result = $valueMapper->resolve($context);
+                $result = $valueMapper->resolve($context, $fieldValue);
                 // if the result is not null (may be returned from an evaluation process without a then/else part)
                 // then stop and return the result
                 if ($result !== null) {
@@ -38,6 +35,6 @@ class GeneralValueMapper extends ValueMapper implements GeneralConfigurationReso
             }
         }
         // if no result was found, return the original value
-        return parent::resolve($context);
+        return parent::resolveValue($fieldValue, $context);
     }
 }

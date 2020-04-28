@@ -8,22 +8,23 @@ class SwitchValueMapper extends ValueMapper
 {
     /**
      * @param array $context
+     * @param string|FormFieldInterface|null $fieldValue
      * @return string|FormFieldInterface|null
      */
-    public function resolve(array $context)
+    public function resolveValue($fieldValue, array $context)
     {
         $valueMapper = null;
         foreach ($this->config as $case) {
             $caseValue = $case['case'] ?: $case['_typoScriptNodeValue'] ?: '';
             $caseResult = $case['value'] ?: '';
-            if ($caseValue === $context['data'][$context['key']]) {
+            if ($caseValue === $fieldValue) {
                 $valueMapper = $this->resolveKeyword('general', $caseResult);
                 break;
             }
         }
         if ($valueMapper) {
-            return $valueMapper->resolve($context);
+            return $valueMapper->resolve($context, $fieldValue);
         }
-        return parent::resolve($context);
+        return parent::resolveValue($fieldValue, $context);
     }
 }

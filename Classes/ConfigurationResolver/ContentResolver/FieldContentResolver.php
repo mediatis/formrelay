@@ -6,9 +6,6 @@ class FieldContentResolver extends ContentResolver
 {
     public function build(array &$context): string
     {
-        if (isset($context['data'][$this->config])) {
-            return $context['data'][$this->config];
-        }
-        return '';
+        return $this->getFieldValue($context, $this->config);
     }
 }

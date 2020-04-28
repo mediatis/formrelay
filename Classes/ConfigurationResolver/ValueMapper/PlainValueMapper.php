@@ -4,7 +4,7 @@ namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
 class PlainValueMapper extends ValueMapper
 {
-    public function resolve(array $context): string
+    public function resolveValue($fieldValue, array $context): string
     {
         return $this->config;
     }

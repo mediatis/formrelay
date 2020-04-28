@@ -10,11 +10,8 @@ class InEvaluation extends Evaluation
         return true;
     }
 
-    public function eval(array $context = [], array $keysEvaluated = []): bool
+    protected function evalValue($fieldValue, array $context = [], array $keysEvaluated = [])
     {
-        return in_array(
-            $context['data'][$context['key']],
-            $this->config
-        );
+        return in_array($fieldValue, $this->config);
     }
 }

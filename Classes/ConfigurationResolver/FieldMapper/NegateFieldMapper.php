@@ -9,10 +9,9 @@ class NegateFieldMapper extends FieldMapper
         return true;
     }
 
-    public function prepare(&$context, &$result)
+    protected function prepareValue($fieldValue, &$context, &$result)
     {
-        // @TODO check for MultiValueFormField here and apply the negation on each value if necessary
-        $context['value'] = !!$context['value']
+        return !!$fieldValue
             ? ($this->config['false'] ?: '0')
             : ($this->config['true'] ?: '1');
     }
