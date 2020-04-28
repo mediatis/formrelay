@@ -2,11 +2,11 @@
 
 namespace Mediatis\Tests\Unit\ConfigurationResolver\Evaluation;
 
-use Mediatis\Formrelay\ConfigurationResolver\Evaluation\InEvaluation;
+use Mediatis\Formrelay\ConfigurationResolver\Evaluation\RequiredEvaluation;
 use Mediatis\Formrelay\Domain\Model\FormField\MultiValueFormField;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
-class InEvaluationTest extends UnitTestCase
+class RequiredEvaluationTest extends UnitTestCase
 {
     protected $subject;
 
@@ -15,10 +15,9 @@ class InEvaluationTest extends UnitTestCase
      */
     public function evaluationPasses()
     {
-        $this->subject = new InEvaluation('value_1,value_2');
+        $this->subject = new RequiredEvaluation('key_1');
         $result = $this->subject->eval([
-            'data' => ['key_1' => 'value_2'],
-            'key' => 'key_1',
+            'data' => ['key_1' => 'value_1'],
         ]);
         $this->assertEquals(true, $result);
     }
@@ -26,12 +25,23 @@ class InEvaluationTest extends UnitTestCase
     /**
      * @test
      */
-    public function evaluationDoesNotPass()
+    public function evaluationWIthMissingFieldDoesNotPass()
     {
-        $this->subject = new InEvaluation('value_1,value_3');
+        $this->subject = new RequiredEvaluation('key_1');
         $result = $this->subject->eval([
-            'data' => ['key_1' => 'value_2'],
-            'key' => 'key_1',
+            'data' => ['key_2' => 'value_2'],
+        ]);
+        $this->assertEquals(false, $result);
+    }
+
+    /**
+     * @test
+     */
+    public function evaluationWIthExistingFieldDoesNotPass()
+    {
+        $this->subject = new RequiredEvaluation('key_1');
+        $result = $this->subject->eval([
+            'data' => ['key_1' => ''],
         ]);
         $this->assertEquals(false, $result);
     }
@@ -41,10 +51,9 @@ class InEvaluationTest extends UnitTestCase
      */
     public function evaluationWithArrayPasses()
     {
-        $this->subject = new InEvaluation(['value_1','value_2']);
+        $this->subject = new RequiredEvaluation(['key_1']);
         $result = $this->subject->eval([
-            'data' => ['key_1' => 'value_2'],
-            'key' => 'key_1',
+            'data' => ['key_1' => 'value_1'],
         ]);
         $this->assertEquals(true, $result);
     }
@@ -54,10 +63,9 @@ class InEvaluationTest extends UnitTestCase
      */
     public function evaluationWithArrayDoesNotPass()
     {
-        $this->subject = new InEvaluation(['value_1','value_3']);
+        $this->subject = new RequiredEvaluation(['key_1']);
         $result = $this->subject->eval([
-            'data' => ['key_1' => 'value_2'],
-            'key' => 'key_1',
+            'data' => ['key_1' => ''],
         ]);
         $this->assertEquals(false, $result);
     }
@@ -67,10 +75,9 @@ class InEvaluationTest extends UnitTestCase
      */
     public function evaluationPassesMultiValue()
     {
-        $this->subject = new InEvaluation('value_1,value_2');
+        $this->subject = new RequiredEvaluation('key_1');
         $result = $this->subject->eval([
-            'data' => ['key_1' => new MultiValueFormField(['value_2', 'value_3'])],
-            'key' => 'key_1',
+            'data' => ['key_1' => new MultiValueFormField(['value_1'])],
         ]);
         $this->assertEquals(true, $result);
     }
@@ -78,12 +85,11 @@ class InEvaluationTest extends UnitTestCase
     /**
      * @test
      */
-    public function evaluationDoesNotPassMultiValue()
+    public function evaluationWIthExistingFieldDoesNotPassMultiValue()
     {
-        $this->subject = new InEvaluation('value_1,value_3');
+        $this->subject = new RequiredEvaluation('key_1');
         $result = $this->subject->eval([
-            'data' => ['key_1' => new MultiValueFormField(['value_2', 'value_4'])],
-            'key' => 'key_1',
+            'data' => ['key_1' => new MultiValueFormField([])],
         ]);
         $this->assertEquals(false, $result);
     }
@@ -93,10 +99,9 @@ class InEvaluationTest extends UnitTestCase
      */
     public function evaluationWithArrayPassesMultiValue()
     {
-        $this->subject = new InEvaluation(['value_1','value_2']);
+        $this->subject = new RequiredEvaluation(['key_1']);
         $result = $this->subject->eval([
-            'data' => ['key_1' => new MultiValueFormField(['value_2', 'value_3'])],
-            'key' => 'key_1',
+            'data' => ['key_1' => new MultiValueFormField(['value_1'])],
         ]);
         $this->assertEquals(true, $result);
     }
@@ -106,10 +111,9 @@ class InEvaluationTest extends UnitTestCase
      */
     public function evaluationWithArrayDoesNotPassMultiValue()
     {
-        $this->subject = new InEvaluation(['value_1','value_3']);
+        $this->subject = new RequiredEvaluation(['key_1']);
         $result = $this->subject->eval([
-            'data' => ['key_1' => new MultiValueFormField(['value_2', 'value_4'])],
-            'key' => 'key_1',
+            'data' => ['key_1' => new MultiValueFormField([])],
         ]);
         $this->assertEquals(false, $result);
     }

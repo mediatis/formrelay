@@ -4,8 +4,6 @@ namespace Mediatis\Tests\Unit\ConfigurationResolver\Evaluation;
 
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\AndEvaluation;
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\Evaluation;
-use Mediatis\Formrelay\ConfigurationResolver\Evaluation\EqualsEvaluation;
-use Mediatis\Formrelay\ConfigurationResolver\Evaluation\GeneralEvaluation;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use TYPO3\CMS\Extbase\Object\ObjectManager;

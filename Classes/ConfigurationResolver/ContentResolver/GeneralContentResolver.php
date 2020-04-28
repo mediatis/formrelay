@@ -7,8 +7,6 @@ use Mediatis\Formrelay\Utility\FormrelayUtility;
 
 class GeneralContentResolver extends ContentResolver implements GeneralConfigurationResolverInterface
 {
-    const KEYWORD_GLUE = 'glue';
-
     protected function add($context, $result, $content): string
     {
         $glue = FormrelayUtility::parseSeparatorString($context[static::KEYWORD_GLUE] ?: '');
