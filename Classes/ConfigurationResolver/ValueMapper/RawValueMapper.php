@@ -8,18 +8,18 @@ class RawValueMapper extends ValueMapper
 {
     /**
      * @param array $context
+     * @param string|FormFieldInterface|null $fieldValue
      * @return string|FormFieldInterface|null
      */
-    public function resolve(array $context)
+    public function resolveValue($fieldValue, array $context)
     {
-        $value = $context['data'][$context['key']];
-        if (isset($this->config[$value])) {
-            $valueMapper = $this->resolveKeyword('general', $this->config[$value]);
-            $result = $valueMapper->resolve($context);
+        if (isset($this->config[$fieldValue])) {
+            $valueMapper = $this->resolveKeyword('general', $this->config[$fieldValue]);
+            $result = $valueMapper->resolve($context, $fieldValue);
             if ($result !== null) {
                 return $result;
             }
         }
-        return parent::resolve($context);
+        return parent::resolveValue($fieldValue, $context);
     }
 }
