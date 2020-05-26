@@ -16,6 +16,7 @@ use Mediatis\Formrelay\ConfigurationResolver\ValueMapper\ValueMapperInterface;
 use Mediatis\Formrelay\Extensions\Form\FormFinisher;
 use Mediatis\Formrelay\Extensions\Form\ElementProcessor\ElementProcessorInterface;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 class Registry implements SingletonInterface
@@ -23,9 +24,9 @@ class Registry implements SingletonInterface
     /** @var Dispatcher */
     protected $signalSlotDispatcher;
 
-    public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
+    public function __construct()
     {
-        $this->signalSlotDispatcher = $signalSlotDispatcher;
+        $this->signalSlotDispatcher = GeneralUtility::makeInstance(Dispatcher::class);
     }
 
     protected function register($classReference, $interfaceReference, $signalClass, $signals, $registerable = false)

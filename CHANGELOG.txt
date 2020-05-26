@@ -1,4 +1,8 @@
 
+4.0.0
+
+[TASK] Code Update for TYPO3 v9 and v10 (MEDO-360)
+
 3.0.0
 
 [BUGFIX] Configuration Resolvers now taking MultiValues into Account (MEDO-349)
