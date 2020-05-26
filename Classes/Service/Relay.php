@@ -7,6 +7,7 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
@@ -79,6 +80,7 @@ class Relay implements SingletonInterface
      *
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
+     * @throws ObjectException
      */
     public function process(array $data, array $formSettings = [], bool $simulate = false)
     {
@@ -114,13 +116,14 @@ class Relay implements SingletonInterface
 
     /**
      * @param array $data The original field array
-     * @param string $extKey The key of the extenstion which should be processed next
+     * @param string $extKey The key of the extension which should be processed next
      * @return bool
      *
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
+     * @throws ObjectException
      */
-    public function processData($data, $extKey)
+    public function processData(array $data, string $extKey): bool
     {
         $dispatched = false;
         for ($index = 0; $index < $this->configurationManager->getFormrelaySettingsCount($extKey); $index++) {
@@ -174,9 +177,7 @@ class Relay implements SingletonInterface
                 . DIRECTORY_SEPARATOR
                 . $this->settings['logfile']['system']
                 . '.xml';
-        } elseif (class_exists(Environment::class)) {
-            // @TODO: when we drop TYPO3 v8 support, we can remove this condition
-            //        since the class Environment was introduced in v9
+        } else {
             $logFileDirectory = Environment::getVarPath() . DIRECTORY_SEPARATOR . 'log';
             if (is_dir($logFileDirectory)) {
                 $logFilePath = $logFileDirectory
