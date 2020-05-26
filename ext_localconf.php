@@ -5,8 +5,23 @@ if (!defined('TYPO3_MODE')) {
 }
 
 (function () {
-    $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
-    $registry = $objectManager->get(\Mediatis\Formrelay\Service\Registry::class);
+    $typoscript = '# frontend configuration
+plugin.tx_form.settings.yamlConfigurations {
+  1590510649 = EXT:formrelay/Configuration/Yaml/BaseSetup.yaml
+  1590510650 = EXT:formrelay/Configuration/Yaml/FormEngineSetup.yaml
+}
+
+# backend configuration
+module.tx_form.settings.yamlConfigurations {
+  1590510649 = EXT:formrelay/Configuration/Yaml/BaseSetup.yaml
+  1590510650 = EXT:formrelay/Configuration/Yaml/FormEditorSetup.yaml
+  1590510651 = EXT:formrelay/Configuration/Yaml/FormEngineSetup.yaml
+}';
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup($typoscript);
+})();
+
+(function () {
+    $registry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Mediatis\Formrelay\Service\Registry::class);
 
     // add form element processors (ext:form)
     if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('form')) {

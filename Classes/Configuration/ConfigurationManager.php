@@ -5,7 +5,7 @@ namespace Mediatis\Formrelay\Configuration;
 use Mediatis\Formrelay\Utility\ArrayUtility;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Extbase\Configuration\FrontendConfigurationManager;
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 class ConfigurationManager implements SingletonInterface
