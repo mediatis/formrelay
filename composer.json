@@ -29,7 +29,7 @@
     }
   ],
   "require": {
-    "php": "~7.0 || ~7.1  || ~7.2",
+    "php": "~7.2|| ~7.3 || ~7.4",
     "typo3/cms-core": "^9.5 || ^10.4",
     "typo3/cms-form": "^9.5 || ^10.4",
     "mediatis/form_fieldnames": "^2.0 || ^3.0"
