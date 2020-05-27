@@ -54,12 +54,6 @@ test:php72:typo3_9:
   variables:
     DOCKER_TAG: 7.2-alpine
     TYPO3_VERSION: ^9
-# Build in PHP 7.2 and TYPO3 10 (latest stable release)
-test:php72:typo3_10:
-  <<: *testing
-  variables:
-    DOCKER_TAG: 7.2-alpine
-    TYPO3_VERSION: ^10
 
 # Build in PHP 7.3 and TYPO3 9 (latest stable release)
 test:php73:typo3_9:
@@ -67,6 +61,20 @@ test:php73:typo3_9:
   variables:
     DOCKER_TAG: 7.3-alpine
     TYPO3_VERSION: ^9
+
+# Build in PHP 7.4 and TYPO3 9 (latest stable release)
+test:php74:typo3_9:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.4-alpine
+    TYPO3_VERSION: ^9
+
+# Build in PHP 7.2 and TYPO3 10 (latest stable release)
+test:php72:typo3_10:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.2-alpine
+    TYPO3_VERSION: ^10
 
 # Build in PHP 7.3 and TYPO3 10 (latest stable release)
 test:php73:typo3_10:
@@ -76,7 +84,7 @@ test:php73:typo3_10:
     TYPO3_VERSION: ^10
 
 # Build in PHP 7.4 and TYPO3 10 (latest stable release)
-test:php73:typo3_10:
+test:php74:typo3_10:
   <<: *testing
   variables:
     DOCKER_TAG: 7.4-alpine
