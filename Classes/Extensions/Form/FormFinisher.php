@@ -4,6 +4,8 @@ namespace Mediatis\Formrelay\Extensions\Form;
 
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use Mediatis\Formrelay\Service\Relay;
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -11,9 +13,13 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\AbstractFormElement;
 
+
 class FormFinisher extends AbstractFinisher
 {
     const SIGNAL_PROCESS_FORM_ELEMENT = 'processFormElement';
+
+    /** @var Logger */
+    protected $logger;
 
     /** @var Dispatcher */
     protected $signalSlotDispatcher;
@@ -31,6 +37,12 @@ class FormFinisher extends AbstractFinisher
     ];
 
     protected $formValueMap = [];
+
+    public function initializeObject()
+    {
+        $logManager = $this->objectManager->get(LogManager::class);
+        $this->logger = $logManager->getLogger(static::class);
+    }
 
     public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
     {
@@ -100,17 +112,12 @@ class FormFinisher extends AbstractFinisher
                 [$element, $value, $options, &$formValues, &$processed]
             );
             if (!$processed) {
-                GeneralUtility::devLog(
-                    'Ignoring unkonwn form field type.',
-                    __CLASS__,
-                    0,
-                    [
-                        'form' => $element->getRootForm()->getIdentifier(),
-                        'field' => $name,
-                        'class' => get_class($element),
-                        'type' => $type,
-                    ]
-                );
+                $this->logger->error('Ignoring unknown form field type.', [
+                    'form' => $element->getRootForm()->getIdentifier(),
+                    'field' => $name,
+                    'class' => get_class($element),
+                    'type' => $type,
+                ]);
             }
         }
 
