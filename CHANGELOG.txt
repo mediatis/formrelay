@@ -1,4 +1,10 @@
 
+4.1.0
+
+[BUGFIX] fixed legacy calls to GeneralUtility::devLog
+
+[FEATURE] added typoscript variable "formrelay" as helper for conditions
+
 4.0.0
 
 [TASK] Code Update for TYPO3 v9 and v10 (MEDO-360)
