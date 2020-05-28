@@ -25,10 +25,14 @@ module.tx_form.settings.yamlConfigurations {
 
     // add form element processors (ext:form)
     if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('form')) {
-        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\GenericElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\AbstractSectionElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\ContentElementProcessor::class);
         $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DateElementProcessor::class);
         $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DatePickerElementProcessor::class);
         $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\FileUploadElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\GenericElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\HoneypotElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\StaticTextElementProcessor::class);
     }
 
     // add data providers
