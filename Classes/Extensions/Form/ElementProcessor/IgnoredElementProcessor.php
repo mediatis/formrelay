@@ -18,11 +18,7 @@ abstract class IgnoredElementProcessor extends ElementProcessor
     {
         $this->options = $options;
         if ((!$processed || $this->override()) && $this->match($element, $elementValue)) {
-            $id = $element->getIdentifier();
-            $name = $id;
-            if (method_exists($element, 'getProperties')) {
-                $name = $element->getProperties()['fluidAdditionalAttributes']['name'] ?: $id;
-            }
+            $name = $this->getElementName($element);
             if (isset($result[$name])) {
                 unset($result[$name]);
             }

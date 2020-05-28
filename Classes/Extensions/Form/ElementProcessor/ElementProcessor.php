@@ -79,15 +79,23 @@ abstract class ElementProcessor implements ElementProcessorInterface
         return false;
     }
 
+    protected function getElementName($element)
+    {
+        $name = $element->getIdentifier();
+        if (method_exists($element, 'getProperties')) {
+            $properties = $element->getProperties();
+            if (isset($properties['fluidAdditionalAttributes']['name'])) {
+                $name = $properties['fluidAdditionalAttributes']['name'];
+            }
+        }
+        return $name;
+    }
+
     public function processFormElement($element, $elementValue, array $options, array &$result, bool &$processed)
     {
         $this->options = $options;
         if ((!$processed || $this->override()) && $this->match($element, $elementValue)) {
-            $id = $element->getIdentifier();
-            $name = $id;
-            if (method_exists($element, 'getProperties')) {
-                $name = $element->getProperties()['fluidAdditionalAttributes']['name'] ?: $id;
-            }
+            $name = $this->getElementName($element);
             $value = $this->process($element, $elementValue);
             $result[$name] = $value;
             $processed = true;
