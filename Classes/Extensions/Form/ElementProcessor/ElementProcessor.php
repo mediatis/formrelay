@@ -84,7 +84,10 @@ abstract class ElementProcessor implements ElementProcessorInterface
         $this->options = $options;
         if ((!$processed || $this->override()) && $this->match($element, $elementValue)) {
             $id = $element->getIdentifier();
-            $name = $element->getProperties()['fluidAdditionalAttributes']['name'] ?: $id;
+            $name = $id;
+            if (method_exists($element, 'getProperties')) {
+                $name = $element->getProperties()['fluidAdditionalAttributes']['name'] ?: $id;
+            }
             $value = $this->process($element, $elementValue);
             $result[$name] = $value;
             $processed = true;

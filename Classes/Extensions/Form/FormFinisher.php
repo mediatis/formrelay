@@ -61,15 +61,6 @@ class FormFinisher extends AbstractFinisher
 
     protected function executeInternal()
     {
-        $ignoreTypes = [
-            'Page',
-            'StaticText',
-            'ContentElement',
-            'Fieldset',
-            'GridRow',
-            'Honeypot',
-        ];
-
         $setup = trim($this->parseOption('setup'));
 
         if ($setup) {
@@ -94,14 +85,8 @@ class FormFinisher extends AbstractFinisher
         /** @var AbstractFormElement $element */
         foreach ($elements as $element) {
             $type = $element->getType();
-
-            if (in_array($type, $ignoreTypes)) {
-                continue;
-            }
-
             $id = $element->getIdentifier();
-            $name = $element->getProperties()['fluidAdditionalAttributes']['name'] ?: $id;
-            $value = $this->formValueMap[$id];
+            $value = isset($this->formValueMap[$id]) ? $this->formValueMap[$id] : null;
 
             $processed = false;
             // default element processors are within
@@ -114,7 +99,7 @@ class FormFinisher extends AbstractFinisher
             if (!$processed) {
                 $this->logger->error('Ignoring unknown form field type.', [
                     'form' => $element->getRootForm()->getIdentifier(),
-                    'field' => $name,
+                    'field' => $id,
                     'class' => get_class($element),
                     'type' => $type,
                 ]);
