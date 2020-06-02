@@ -108,7 +108,7 @@ class RequestDispatcher implements DataDispatcherInterface
         $jar = new CookieJar(false, $requestCookies);
 
         try {
-            $this->requestFactory->request($this->method, $this->url, ['body' => $postFields, 'cookies' => $jar]);
+            $this->requestFactory->request($this->url, $this->method, ['body' => $postFields, 'cookies' => $jar]);
         } catch (GuzzleException $e) {
             $this->logger->error('GuzzleException: "' . $e->getMessage() . '"', ['exception' => $e]);
             return false;
