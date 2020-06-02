@@ -6,6 +6,6 @@ class LanguageCode implements DataProviderInterface
 {
     public function addData(array &$dataArray)
     {
-        $dataArray['language'] = $GLOBALS['TSFE']->tmpl->setup['config.']['language'];
+        $dataArray['language'] = $GLOBALS['TSFE']->getLanguage()->getTwoLetterIsoCode();
     }
 }
