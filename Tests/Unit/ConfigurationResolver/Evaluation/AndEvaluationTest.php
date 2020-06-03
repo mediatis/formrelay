@@ -6,8 +6,8 @@ use Mediatis\Formrelay\ConfigurationResolver\Evaluation\AndEvaluation;
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\Evaluation;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 class AndEvaluationTest extends UnitTestCase
@@ -30,10 +30,6 @@ class AndEvaluationTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->setMethods(['dispatch'])
             ->getMock();
-
-        $this->subject = new AndEvaluation([]);
-        $this->subject->injectObjectManager($this->objectManagerMock);
-        $this->subject->injectSignalSlotDispatcher($this->signalSlotDispatcherMock);
     }
 
     protected function buildEvaluationMock($evalReturnValue, $expectedArgs = null, $expectInvoke = true)
@@ -60,7 +56,11 @@ class AndEvaluationTest extends UnitTestCase
         $subEvalClassName = 'Some\\Other\\Evaluation';
         $context = ['key' => 'key_x'];
         $config = [$subEvalClassName => ['key_1' => 'value_1']];
-        ObjectAccess::setProperty($this->subject, 'config', $config, true);
+
+        $this->subject = new AndEvaluation($config);
+        $this->subject->injectObjectManager($this->objectManagerMock);
+        $this->subject->injectSignalSlotDispatcher($this->signalSlotDispatcherMock);
+
         $this->objectManagerMock->expects($this->atLeast(1))->method('get')
             ->with($subEvalClassName, $config[$subEvalClassName])
             ->willReturn($this->buildEvaluationMock(true, $context));
@@ -79,14 +79,18 @@ class AndEvaluationTest extends UnitTestCase
         $context = ['key' => 'key_x'];
         $expectedContext = ['key' => $fieldName];
         $config = [$fieldName => ['key_1' => 'value_1']];
-        ObjectAccess::setProperty($this->subject, 'config', $config, true);
+
+        $this->subject = new AndEvaluation($config);
+        $this->subject->injectObjectManager($this->objectManagerMock);
+        $this->subject->injectSignalSlotDispatcher($this->signalSlotDispatcherMock);
+
         $this->objectManagerMock->expects($this->atLeast(1))->method('get')
             ->withConsecutive(
                 [$fieldName, $config[$fieldName]],
                 ['general', $config[$fieldName]]
             )
             ->willReturnOnConsecutiveCalls(
-                null,
+                $this->throwException(new ObjectException()),
                 $this->buildEvaluationMock(true, $expectedContext)
             );
         $result = $this->subject->eval($context);
@@ -105,14 +109,18 @@ class AndEvaluationTest extends UnitTestCase
         $configKey = 'key_1';
         $configValue = 'value_1';
         $config = [$configKey => $configValue];
-        ObjectAccess::setProperty($this->subject, 'config', $config, true);
+
+        $this->subject = new AndEvaluation($config);
+        $this->subject->injectObjectManager($this->objectManagerMock);
+        $this->subject->injectSignalSlotDispatcher($this->signalSlotDispatcherMock);
+
         $this->objectManagerMock->expects($this->atLeast(1))->method('get')
             ->withConsecutive(
                 [$configKey, $configValue],
                 ['equals', $configValue]
             )
             ->willReturnOnConsecutiveCalls(
-                null,
+                $this->throwException(new ObjectException()),
                 $this->buildEvaluationMock($expectedResult, ['key' => $configKey])
             );
 
@@ -133,16 +141,26 @@ class AndEvaluationTest extends UnitTestCase
             $configKeys[0] => $configValues[0],
             $configKeys[1] => $configValues[1],
         ];
-        ObjectAccess::setProperty($this->subject, 'config', $config, true);
+
+        $this->subject = new AndEvaluation($config);
+        $this->subject->injectObjectManager($this->objectManagerMock);
+        $this->subject->injectSignalSlotDispatcher($this->signalSlotDispatcherMock);
+
         $this->objectManagerMock
-            ->expects($this->any())
+            ->expects($this->atLeast(2))
             ->method('get')
-            ->willReturnMap([
-                [$configKeys[1], $configValues[1], null],
-                [$configKeys[0], $configValues[0], null],
-                ['equals', $configValues[0], $this->buildEvaluationMock(true, ['key' => $configKeys[0]])],
-                ['equals', $configValues[1], $this->buildEvaluationMock($expectedResult, ['key' => $configKeys[1]])],
-            ]);
+            ->withConsecutive(
+                [$configKeys[0], $configValues[0]],
+                ['equals', $configValues[0]],
+                [$configKeys[1], $configValues[1]],
+                ['equals', $configValues[1]]
+            )
+            ->willReturnOnConsecutiveCalls(
+                $this->throwException(new ObjectException()),
+                $this->buildEvaluationMock(true, ['key' => $configKeys[0]]),
+                $this->throwException(new ObjectException()),
+                $this->buildEvaluationMock($expectedResult, ['key' => $configKeys[1]])
+            );
         $result = $this->subject->eval();
         $this->assertEquals($expectedResult, $result);
     }
@@ -160,9 +178,14 @@ class AndEvaluationTest extends UnitTestCase
             $configKeys[0] => $configValues[0],
             $configKeys[1] => $configValues[1],
         ];
-        ObjectAccess::setProperty($this->subject, 'config', $config, true);
 
-        $this->objectManagerMock->expects($this->atLeast(2))->method('get')
+        $this->subject = new AndEvaluation($config);
+        $this->subject->injectObjectManager($this->objectManagerMock);
+        $this->subject->injectSignalSlotDispatcher($this->signalSlotDispatcherMock);
+
+        $this->objectManagerMock
+            ->expects($this->atLeast(2))
+            ->method('get')
             ->withConsecutive(
                 [$configKeys[0], $configValues[0]],
                 ['equals', $configValues[0]],
@@ -170,9 +193,9 @@ class AndEvaluationTest extends UnitTestCase
                 ['equals', $configValues[1]]
             )
             ->willReturnOnConsecutiveCalls(
-                null,
+                $this->throwException(new ObjectException()),
                 $this->buildEvaluationMock(false, ['key' => $configKeys[0]]),
-                null,
+                $this->throwException(new ObjectException()),
                 $this->buildEvaluationMock($expectedResult, ['key' => $configKeys[1]], false)
             );
 

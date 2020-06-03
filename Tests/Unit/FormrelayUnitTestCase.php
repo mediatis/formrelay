@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Mediatis\Formrelay\Tests\Unit;
 
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\TypoScript\ExtendedTemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -50,7 +51,7 @@ abstract class FormrelayUnitTestCase extends UnitTestCase
 
         /** @var TypoScriptFrontendController|\Prophecy\Prophecy\ObjectProphecy $tsfeProphecy */
         $tsfeProphecy = $this->prophesize(TypoScriptFrontendController::class);
-        $tsfeProphecy->willBeConstructedWith([null, $pageId, 0]);
+        $tsfeProphecy->willBeConstructedWith([GeneralUtility::makeInstance(Context::class), $pageId, 0]);
         $tsfe = $tsfeProphecy->reveal();
         $tsfe->tmpl = new \TYPO3\CMS\Core\TypoScript\TemplateService();
         GeneralUtility::addInstance(TypoScriptFrontendController::class, $tsfe);

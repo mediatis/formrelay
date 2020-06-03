@@ -5,6 +5,7 @@ namespace Mediatis\Tests\Unit\ConfigurationResolver\ValueMapper;
 use Mediatis\Formrelay\ConfigurationResolver\ValueMapper\ValueMapper;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
@@ -45,6 +46,11 @@ abstract class AbstractValueMapperTest extends UnitTestCase
 
     protected function prepareObjectManager($subMappers)
     {
+        foreach ($subMappers as $index => $subMapper) {
+            if ($subMapper === null) {
+                $subMappers[$index] = $this->throwException(new ObjectException());
+            }
+        }
         $this->objectManagerMock
             ->expects($this->atLeast(1))
             ->method('get')
