@@ -31,7 +31,7 @@ abstract class AbstractValueMapperTest extends UnitTestCase
             ->getMock();
     }
 
-    protected abstract function getSubjectClass();
+    abstract protected function getSubjectClass();
 
     protected function buildValueMappernMock($resolveReturnValue, $expectedArgs = null, $expectInvoke = true)
     {

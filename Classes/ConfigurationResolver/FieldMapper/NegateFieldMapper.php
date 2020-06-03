@@ -11,8 +11,8 @@ class NegateFieldMapper extends FieldMapper
 
     protected function prepareValue($fieldValue, &$context, &$result)
     {
-        return !!$fieldValue
-            ? ($this->config['false'] ?: '0')
-            : ($this->config['true'] ?: '1');
+        $true = $this->config['true'] ?: '1';
+        $false = $this->config['false'] ?: '0';
+        return !!$fieldValue ? $false : $true;
     }
 }

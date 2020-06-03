@@ -57,21 +57,18 @@ abstract class ElementProcessor implements ElementProcessorInterface
     protected function match($element, $elementValue)
     {
         $elementClass = $this->getElementClass();
-        if ($elementClass && is_a($element, $elementClass)) {
-            return true;
-        }
-
         $elementType = $this->getElementType();
-        if ($elementType && $element->getType() === $elementType) {
-            return true;
-        }
-
         $valueClass = $this->getValueClass();
-        if ($valueClass && is_a($elementValue, $valueClass)) {
-            return true;
-        }
 
-        return false;
+        $result = false;
+        if ($elementClass && is_a($element, $elementClass)) {
+            $result = true;
+        } elseif ($elementType && $element->getType() === $elementType) {
+            $result = true;
+        } elseif ($valueClass && is_a($elementValue, $valueClass)) {
+            $result = true;
+        }
+        return $result;
     }
 
     protected function override()

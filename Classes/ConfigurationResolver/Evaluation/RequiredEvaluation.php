@@ -13,20 +13,24 @@ class RequiredEvaluation extends Evaluation
 
     public function eval(array $context = [], array $keysEvaluated = []): bool
     {
+        $result = true;
         foreach ($this->config as $requiredField) {
             if (!isset($context['data'][$requiredField])) {
-                return false;
+                $result = false;
+                break;
             }
             if (!$context['data'][$requiredField]) {
-                return false;
+                $result = false;
+                break;
             }
             if (
                 $context['data'][$requiredField] instanceof MultiValueFormField
                 && count($context['data'][$requiredField]) === 0
             ) {
-                return false;
+                $result = false;
+                break;
             }
         }
-        return true;
+        return $result;
     }
 }

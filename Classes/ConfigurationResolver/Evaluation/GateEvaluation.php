@@ -15,24 +15,24 @@ class GateEvaluation extends Evaluation
         $this->configurationManager = $configurationManager;
     }
 
+    /*
+     * # case 1: multiple extension keys, no indices
+     *
+     * gate = tx_formrelay_a,tx_formrelay_b
+     * =>
+     * or {
+     *     1.gate {
+     *         extKey = a
+     *         index = any
+     *     }
+     *     2.gate {
+     *         extKey = b
+     *         index = any
+     *     }
+     * }
+     */
     protected function evaluateMultipleExtensions($context, $keysEvaluated)
     {
-        /*
-         * # case 1: multiple extension keys, no indices
-         *
-         * gate = tx_formrelay_a,tx_formrelay_b
-         * =>
-         * or {
-         *     1.gate {
-         *         extKey = a
-         *         index = any
-         *     }
-         *     2.gate {
-         *         extKey = b
-         *         index = any
-         *     }
-         * }
-         */
         $extKeys = explode(',', $this->config);
         $gateConfig = ['or' => []];
         foreach ($extKeys as $extKey) {
@@ -42,20 +42,20 @@ class GateEvaluation extends Evaluation
         return $evaluation->eval($context, $keysEvaluated);
     }
 
+    /*
+     * # case 2: one extension key, indirect indices (any|all)
+     *
+     * gate { extKey=tx_formrelay_a, index=any|all }
+     * =>
+     * or|and {
+     *     1.gate { extKey=tx_formrelay_a, index=0 }
+     *     2.gate { extKey=tx_formrelay_a, index=1 }
+     *     # ...
+     *     n.gate { extKey=tx_formrelay_a, index=n }
+     * }
+     */
     protected function evaluateMultipleIndices($context, $keysEvaluated)
     {
-        /*
-         * # case 2: one extension key, indirect indices (any|all)
-         *
-         * gate { extKey=tx_formrelay_a, index=any|all }
-         * =>
-         * or|and {
-         *     1.gate { extKey=tx_formrelay_a, index=0 }
-         *     2.gate { extKey=tx_formrelay_a, index=1 }
-         *     # ...
-         *     n.gate { extKey=tx_formrelay_a, index=n }
-         * }
-         */
         $extKey = $this->config['extKey'];
         $gateConfigs = [];
         $count = $this->configurationManager->getFormrelaySettingsCount($extKey);
@@ -66,36 +66,45 @@ class GateEvaluation extends Evaluation
         return $evaluation->eval($context, $keysEvaluated);
     }
 
+    /*
+     * # case 3: one extension key, one index
+     * gate { extKey=tx_formrelay_a, index=n }
+     * =>
+     * actual evaluation of extension gate
+     */
+    protected function evaluateSingleIndex($context, $keysEvaluated)
+    {
+        $result = true;
+        $extKey = $this->config['extKey'];
+        $index = $this->config['index'];
+        if (isset($keysEvaluated[$extKey]) && in_array($index, $keysEvaluated[$extKey])) {
+            $result = false;
+        } else {
+            $keysEvaluated[$extKey][] = $index;
+            $settings = $this->configurationManager->getFormrelaySettings($extKey, $index);
+            if (!$settings['enabled']) {
+                $result = false;
+            } elseif (isset($settings['gate']) && !empty($settings['gate'])) {
+                $evaluation = $this->objectManager->get(GeneralEvaluation::class, $settings['gate']);
+                $result = $evaluation->eval($context, $keysEvaluated);
+            } else {
+                // no gate is an automatic pass
+                $result = true;
+            }
+        }
+        return $result;
+    }
+
     public function eval(array $context = [], array $keysEvaluated = []): bool
     {
         if (!is_array($this->config)) {
             return $this->evaluateMultipleExtensions($context, $keysEvaluated);
         }
 
-        $extKey = $this->config['extKey'];
-        $index = $this->config['index'];
         if ($this->config['index'] === 'any' || $this->config['index'] === 'all') {
             return $this->evaluateMultipleIndices($context, $keysEvaluated);
         }
 
-        /*
-         * # case 3: one extension key, one index
-         * gate { extKey=tx_formrelay_a, index=n }
-         * =>
-         * actual evaluation of extension gate
-         */
-        if (isset($keysEvaluated[$extKey]) && in_array($index, $keysEvaluated[$extKey])) {
-            return false;
-        }
-        $keysEvaluated[$extKey][] = $index;
-        $settings = $this->configurationManager->getFormrelaySettings($extKey, $index);
-        if (!$settings['enabled']) {
-            return false;
-        }
-        if (isset($settings['gate']) && !empty($settings['gate'])) {
-            $evaluation = $this->objectManager->get(GeneralEvaluation::class, $settings['gate']);
-            return $evaluation->eval($context, $keysEvaluated);
-        }
-        return true;
+        return $this->evaluateSingleIndex($context, $keysEvaluated);
     }
 }

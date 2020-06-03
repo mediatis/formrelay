@@ -36,7 +36,7 @@ module.tx_form.settings.yamlConfigurations {
     }
 
     // add data providers
-    $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\AdwordCampains::class);
+    $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\AdwordsCampaigns::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\Adwords::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\ContentElement::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\IpAddress::class);

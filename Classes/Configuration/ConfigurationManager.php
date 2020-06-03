@@ -190,10 +190,12 @@ class ConfigurationManager implements SingletonInterface
             $this->formrelayExtSettingsRaw = $this->getExtensionTypoScriptSetup('tx_formrelay')['settings'][static::KEY_BASE_SETTINGS] ?: [];
         }
         if (!isset($this->extSettingsRaw[$extKey])) {
-            $this->extSettingsRaw[$extKey] = $this->updateConfig(
-                $this->getExtensionTypoScriptSetup($extKey) ?: [],
+            $extSettingsRaw = $this->getExtensionTypoScriptSetup($extKey) ?: [];
+            $extSettingsRaw = $this->updateConfig(
+                $extSettingsRaw,
                 ['environment' => 'typoscript', 'extKey' => $extKey]
-            )['settings'] ?: [];
+            );
+            $this->extSettingsRaw[$extKey] = $extSettingsRaw['settings'] ?: [];
         }
 
         $mergedSettingsRaw = [];
