@@ -3,11 +3,10 @@
 namespace Mediatis\Formrelay\ConfigurationResolver;
 
 use InvalidArgumentException;
-use TYPO3\CMS\Extbase\Object\Container\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Reflection\Exception\UnknownClassException;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
-use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 
 abstract class ConfigurationResolver
 {
@@ -85,6 +84,21 @@ abstract class ConfigurationResolver
         return true;
     }
 
+    protected function buildResolver($className, $config)
+    {
+        $result = null;
+        try {
+            $result = $this->objectManager->get($className, $config);
+        }  catch (UnknownClassException $e) {
+            // TYPO3 9
+            $result = null;
+        } catch (ObjectException $e) {
+            // TYPO3 10
+            $result = null;
+        }
+        return $result;
+    }
+
     /**
      * fetches a registered sub-resolver for a configuration keyword (cascading down the config)
      *
@@ -94,18 +108,9 @@ abstract class ConfigurationResolver
      */
     protected function resolveKeyword(string $keyword, $config)
     {
-        // try the keyword itself as class
-        try {
-            $result = $this->objectManager->get($keyword, $config);
-            if ($this->validResolver($result)) {
-                return $result;
-            }
-        } catch (UnknownObjectException $e) {
-            // TYPO3 8
-            // that's okay, we will try to gather more information
-        }  catch (UnknownClassException $e) {
-            // TYPO3 9
-            // that's okay, we will try to gather more information
+        $result = $this->buildResolver($keyword, $config);
+        if ($this->validResolver($result)) {
+            return $result;
         }
 
         // check for registered instances
@@ -116,12 +121,12 @@ abstract class ConfigurationResolver
                 static::SIGNAL_REGISTER,
                 [$candidates]
             )[0];
-        } catch (Exception $e) {
+        } catch (ObjectException $e) {
             // @TODO use logging service to report invalid signal slot
             //       then ignore it and move on
         }
         if (isset($candidates[$keyword])) {
-            $result = $this->objectManager->get($candidates[$keyword], $config);
+            $result = $this->buildResolver($candidates[$keyword], $config);
             if ($this->validResolver($result)) {
                 return $result;
             }
