@@ -6,7 +6,7 @@ namespace Mediatis\Formrelay\Tests\Unit\Service;
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 class ConfigurationManagerTest extends UnitTestCase
 {
@@ -15,14 +15,25 @@ class ConfigurationManagerTest extends UnitTestCase
      */
     private $subject;
 
-    protected function setUp()
+    /** @var Dispatcher */
+    protected $signalSlotDispatcher;
+
+    protected function setUp(): void
     {
         parent::setUp();
         $this->subject = new ConfigurationManager();
-        ObjectAccess::setProperty($this->subject, 'formrelayExtSettingsRaw', [], true);
-        ObjectAccess::setProperty($this->subject, 'overwriteFormrelayExtSettingsRaw', [], true);
-        ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [], true);
-        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [], true);
+
+        $this->signalSlotDispatcher = $this->getMockBuilder(Dispatcher::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['dispatch'])
+            ->getMock();
+        $this->signalSlotDispatcher
+            ->expects($this->any())
+            ->method('dispatch')
+            ->willReturnArgument(2);
+        $this->subject->injectSignalSlotDispatcher($this->signalSlotDispatcher);
+
+        $this->subject->setSetupOverwrite([]);
     }
 
     /**
@@ -30,10 +41,12 @@ class ConfigurationManagerTest extends UnitTestCase
      */
     public function loadBaseSettings()
     {
-        ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
-            'ext_key_1' => ['some_key' => 'some_value']
-        ], true);
-        $result = $this->subject->getFormrelaySettings('ext_key_1');
+        $config = [
+            'ext_key_1' => ['settings' => ['some_key' => 'some_value']]
+        ];
+
+        $this->subject->setSetup($config);
+        $result = $this->subject->getFormrelayCycles('ext_key_1');
         $this->assertEquals([0 => ['some_key' => 'some_value']], $result);
     }
 
@@ -42,15 +55,16 @@ class ConfigurationManagerTest extends UnitTestCase
      */
     public function loadSubSettings()
     {
-        ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
-            'ext_key_1' => [
+        $config = [
+            'ext_key_1' => ['settings' => [
                 'key_1' => 'value_1',
                 'key_2' => 'value_2',
-                '0.' => ['key_1' => 'value_1_b'],
-                '1.' => ['key_1' => 'value_1_c']
-            ]
-        ], true);
-        $result = $this->subject->getFormrelaySettings('ext_key_1');
+                '0' => ['key_1' => 'value_1_b'],
+                '1' => ['key_1' => 'value_1_c']
+            ]]
+        ];
+        $this->subject->setSetup($config);
+        $result = $this->subject->getFormrelayCycles('ext_key_1');
         $this->assertEquals([
             0 => ['key_1' => 'value_1_b', 'key_2' => 'value_2'],
             1 => ['key_1' => 'value_1_c', 'key_2' => 'value_2'],
@@ -62,16 +76,21 @@ class ConfigurationManagerTest extends UnitTestCase
      */
     public function loadSettingsWithOverwrite()
     {
-        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [
-            'ext_key_1' => ['key_2' => 'value_2_b']
-        ], true);
-        ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
-            'ext_key_1' => [
+        $config = [
+            'ext_key_1' => ['settings' => [
                 'key_1' => 'value_1',
                 'key_2' => 'value_2',
-            ]
-        ], true);
-        $result = $this->subject->getFormrelaySettings('ext_key_1');
+            ]]
+        ];
+
+        $overwriteConfig = [
+            'ext_key_1' => ['settings' => ['key_2' => 'value_2_b']]
+        ];
+
+        $this->subject->setSetup($config);
+        $this->subject->setSetupOverwrite($overwriteConfig);
+
+        $result = $this->subject->getFormrelayCycles('ext_key_1');
         $this->assertEquals([
             0 => ['key_1' => 'value_1', 'key_2' => 'value_2_b'],
         ], $result);
@@ -82,22 +101,27 @@ class ConfigurationManagerTest extends UnitTestCase
      */
     public function loadSubSettingsWithOverwrite()
     {
-        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [
-            'ext_key_1' => [
-                'key_2' => 'value_2_b',
-                '0.' => ['key_1' => 'value_1_d'],
-                '1.' => [],
-            ]
-        ], true);
-        ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
-            'ext_key_1' => [
+        $config = [
+            'ext_key_1' => ['settings' => [
                 'key_1' => 'value_1',
                 'key_2' => 'value_2',
-                '0.' => ['key_1' => 'value_1_b'],
-                '1.' => ['key_1' => 'value_1_c']
-            ]
-        ], true);
-        $result = $this->subject->getFormrelaySettings('ext_key_1');
+                '0' => ['key_1' => 'value_1_b'],
+                '1' => ['key_1' => 'value_1_c']
+            ]]
+        ];
+
+        $overwriteConfig = [
+            'ext_key_1' => ['settings' => [
+                'key_2' => 'value_2_b',
+                '0' => ['key_1' => 'value_1_d'],
+                '1' => [],
+            ]]
+        ];
+
+        $this->subject->setSetup($config);
+        $this->subject->setSetupOverwrite($overwriteConfig);
+
+        $result = $this->subject->getFormrelayCycles('ext_key_1');
         $this->assertEquals([
             0 => ['key_1' => 'value_1_d', 'key_2' => 'value_2_b'],
             1 => ['key_1' => 'value_1_c', 'key_2' => 'value_2_b'],
@@ -109,11 +133,16 @@ class ConfigurationManagerTest extends UnitTestCase
      */
     public function loadNonScalarSettings()
     {
-        ObjectAccess::setProperty($this->subject, 'overwriteSettingsRaw', [], true);
-        ObjectAccess::setProperty($this->subject, 'extSettingsRaw', [
-            'ext_key_1' => ['some_array_key.' => ['some_key' => 'some_value']]
-        ], true);
-        $result = $this->subject->getFormrelaySettings('ext_key_1');
-        $this->assertEquals([0 => ['some_array_key.' => ['some_key' => 'some_value']]], $result);
+        $config = [
+            'ext_key_1' => ['settings' => ['some_array_key' => ['some_key' => 'some_value']]]
+        ];
+
+        $overwriteConfig = [];
+
+        $this->subject->setSetup($config);
+        $this->subject->setSetupOverwrite($overwriteConfig);
+
+        $result = $this->subject->getFormrelayCycles('ext_key_1');
+        $this->assertEquals([0 => ['some_array_key' => ['some_key' => 'some_value']]], $result);
     }
 }

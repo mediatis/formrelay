@@ -17,7 +17,6 @@ test_sonarcube:
   only:
     - master
 
-
 .test: &testing
   stage: test
   image: php:$DOCKER_TAG
@@ -49,28 +48,6 @@ test_sonarcube:
     # Run PHP_CodeSniffer (warning_severity is needed due usage of hooks which are not psr2 compliant)
     - .Build/bin/phpcs --standard=PSR2 --config-set warning_severity 8 Classes Tests/Unit
 
-
-# Build in PHP 7.0 and TYPO3 8 (latest stable release)
-test:php70:typo3_8:
-  <<: *testing
-  variables:
-    DOCKER_TAG: 7.0-alpine
-    TYPO3_VERSION: ^8
-
-# Build in PHP 7.1 and TYPO3 8 (latest stable release)
-test:php71:typo3_8:
-  <<: *testing
-  variables:
-    DOCKER_TAG: 7.1-alpine
-    TYPO3_VERSION: ^8
-
-# Build in PHP 7.2 and TYPO3 8 (latest stable release)
-test:php72:typo3_8:
-  <<: *testing
-  variables:
-    DOCKER_TAG: 7.2-alpine
-    TYPO3_VERSION: ^8
-
 # Build in PHP 7.2 and TYPO3 8 (latest stable release)
 test:php72:typo3_9:
   <<: *testing
@@ -78,10 +55,37 @@ test:php72:typo3_9:
     DOCKER_TAG: 7.2-alpine
     TYPO3_VERSION: ^9
 
-# Build in PHP 7.3 and TYPO3 8 (latest stable release)
+# Build in PHP 7.3 and TYPO3 9 (latest stable release)
 test:php73:typo3_9:
   <<: *testing
   variables:
     DOCKER_TAG: 7.3-alpine
     TYPO3_VERSION: ^9
 
+# Build in PHP 7.4 and TYPO3 9 (latest stable release)
+test:php74:typo3_9:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.4-alpine
+    TYPO3_VERSION: ^9
+
+# Build in PHP 7.2 and TYPO3 10 (latest stable release)
+test:php72:typo3_10:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.2-alpine
+    TYPO3_VERSION: ^10
+
+# Build in PHP 7.3 and TYPO3 10 (latest stable release)
+test:php73:typo3_10:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.3-alpine
+    TYPO3_VERSION: ^10
+
+# Build in PHP 7.4 and TYPO3 10 (latest stable release)
+test:php74:typo3_10:
+  <<: *testing
+  variables:
+    DOCKER_TAG: 7.4-alpine
+    TYPO3_VERSION: ^10

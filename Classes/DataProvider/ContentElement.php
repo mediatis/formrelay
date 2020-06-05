@@ -32,9 +32,9 @@ class ContentElement implements DataProviderInterface
      */
     public function addData(array &$dataArray)
     {
-        $settings = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
-        $fieldName = $settings['settings.']['dataProviders.']['contentElement.']['fieldName'];
-        $ttContentUid = $settings['settings.']['dataProviders.']['contentElement.']['ttContentUid'];
+        $settings = $this->configurationManager->getExtensionSettings('tx_formrelay');
+        $fieldName = $settings['dataProviders']['contentElement']['fieldName'];
+        $ttContentUid = $settings['dataProviders']['contentElement']['ttContentUid'];
 
         $uids = strstr($ttContentUid, ',') ? explode(',', $ttContentUid) : [$ttContentUid];
 

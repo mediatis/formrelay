@@ -4,9 +4,8 @@ namespace Mediatis\Formrelay\ConfigurationResolver\Evaluation;
 
 class EqualsEvaluation extends Evaluation
 {
-
-    public function eval(array $context = [], array $keysEvaluated = []): bool
+    protected function evalValue($fieldValue, array $context = [], array $keysEvaluated = [])
     {
-        return $context['data'][$context['key']] === $this->config;
+        return $fieldValue === $this->config;
     }
 }

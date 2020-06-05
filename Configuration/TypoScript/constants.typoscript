@@ -4,6 +4,9 @@ plugin.tx_formrelay {
     enabled = 1
 
     logfile {
+      # cat=plugin.tx_formrelay//3; type=bool; label=Enable logging
+      enabled = 0
+
       # cat=plugin.tx_formrelay//4; type=text; label= System (live,workspace,test...)
       system = live
 

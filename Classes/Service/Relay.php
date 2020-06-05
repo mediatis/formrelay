@@ -2,38 +2,21 @@
 
 namespace Mediatis\Formrelay\Service;
 
-/***************************************************************
- *  Copyright notice
- *
- *  (c) 2016 Michael Vöhringer (Mediatis AG) <voehringer@mediatis.de>
- *  All rights reserved
- *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
-
+use Mediatis\Formrelay\Configuration\FrontendConfigurationManagerInterface;
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
 use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException;
 use Mediatis\Formrelay\Utility\FormrelayUtility;
 use Mediatis\Formrelay\ConfigurationResolver\Evaluation\GateEvaluation;
+use Mediatis\Formrelay\Utility\IpAddress;
 
 class Relay implements SingletonInterface
 {
@@ -50,8 +33,17 @@ class Relay implements SingletonInterface
     /** @var ObjectManager */
     protected $objectManager;
 
+    /** @var Logger */
+    protected $logger;
+
     /** @var Dispatcher */
     protected $signalSlotDispatcher;
+
+    /** @var TypoScriptService */
+    protected $typoScriptService;
+
+    /** @var FrontendConfigurationManagerInterface */
+    protected $frontendConfigurationManager;
 
     /** @var ConfigurationManager */
     protected $configurationManager;
@@ -72,6 +64,16 @@ class Relay implements SingletonInterface
         $this->signalSlotDispatcher = $signalSlotDispatcher;
     }
 
+    public function injectTypoScriptService(TypoScriptService $typoScriptService)
+    {
+        $this->typoScriptService = $typoScriptService;
+    }
+
+    public function injectFrontendConfigurationManager(FrontendConfigurationManagerInterface $frontendConfigurationManager)
+    {
+        $this->frontendConfigurationManager = $frontendConfigurationManager;
+    }
+
     public function injectConfigurationManager(ConfigurationManager $configurationManager)
     {
         $this->configurationManager = $configurationManager;
@@ -82,6 +84,12 @@ class Relay implements SingletonInterface
         $this->dataMapper = $dataMapper;
     }
 
+    public function initializeObject()
+    {
+        $logManager = $this->objectManager->get(LogManager::class);
+        $this->logger = $logManager->getLogger(static::class);
+    }
+
     /**
      * @param array $data         The original field array
      * @param array $formSettings Overwrite settings for the different formrelay-destinations
@@ -90,16 +98,25 @@ class Relay implements SingletonInterface
      *
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
+     * @throws ObjectException
      */
     public function process(array $data, array $formSettings = [], bool $simulate = false)
     {
         // register form overwrite settings
-        $this->configurationManager->setFormrelaySettingsOverwrite($formSettings);
+        $plainFormSettings = $this->typoScriptService->convertTypoScriptArrayToPlainArray($formSettings);
+        $this->configurationManager->setSetupOverwrite($plainFormSettings);
+
+        $baseSettings = $this->frontendConfigurationManager->getTypoScriptSetup()['plugin.'] ?? [];
+        $plainBaseSettings = $this->typoScriptService->convertTypoScriptArrayToPlainArray($baseSettings);
+        $this->configurationManager->setSetup($plainBaseSettings);
 
         // fetch own configuration
         if (!$this->settings) {
-            $typoScript = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
-            $this->settings = $typoScript['settings'];
+            $this->settings = $this->configurationManager->getExtensionSettings('tx_formrelay');
+        }
+
+        if (!$this->settings['enabled']) {
+            return;
         }
 
         if (!$simulate) {
@@ -125,22 +142,23 @@ class Relay implements SingletonInterface
 
     /**
      * @param array $data The original field array
-     * @param string $extKey The key of the extenstion which should be processed next
+     * @param string $extKey The key of the extension which should be processed next
      * @return bool
      *
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
+     * @throws ObjectException
      */
-    public function processData($data, $extKey)
+    public function processData(array $data, string $extKey): bool
     {
         $dispatched = false;
-        for ($index = 0; $index < $this->configurationManager->getFormrelaySettingsCount($extKey); $index++) {
+        for ($index = 0; $index < $this->configurationManager->getFormrelayCycleCount($extKey); $index++) {
 
             // all relevant data for the signal slots (and for processing)
             $signal = [
                 null,                                                               // 0: result
                 $data,                                                              // 1: data
-                $this->configurationManager->getFormrelaySettings($extKey, $index), // 2: conf
+                $this->configurationManager->getFormrelayCycle($extKey, $index), // 2: conf
                 ['extKey' => $extKey, 'index' => $index]                            // 3: context
             ];
 
@@ -174,20 +192,34 @@ class Relay implements SingletonInterface
         return $dispatched;
     }
 
-    protected function logData($data = false, $error = false)
+    /**
+     * @param array|null $data
+     */
+    protected function logData(array $data = null)
     {
-        $logfileBase = $this->settings['logfile']['basePath'];
+        $logFilePath = '';
+        if ($this->settings['logfile']['basePath']) {
+            $logFilePath = $this->settings['logfile']['basePath']
+                . DIRECTORY_SEPARATOR
+                . $this->settings['logfile']['system']
+                . '.xml';
+        } else {
+            $logFileDirectory = Environment::getVarPath() . DIRECTORY_SEPARATOR . 'log';
+            if (is_dir($logFileDirectory)) {
+                $logFilePath = $logFileDirectory
+                    . DIRECTORY_SEPARATOR
+                    . 'formrelay_log'
+                    . ($this->settings['logfile']['system'] ? '_' . $this->settings['logfile']['system'] : '')
+                    . '.xml';
+            }
+        }
 
-        // Only write a logfile if path is set in TS Config and logdata is not empty
-        if (strlen($logfileBase) > 0) {
-            $logfilePath = $logfileBase . DIRECTORY_SEPARATOR . $this->settings['logfile']['system'] . '.xml';
-
+        if ($this->settings['logfile']['enabled'] && $logFilePath) {
             $xmlLog = simplexml_load_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?><log />");
-            $xmlLog->addAttribute('type', $error ? 'error' : 'notice');
             $xmlLog->addChild('logdate', date('r'));
-            $xmlLog->addChild('userIP', \Mediatis\Formrelay\Utility\IpAddress::getUserIpAdress());
+            $xmlLog->addChild('userIP', IpAddress::getUserIpAdress());
 
-            if ($data) {
+            if (is_array($data) && count($data) > 0) {
                 $xmlFields = $xmlLog->addChild('form');
                 foreach ($data as $key => $value) {
                     if (is_array($value)) {
@@ -198,21 +230,19 @@ class Relay implements SingletonInterface
                 }
             }
 
-            $logdata = $xmlLog->asXML();
+            $logData = $xmlLog->asXML();
 
-            // open logfile and place cursor at the end of file
-            if ($logfile = fopen($logfilePath, "a")) {
-                // write xml to logfile and close it
-                @fwrite($logfile, $logdata);
-                fclose($logfile);
+            if ($logFile = fopen($logFilePath, "a")) {
+                @fwrite($logFile, $logData);
+                fclose($logFile);
             } else {
-                if (!is_writable($logfilePath)) {
-                    GeneralUtility::devLog("logfile is not writeable", __CLASS__, 0, $logfilePath);
-                }
-                GeneralUtility::devLog("error: ", __CLASS__, 0, error_get_last());
+                $this->logger->error('failed to write formrelay log', [
+                    'file' => $logFilePath,
+                    'writeable' => is_writable($logFilePath) ? 'yes' : 'no',
+                    'error' => error_get_last(),
+                ]);
             }
         }
     }
 
 }
-

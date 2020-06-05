@@ -9,8 +9,8 @@ class InsertDataContentResolver extends ContentResolver
     public function finish(array &$context, string &$result): bool
     {
         if ($this->config) {
-            foreach ($context['data'] as $key => $value) {
-                $result = str_replace('{' . $key . '}', $value, $result);
+            foreach (array_keys($context['data']) as $key) {
+                $result = str_replace('{' . $key . '}', $this->getFieldValue($context, $key), $result);
             }
             $result = FormrelayUtility::parseSeparatorString($result);
             $result = preg_replace('/\\{[-_a-zA-Z0-9]+\\}/', '', $result);

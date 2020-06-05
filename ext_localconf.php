@@ -5,18 +5,38 @@ if (!defined('TYPO3_MODE')) {
 }
 
 (function () {
-    $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
-    $registry = $objectManager->get(\Mediatis\Formrelay\Service\Registry::class);
+    $typoscript = '# frontend configuration
+plugin.tx_form.settings.yamlConfigurations {
+  1590510649 = EXT:formrelay/Configuration/Yaml/BaseSetup.yaml
+  1590510650 = EXT:formrelay/Configuration/Yaml/FormEngineSetup.yaml
+}
+
+# backend configuration
+module.tx_form.settings.yamlConfigurations {
+  1590510649 = EXT:formrelay/Configuration/Yaml/BaseSetup.yaml
+  1590510650 = EXT:formrelay/Configuration/Yaml/FormEditorSetup.yaml
+  1590510651 = EXT:formrelay/Configuration/Yaml/FormEngineSetup.yaml
+}';
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup($typoscript);
+})();
+
+(function () {
+    $registry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\Mediatis\Formrelay\Service\Registry::class);
 
     // add form element processors (ext:form)
     if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('form')) {
-        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\GenericElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\AbstractSectionElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\ContentElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DateElementProcessor::class);
         $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DatePickerElementProcessor::class);
         $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\FileUploadElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\GenericElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\HoneypotElementProcessor::class);
+        $registry->registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\StaticTextElementProcessor::class);
     }
 
     // add data providers
-    $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\AdwordCampains::class);
+    $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\AdwordsCampaigns::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\Adwords::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\ContentElement::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\IpAddress::class);
@@ -45,6 +65,7 @@ if (!defined('TYPO3_MODE')) {
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\IfFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\IgnoreFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\JoinFieldMapper::class);
+    $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\ValueMapFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\NegateFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\PassthroughFieldMapper::class);
     $registry->registerFieldMapper(\Mediatis\Formrelay\ConfigurationResolver\FieldMapper\PlainFieldMapper::class);

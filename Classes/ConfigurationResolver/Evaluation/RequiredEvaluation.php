@@ -2,6 +2,8 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\Evaluation;
 
+use Mediatis\Formrelay\Domain\Model\FormField\MultiValueFormField;
+
 class RequiredEvaluation extends Evaluation
 {
     protected function convertScalarConfigToArray()
@@ -11,12 +13,24 @@ class RequiredEvaluation extends Evaluation
 
     public function eval(array $context = [], array $keysEvaluated = []): bool
     {
-        $fields = $this->config;
-        foreach ($fields as $field) {
-            if (!$context['data'][$field]) {
-                return false;
+        $result = true;
+        foreach ($this->config as $requiredField) {
+            if (!isset($context['data'][$requiredField])) {
+                $result = false;
+                break;
+            }
+            if (!$context['data'][$requiredField]) {
+                $result = false;
+                break;
+            }
+            if (
+                $context['data'][$requiredField] instanceof MultiValueFormField
+                && count($context['data'][$requiredField]) === 0
+            ) {
+                $result = false;
+                break;
             }
         }
-        return true;
+        return $result;
     }
 }

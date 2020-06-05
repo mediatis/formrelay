@@ -2,8 +2,6 @@
 
 namespace Mediatis\Formrelay\ConfigurationResolver\ValueMapper;
 
-use Mediatis\Formrelay\Domain\Model\FormField\FormFieldInterface;
-
 class NegateValueMapper extends ValueMapper
 {
     protected function ignoreScalarConfig()
@@ -11,22 +9,24 @@ class NegateValueMapper extends ValueMapper
         return true;
     }
 
-    public function resolve(array $context): string
+    public function resolveValue($fieldValue, array $context): string
     {
+        $config = $this->config;
+
         $true = '1';
-        if (isset($this->config['true'])) {
-            $true = $this->config['true'];
-            unset($this->config['true']);
+        if (isset($config['true'])) {
+            $true = $config['true'];
+            unset($config['true']);
         }
 
         $false = '0';
-        if (isset($this->config['false'])) {
-            $false = $this->config['false'];
-            unset($this->config['false']);
+        if (isset($config['false'])) {
+            $false = $config['false'];
+            unset($config['false']);
         }
 
-        $valueMapper = $this->objectManager->get(GeneralValueMapper::class, $this->config);
-        $result = $valueMapper->resolve($context);
+        $valueMapper = $this->resolveKeyword('general', $this->config);
+        $result = $valueMapper->resolve($context, $fieldValue);
 
         return !!$result ? $false : $true;
     }

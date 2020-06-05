@@ -33,8 +33,6 @@ class UtmzCookieParser
         if (isset($_COOKIE['__utmz'])) {
             $this->utmz = $_COOKIE['__utmz'];
             $this->parseUtmz();
-        } else {
-            return false;
         }
     }
 

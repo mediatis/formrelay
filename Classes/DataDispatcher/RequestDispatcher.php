@@ -8,18 +8,37 @@ use GuzzleHttp\Exception\GuzzleException;
 use Mediatis\Formrelay\Domain\Model\FormField\DiscreteMultiValueFormField;
 use Mediatis\Formrelay\Exceptions\InvalidUrlException;
 use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Log\Logger;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class RequestDispatcher implements DataDispatcherInterface
 {
+    /** @var ObjectManager */
+    protected $objectManager;
+
+    /** @var Logger */
+    protected $logger;
+
+    /** @var RequestFactory */
+    protected $requestFactory;
+
     protected $url;
     protected $method = 'POST';
     protected $cookies = [];
     protected $parameterise = true;
-    /**
-     * @var RequestFactory
-     */
-    protected $requestFactory;
+
+    public function initializeObject()
+    {
+        $logManager = $this->objectManager->get(LogManager::class);
+        $this->logger = $logManager->getLogger(static::class);
+    }
+
+    public function injectObjectManager(ObjectManager $objectManager)
+    {
+        $this->objectManager = $objectManager;
+    }
 
     /**
      * @param RequestFactory $requestFactory
@@ -89,9 +108,9 @@ class RequestDispatcher implements DataDispatcherInterface
         $jar = new CookieJar(false, $requestCookies);
 
         try {
-            $this->requestFactory->request($this->method, $this->url, ['body' => $postFields, 'cookies' => $jar]);
+            $this->requestFactory->request($this->url, $this->method, ['body' => $postFields, 'cookies' => $jar]);
         } catch (GuzzleException $e) {
-            GeneralUtility::devLog($e->getMessage(), __CLASS__);
+            $this->logger->error('GuzzleException: "' . $e->getMessage() . '"', ['exception' => $e]);
             return false;
         }
         return true;
