@@ -30,7 +30,7 @@ class DataMapper implements SingletonInterface
 
     public function process($data, $extKey, $index)
     {
-        $this->settings = $this->configurationManager->getFormrelaySettings($extKey, $index);
+        $this->settings = $this->configurationManager->getFormrelayCycle($extKey, $index);
 
         $result = $this->settings['defaults'] ?: [];
 

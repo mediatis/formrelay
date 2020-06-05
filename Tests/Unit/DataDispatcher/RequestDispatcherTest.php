@@ -52,8 +52,8 @@ class RequestDispatcherTest extends UnitTestCase
         $requestFactoryMock->expects(
             $this->once()
         )->method('request')->with(
-            'POST',
             $host,
+            'POST',
             [
                 'body' => 'name=Max&lastname=Mustermann&multifieldDiscrete=a&multifieldDiscrete=b&multifieldDiscrete=c&multifield=a%2Cb%2Cc',
                 'cookies' => $jar
@@ -61,7 +61,7 @@ class RequestDispatcherTest extends UnitTestCase
         )->willReturn(new \GuzzleHttp\Psr7\Response());
 
         $subject = new RequestDispatcher($host, $testCookies);
-        ObjectAccess::setProperty($subject, 'requestFactory', $requestFactoryMock, true);
+        $subject->injectRequestFactory($requestFactoryMock);
         $this->assertEquals(true, $subject->send($postFields));
     }
 }

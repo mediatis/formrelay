@@ -4,10 +4,12 @@ declare(strict_types=1);
 namespace Mediatis\Formrelay\Service;
 
 use LibXMLError;
+use Mediatis\Formrelay\Configuration\CliConfigurationManager;
 use Mediatis\Formrelay\Exceptions\InvalidXmlException;
 use Mediatis\Formrelay\Exceptions\InvalidXmlFileException;
-use Mediatis\Formrelay\Utility\FormSimulatorUtility;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
+use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
 use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException;
 
@@ -15,41 +17,69 @@ class FormSimulatorService
 {
     const XML_LOG_PREFIX = '<?xml version="1.0" encoding="UTF-8"?>';
 
-    /**
-     * @var Relay
-     */
+    /** @var TypoScriptParser */
+    protected $typoScriptParser;
+
+    /** @var CliConfigurationManager */
+    protected $cliConfigurationManager;
+
+    /** @var Relay */
     protected $relay;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $logEntryCounter;
 
-    /**
-     * @var int
-     */
-    protected $submitDelay = 20;
+    /** @var int */
+    protected $submitDelay;
 
-    /**
-     * @param Relay $relay
-     */
+    public function injectTypoScriptParser(TypoScriptParser $typoScriptParser)
+    {
+        $this->typoScriptParser = $typoScriptParser;
+    }
+
+    public function injectCliConfigurationManager(CliConfigurationManager $cliConfigurationManager)
+    {
+        $this->cliConfigurationManager = $cliConfigurationManager;
+    }
+
     public function injectRelay(Relay $relay)
     {
         $this->relay = $relay;
     }
 
+    protected function processConfigFile(string $configFile)
+    {
+        if (!file_exists($configFile)) {
+            throw new InvalidFileException($configFile);
+        }
+        $setupString = file_get_contents($configFile);
+        $this->typoScriptParser->parse($setupString);
+        $setup = ['plugin.' => $this->typoScriptParser->setup];
+        $this->cliConfigurationManager->setTypoScriptSetup($setup);
+        // TODO is there a better way to  have this implementation injected?
+        //      but only from this simulator service, not from a finisher!
+        $this->relay->injectFrontendConfigurationManager($this->cliConfigurationManager);
+    }
+
     /**
      * @param string $file
      * @param int $pageId
+     * @param string $configFile
+     * @param int $submitDelay
      * @return string
+     * @throws InvalidFileException
+     * @throws InvalidSlotException
+     * @throws InvalidSlotReturnException
      * @throws InvalidXmlException
      * @throws InvalidXmlFileException
      * @throws ServiceUnavailableException
-     * @throws InvalidSlotException
-     * @throws InvalidSlotReturnException
+     * @throws \TYPO3\CMS\Core\Http\ImmediateResponseException
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function run(string $file, int $pageId): string
+    public function run(string $file, int $pageId, string $configFile, int $submitDelay = 20): string
     {
+        $this->processConfigFile($configFile);
+        $this->submitDelay = $submitDelay;
         $this->logEntryCounter = 0;
         if (!file_exists($file)) {
             throw new InvalidXmlFileException($file);
@@ -109,33 +139,21 @@ class FormSimulatorService
      * @param array $formData
      * @param string $date
      * @param int $pageId
-     * @throws ServiceUnavailableException
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
+     * @throws ServiceUnavailableException
+     * @throws \TYPO3\CMS\Core\Http\ImmediateResponseException
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     protected function process(array $formData, string $date, int $pageId)
     {
         if (!empty($formData)) {
             echo 'INFO: re-sending log entry from ' . $date . PHP_EOL;
-            $this->initializeTsfe($pageId);
             $this->relay->process($formData, [], true);
             $this->logEntryCounter++;
             sleep($this->submitDelay);
         } else {
             echo 'ERROR: no valid form data found in log entry from ' . $date . PHP_EOL;
         }
-    }
-
-    /**
-     * Initializes TypoScriptFrontendController for current page and language
-     *
-     * @param int $pageId
-     * @param bool|int $language
-     * @param bool $useCache
-     * @throws ServiceUnavailableException
-     */
-    private function initializeTsfe(int $pageId, int $language = 0, bool $useCache = true)
-    {
-        FormSimulatorUtility::initializeTsfe($pageId, $language, $useCache);
     }
 }
