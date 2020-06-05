@@ -23,7 +23,7 @@ abstract class FieldMapper extends ConfigurationResolver implements FieldMapperI
         $fieldValue = $context['value'];
         if ($fieldValue instanceof MultiValueFormField) {
             $multiValue = [];
-            foreach ($fieldValue as $key => $value) {
+            foreach ($fieldValue as $value) {
                 $multiValue[] = $this->prepareValue($value, $context, $multiValue);
             }
             $class = get_class($fieldValue);
