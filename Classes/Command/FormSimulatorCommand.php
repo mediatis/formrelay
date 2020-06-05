@@ -33,13 +33,11 @@ class FormSimulatorCommand extends Command
     {
         $this->setDescription('Re-send form submits from the XML log to destinations.');
         $this->setHelp($this->getDescription());
-        $this->addUsage('--pageId=<pageId> --filePath=<filePath> --configPath=<configPath> [--delay=<delay>]');
+        $this->addUsage('--filePath=<filePath> --configPath=<configPath> [--delay=<delay>]');
         $this->addOption('filePath', null, InputOption::VALUE_REQUIRED, 'Path to file to import from');
-        $this->addOption('pageId', null, InputOption::VALUE_REQUIRED, 'The page id to initialize the TSFE for');
         $this->addOption('configPath', null, InputOption::VALUE_REQUIRED, 'Path to to file with TypoScript configuration');
         $this->addOption('delay', null, InputOption::VALUE_REQUIRED, 'Delay between two submissions');
         $this->mandatoryOptions['filePath'] = 1591274665;
-        $this->mandatoryOptions['pageId'] = 1591275141;
         $this->mandatoryOptions['configPath'] = 1591293268;
     }
 
@@ -70,7 +68,6 @@ class FormSimulatorCommand extends Command
         try {
             $message = $this->formSimulatorService->run(
                 $input->getOption('filePath'),
-                (int)$input->getOption('pageId'),
                 $input->getOption('configPath'),
                 (int)$input->getOption('delay') ?? 20
             );

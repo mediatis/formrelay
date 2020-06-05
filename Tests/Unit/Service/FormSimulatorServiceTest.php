@@ -23,7 +23,7 @@ class FormSimulatorServiceTest extends UnitTestCase
 
     protected $fixturePath = __DIR__ . '/../../Fixtures/';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $subject = new FormSimulatorService();
@@ -44,7 +44,7 @@ class FormSimulatorServiceTest extends UnitTestCase
 
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         GeneralUtility::resetSingletonInstances([]);
@@ -58,7 +58,7 @@ class FormSimulatorServiceTest extends UnitTestCase
     {
         $this->relayMock->expects($this->never())->method('process');
         $this->expectException(InvalidXmlFileException::class);
-        $this->subject->run('This_file_does_not_exist', 24, $this->fixturePath . 'setup.typoscript', 0);
+        $this->subject->run('This_file_does_not_exist', $this->fixturePath . 'setup.typoscript', 0);
     }
 
     /**
@@ -68,7 +68,7 @@ class FormSimulatorServiceTest extends UnitTestCase
     {
         $this->relayMock->expects($this->never())->method('process');
         $this->expectException(InvalidXmlException::class);
-        $this->subject->run($this->fixturePath . 'invalid_log.xml', 24, $this->fixturePath . 'setup.typoscript', 0);
+        $this->subject->run($this->fixturePath . 'invalid_log.xml', $this->fixturePath . 'setup.typoscript', 0);
     }
 
     /**
@@ -79,7 +79,7 @@ class FormSimulatorServiceTest extends UnitTestCase
         $this->relayMock->expects($this->never())->method('process');
         $this->assertEquals(
             'INFO: 0 log entries re-sent.',
-            $this->subject->run($this->fixturePath . 'valid_log_nothing_to_send.xml', 24, $this->fixturePath . 'setup.typoscript', 0)
+            $this->subject->run($this->fixturePath . 'valid_log_nothing_to_send.xml',  $this->fixturePath . 'setup.typoscript', 0)
         );
     }
 
@@ -156,7 +156,7 @@ class FormSimulatorServiceTest extends UnitTestCase
         );
         $this->assertEquals(
             'INFO: 2 log entries re-sent.',
-            $this->subject->run($this->fixturePath . 'valid_log.xml', 24, $this->fixturePath . 'setup.typoscript', 0)
+            $this->subject->run($this->fixturePath . 'valid_log.xml', $this->fixturePath . 'setup.typoscript', 0)
         );
     }
 }
