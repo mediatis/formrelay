@@ -2,11 +2,13 @@
 
 namespace Mediatis\Formrelay\Service;
 
+use Mediatis\Formrelay\Configuration\FrontendConfigurationManagerInterface;
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
@@ -37,6 +39,12 @@ class Relay implements SingletonInterface
     /** @var Dispatcher */
     protected $signalSlotDispatcher;
 
+    /** @var TypoScriptService */
+    protected $typoScriptService;
+
+    /** @var FrontendConfigurationManagerInterface */
+    protected $frontendConfigurationManager;
+
     /** @var ConfigurationManager */
     protected $configurationManager;
 
@@ -54,6 +62,16 @@ class Relay implements SingletonInterface
     public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
     {
         $this->signalSlotDispatcher = $signalSlotDispatcher;
+    }
+
+    public function injectTypoScriptService(TypoScriptService $typoScriptService)
+    {
+        $this->typoScriptService = $typoScriptService;
+    }
+
+    public function injectFrontendConfigurationManager(FrontendConfigurationManagerInterface $frontendConfigurationManager)
+    {
+        $this->frontendConfigurationManager = $frontendConfigurationManager;
     }
 
     public function injectConfigurationManager(ConfigurationManager $configurationManager)
@@ -85,12 +103,20 @@ class Relay implements SingletonInterface
     public function process(array $data, array $formSettings = [], bool $simulate = false)
     {
         // register form overwrite settings
-        $this->configurationManager->setFormrelaySettingsOverwrite($formSettings);
+        $plainFormSettings = $this->typoScriptService->convertTypoScriptArrayToPlainArray($formSettings);
+        $this->configurationManager->setSetupOverwrite($plainFormSettings);
+
+        $baseSettings = $this->frontendConfigurationManager->getTypoScriptSetup()['plugin.'] ?? [];
+        $plainBaseSettings = $this->typoScriptService->convertTypoScriptArrayToPlainArray($baseSettings);
+        $this->configurationManager->setSetup($plainBaseSettings);
 
         // fetch own configuration
         if (!$this->settings) {
-            $typoScript = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
-            $this->settings = $typoScript['settings'];
+            $this->settings = $this->configurationManager->getExtensionSettings('tx_formrelay');
+        }
+
+        if (!$this->settings['enabled']) {
+            return;
         }
 
         if (!$simulate) {
@@ -126,13 +152,13 @@ class Relay implements SingletonInterface
     public function processData(array $data, string $extKey): bool
     {
         $dispatched = false;
-        for ($index = 0; $index < $this->configurationManager->getFormrelaySettingsCount($extKey); $index++) {
+        for ($index = 0; $index < $this->configurationManager->getFormrelayCycleCount($extKey); $index++) {
 
             // all relevant data for the signal slots (and for processing)
             $signal = [
                 null,                                                               // 0: result
                 $data,                                                              // 1: data
-                $this->configurationManager->getFormrelaySettings($extKey, $index), // 2: conf
+                $this->configurationManager->getFormrelayCycle($extKey, $index), // 2: conf
                 ['extKey' => $extKey, 'index' => $index]                            // 3: context
             ];
 

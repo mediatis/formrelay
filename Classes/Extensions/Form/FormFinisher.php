@@ -7,8 +7,6 @@ use Mediatis\Formrelay\Service\Relay;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 use TYPO3\CMS\Form\Domain\Model\FormElements\AbstractFormElement;
@@ -65,10 +63,8 @@ class FormFinisher extends AbstractFinisher
 
         if ($setup) {
             $typoScriptParser = $this->objectManager->get(TypoScriptParser::class);
-            $typoScriptService = $this->objectManager->get(TypoScriptService::class);
             $typoScriptParser->parse($setup);
-            $typoScript = $typoScriptParser->setup;
-            $formSettings = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
+            $formSettings = $typoScriptParser->setup;
         } else {
             $formSettings = [];
         }

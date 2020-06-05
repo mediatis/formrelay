@@ -32,8 +32,8 @@ class FileUploadElementProcessor extends ElementProcessor
             $elementValue = $elementValue->getOriginalFile();
         }
 
-        $pluginTs = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
-        if (!empty($pluginTs['settings.']['fileupload.']['prohibitedExtensions'])) {
+        $pluginTs = $this->configurationManager->getExtensionSettings('tx_formrelay');
+        if (!empty($pluginTs['fileupload']['prohibitedExtensions'])) {
             $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
             if (in_array($elementValue->getExtension(), $prohibitedExtensions)) {
                 $this->logger->error(

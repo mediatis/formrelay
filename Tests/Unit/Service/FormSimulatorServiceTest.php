@@ -3,27 +3,45 @@ declare(strict_types=1);
 
 namespace Mediatis\Formrelay\Test\Unit\Service;
 
+use Mediatis\Formrelay\Configuration\CliConfigurationManager;
 use Mediatis\Formrelay\Exceptions\InvalidXmlException;
 use Mediatis\Formrelay\Exceptions\InvalidXmlFileException;
 use Mediatis\Formrelay\Service\Relay;
 use Mediatis\Formrelay\Service\FormSimulatorService;
-use Mediatis\Formrelay\Tests\Unit\FormrelayUnitTestCase;
-use PHPUnit\Framework\MockObject\MockObject;
+use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
-class FormSimulatorServiceTest extends FormrelayUnitTestCase
+
+class FormSimulatorServiceTest extends UnitTestCase
 {
     /** @var FormSimulatorService */
     private $subject;
+
+    protected $relayMock;
+    protected $cliConfigurationManagerMock;
+
+    protected $fixturePath = __DIR__ . '/../../Fixtures/';
 
     public function setUp()
     {
         parent::setUp();
         $subject = new FormSimulatorService();
-        ObjectAccess::setProperty($subject, 'submitDelay', 0, true);
         $this->subject = $subject;
-        $this->buildTestCaseForTsfe(24);
+
+        $this->relayMock = $this->getMockBuilder(Relay::class)
+            ->setMethods(['process'])
+            ->getMock();
+        $this->subject->injectRelay($this->relayMock);
+
+        $this->cliConfigurationManagerMock = $this->getMOckBuilder(CliConfigurationManager::class)
+            ->setMethods(['getTypoScriptSetup', 'setTypoScriptSetup'])
+            ->getMock();
+        $this->subject->injectCliConfigurationManager($this->cliConfigurationManagerMock);
+
+        // this class is providing static code only, so we will not mock it
+        $this->subject->injectTypoScriptParser(new TypoScriptParser());
+
     }
 
     public function tearDown()
@@ -38,13 +56,9 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
      */
     public function runWithInvaliFileThrowsError()
     {
-        /** @var Relay|MockObject $formrelayManager */
-        $relayMock = $this->getMockBuilder(Relay::class)->setMethods(['process'])->getMock();
-        $relayMock->expects($this->never())->method('process');
-        $this->subject->injectRelay($relayMock);
-
+        $this->relayMock->expects($this->never())->method('process');
         $this->expectException(InvalidXmlFileException::class);
-        $this->subject->run(__DIR__ . 'This_file_does_not_exist', 24);
+        $this->subject->run('This_file_does_not_exist', 24, $this->fixturePath . 'setup.typoscript', 0);
     }
 
     /**
@@ -52,13 +66,9 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
      */
     public function runWithInvalidXmlDataThrowsError()
     {
-        /** @var Relay|MockObject $formrelayManager */
-        $relayMock = $this->getMockBuilder(Relay::class)->setMethods(['process'])->getMock();
-        $relayMock->expects($this->never())->method('process');
-        $this->subject->injectRelay($relayMock);
-
+        $this->relayMock->expects($this->never())->method('process');
         $this->expectException(InvalidXmlException::class);
-        $this->subject->run(__DIR__ . '/../../Fixtures/invalid_log.xml', 24);
+        $this->subject->run($this->fixturePath . 'invalid_log.xml', 24, $this->fixturePath . 'setup.typoscript', 0);
     }
 
     /**
@@ -66,14 +76,10 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
      */
     public function runReturnsResultMessageAfterNothingIsParsed()
     {
-        /** @var Relay|MockObject $formrelayManager */
-        $relayMock = $this->getMockBuilder(Relay::class)->setMethods(['process'])->getMock();
-        $relayMock->expects($this->never())->method('process');
-        $this->subject->injectRelay($relayMock);
-
+        $this->relayMock->expects($this->never())->method('process');
         $this->assertEquals(
             'INFO: 0 log entries re-sent.',
-            $this->subject->run(__DIR__ . '/../../Fixtures/valid_log_nothing_to_send.xml', 24)
+            $this->subject->run($this->fixturePath . 'valid_log_nothing_to_send.xml', 24, $this->fixturePath . 'setup.typoscript', 0)
         );
     }
 
@@ -144,21 +150,13 @@ class FormSimulatorServiceTest extends FormrelayUnitTestCase
         ];
 
 
-        /** @var Relay|MockObject $formrelayManager */
-        $relayMock = $this->getMockBuilder(Relay::class)->setMethods(['process'])->getMock();
-
-        $relayMock->expects($this->atLeast(2))->method('process')->withConsecutive(
+        $this->relayMock->expects($this->atLeast(2))->method('process')->withConsecutive(
             [$data[1], [], true],
             [$data[0], [], true]
         );
-
-        $this->subject->injectRelay($relayMock);
-
-        $this->buildTestCaseForTsfe(24);
         $this->assertEquals(
             'INFO: 2 log entries re-sent.',
-            $this->subject->run(__DIR__ . '/../../Fixtures/valid_log.xml', 24)
+            $this->subject->run($this->fixturePath . 'valid_log.xml', 24, $this->fixturePath . 'setup.typoscript', 0)
         );
-        $this->assertEquals(24, $GLOBALS['TSFE']->id);
     }
 }

@@ -58,7 +58,7 @@ class GateEvaluation extends Evaluation
     {
         $extKey = $this->config['extKey'];
         $gateConfigs = [];
-        $count = $this->configurationManager->getFormrelaySettingsCount($extKey);
+        $count = $this->configurationManager->getFormrelayCycleCount($extKey);
         for ($i = 0; $i < $count; $i++) {
             $gateConfigs[] = ['gate' => ['extKey' => $extKey, 'index' => $i]];
         }
@@ -81,7 +81,7 @@ class GateEvaluation extends Evaluation
             $result = false;
         } else {
             $keysEvaluated[$extKey][] = $index;
-            $settings = $this->configurationManager->getFormrelaySettings($extKey, $index);
+            $settings = $this->configurationManager->getFormrelayCycle($extKey, $index);
             if (!$settings['enabled']) {
                 $result = false;
             } elseif (isset($settings['gate']) && !empty($settings['gate'])) {

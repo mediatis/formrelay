@@ -4,8 +4,6 @@ namespace Mediatis\Formrelay\Configuration;
 
 use Mediatis\Formrelay\Utility\ArrayUtility;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Extbase\Configuration\FrontendConfigurationManager;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 class ConfigurationManager implements SingletonInterface
@@ -82,45 +80,26 @@ class ConfigurationManager implements SingletonInterface
      * }
      */
 
-    /**
-     * @var TypoScriptService
-     */
-    protected $typoScriptService;
-
-    /**
-     * @var FrontendConfigurationManager
-     */
-    protected $frontendConfigurationManager;
-
-    /**
-     * @var Dispatcher
-     */
+    /** @var Dispatcher */
     protected $signalSlotDispatcher;
 
-    // base settings for all plugins stored in formrelay.settings.ext
-    protected $formrelayExtSettingsRaw = [];
-    protected $overwriteFormrelayExtSettingsRaw = [];
-
     // array of settings specific for each extension
-    protected $extSettingsRaw = [];
-    protected $overwriteSettingsRaw = [];
+    protected $setup = [];
+    protected $setupOverwrite = [];
 
-    // buffered result for each extension, including defaults, overwrites and process cascading (as described above)
+    // buffered results for updated configurations (signal slot)
+    protected $setupUpdated = [];
+    protected $setupOverwriteUpdated = [];
+
+    // buffered result for each extension, including default and overwrites, but not cascading
     protected $settings = [];
 
-    public function injectTypoScriptService(TypoScriptService $typoScriptService)
-    {
-        $this->typoScriptService = $typoScriptService;
-    }
+    // buffered result for each extension, including defaults, overwrites and process cascading (as described above)
+    protected $cycleSettings = [];
 
     public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
     {
         $this->signalSlotDispatcher = $signalSlotDispatcher;
-    }
-
-    public function injectFrontendConfigurationManager(FrontendConfigurationManager $frontendConfigurationManager)
-    {
-        $this->frontendConfigurationManager = $frontendConfigurationManager;
     }
 
     protected function updateConfig(array $settings, array $context = []): array
@@ -132,125 +111,128 @@ class ConfigurationManager implements SingletonInterface
         )[0];
     }
 
-    public function setFormrelaySettingsOverwrite(array $overwriteSettings)
+    protected function reset()
     {
-        $context = ['environment' => 'backend'];
-        foreach ($overwriteSettings as $extKey => $settings) {
-            $context['extKey'] = $extKey;
-            $overwriteSettings[$extKey] = $this->updateConfig($settings, $context)['settings'] ?: [];
-        }
-        $this->overwriteSettingsRaw = $overwriteSettings;
-        $this->overwriteFormrelayExtSettingsRaw = $this->overwriteSettingsRaw['formrelay']['settings'][static::KEY_BASE_SETTINGS] ?: [];
+        $this->setupUpdated = [];
+        $this->setupOverwriteUpdated = [];
         $this->settings = [];
+        $this->cycleSettings = [];
     }
 
-    public function getExtensionTypoScriptSetup(string $extKey): array
+    public function setSetup(array $setup)
     {
-        $tsSetup = $this->frontendConfigurationManager->getTypoScriptSetup();
-        $tsExtensionSetup = $tsSetup['plugin.'][$extKey . '.'] ?: [];
-        if (!empty($tsExtensionSetup)) {
-            $tsExtensionSetup = $this->typoScriptService->convertTypoScriptArrayToPlainArray($tsExtensionSetup);
-        }
-        return $tsExtensionSetup;
+        $this->setup = $setup;
+        $this->reset();
     }
 
-    protected function buildFormrelaySettingsCascade($tsSettings): array
+    public function setSetupOverwrite(array $setupOverwrite)
+    {
+        $this->setupOverwrite = $setupOverwrite;
+        $this->reset();
+    }
+
+    protected function fetchExtensionSetup(string $extKey): array
+    {
+        if (!isset($this->setupUpdated[$extKey])) {
+            $context = ['environment' => 'typoscript', 'extKey' => $extKey];
+            $extSetup = $this->setup[$extKey] ?? [];
+            $this->setupUpdated[$extKey] = $this->updateConfig($extSetup, $context);
+        }
+        return $this->setupUpdated[$extKey]['settings'] ?? [];
+    }
+
+    protected function fetchExtensionSetupOverwrite(string $extKey): array
+    {
+        if (!isset($this->setupOverwriteUpdated[$extKey])) {
+            $context = ['environment' => 'backend', 'extKey' => $extKey];
+            $extSetup = $this->setupOverwrite[$extKey] ?: [];
+            $this->setupOverwriteUpdated[$extKey] = $this->updateConfig($extSetup, $context);
+        }
+        return $this->setupOverwriteUpdated[$extKey]['settings'] ?? [];
+    }
+
+    protected function fetchBaseSetup(): array
+    {
+        return $this->fetchExtensionSetup('tx_formrelay')[static::KEY_BASE_SETTINGS] ?? [];
+    }
+
+    protected function fetchBaseSetupOverwrite(): array
+    {
+        return $this->fetchExtensionSetupOverwrite('tx_formrelay')[static::KEY_BASE_SETTINGS] ?? [];
+    }
+
+    protected function merge(bool $resolveUnsetFeature, ...$arrays)
+    {
+        $result = [];
+        foreach ($arrays as $array) {
+            ArrayUtility::plainArrayMergeRecursiveWithOverrule(
+                $result,
+                $array,
+                true,
+                true,
+                $resolveUnsetFeature
+            );
+        }
+        return $result;
+    }
+
+    protected function buildCycles($settings): array
     {
         $base = [];
-        $instances = [];
-        foreach ($tsSettings as $key => $value) {
+        $cycles = [];
+        foreach ($settings as $key => $value) {
             if (is_numeric($key)) {
-                $instances[] = $value;
+                $cycles[] = $value;
             } else {
                 $base[$key] = $value;
             }
         }
         $cascadedSettings = [];
-        if (count($instances) > 0) {
-            foreach ($instances as $instance) {
-                $mergeResult = [];
-                // resolve unset feature on the merged base settings array
-                ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $base);
-                // merge base settings array with the settings instance array, and resolve their unset feature
-                ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $instance);
-                $cascadedSettings[] = $mergeResult;
+        if (count($cycles) > 0) {
+            foreach ($cycles as $cycle) {
+                $cascadedSettings[] = $this->merge(true, $base, $cycle);
             }
         } else {
-            $mergeResult = [];
-            // resolve unset feature on the merged base settings array
-            ArrayUtility::plainArrayMergeRecursiveWithOverrule($mergeResult, $base);
-            $cascadedSettings[] = $mergeResult;
+            $cascadedSettings[] = $this->merge(true, $base);
         }
         return $cascadedSettings;
     }
 
-    protected function buildFormrelaySettings($extKey)
+    public function getExtensionSettings(string $extKey, $resolveUnsetFeature = true): array
     {
-        if ($this->formrelayExtSettingsRaw === null) {
-            $this->formrelayExtSettingsRaw = $this->getExtensionTypoScriptSetup('tx_formrelay')['settings'][static::KEY_BASE_SETTINGS] ?: [];
-        }
-        if (!isset($this->extSettingsRaw[$extKey])) {
-            $extSettingsRaw = $this->getExtensionTypoScriptSetup($extKey) ?: [];
-            $extSettingsRaw = $this->updateConfig(
-                $extSettingsRaw,
-                ['environment' => 'typoscript', 'extKey' => $extKey]
+        $settings = $this->settings[$extKey] ?? null;
+        if (!$resolveUnsetFeature || !$settings) {
+            $settings = $this->merge(
+                $resolveUnsetFeature,
+                $this->fetchBaseSetup(),
+                $this->fetchBaseSetupOverwrite(),
+                $this->fetchExtensionSetup($extKey),
+                $this->fetchExtensionSetupOverwrite($extKey)
             );
-            $this->extSettingsRaw[$extKey] = $extSettingsRaw['settings'] ?: [];
+            if ($resolveUnsetFeature) {
+                $this->settings[$extKey] = $settings;
+            }
         }
-
-        $mergedSettingsRaw = [];
-        // we disable unsetFeature because it should happen in the last merge in buildFormrelaySettingsCascade
-        // @TODO write a test case for this
-
-        // a) formrelay.settings.ext typoscript
-        ArrayUtility::plainArrayMergeRecursiveWithOverrule(
-            $mergedSettingsRaw,
-            $this->formrelayExtSettingsRaw,
-            true,
-            true,
-            false
-        );
-        // b) formrelay.settings.ext backend
-        ArrayUtility::plainArrayMergeRecursiveWithOverrule(
-            $mergedSettingsRaw,
-            $this->overwriteFormrelayExtSettingsRaw,
-            true,
-            true,
-            false
-        );
-        // c) formrelay_xyz.settings typoscript
-        ArrayUtility::plainArrayMergeRecursiveWithOverrule(
-            $mergedSettingsRaw,
-            $this->extSettingsRaw[$extKey],
-            true,
-            true,
-            false
-        );
-        // d) formrelay_xyz.settings backend
-        ArrayUtility::plainArrayMergeRecursiveWithOverrule(
-            $mergedSettingsRaw,
-            $this->overwriteSettingsRaw[$extKey] ?: [],
-            true,
-            true,
-            false
-        );
-        // e) build cascade from settings.1 - settings.n
-        $this->settings[$extKey] = $this->buildFormrelaySettingsCascade($mergedSettingsRaw);
+        return $settings;
     }
 
-    public function getFormrelaySettingsCount($extKey)
+    public function getFormrelayCycles(string $extKey): array
     {
-        return count($this->getFormrelaySettings($extKey));
+        if (!isset($this->cycleSettings[$extKey])) {
+            $settings = $this->getExtensionSettings($extKey, false);
+            $this->cycleSettings[$extKey] = $this->buildCycles($settings);
+        }
+        return $this->cycleSettings[$extKey];
     }
 
-    public function getFormrelaySettings($extKey, $index = -1)
+    public function getFormrelayCycle(string $extKey, int $index): array
     {
-        if ($index >= 0) {
-            return $this->getFormrelaySettings($extKey)[$index];
-        }
-        if (!isset($this->settings[$extKey])) {
-            $this->buildFormrelaySettings($extKey);
-        }
-        return $this->settings[$extKey];
+        $cycleSettings = $this->getFormrelayCycles($extKey);
+        return $cycleSettings[$index];
+    }
+
+    public function getFormrelayCycleCount($extKey)
+    {
+        return count($this->getFormrelayCycles($extKey));
     }
 }
