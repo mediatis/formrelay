@@ -79,7 +79,7 @@ class FormSimulatorServiceTest extends UnitTestCase
         $this->relayMock->expects($this->never())->method('process');
         $this->assertEquals(
             'INFO: 0 log entries re-sent.',
-            $this->subject->run($this->fixturePath . 'valid_log_nothing_to_send.xml',  $this->fixturePath . 'setup.typoscript', 0)
+            $this->subject->run($this->fixturePath . 'valid_log_nothing_to_send.xml', $this->fixturePath . 'setup.typoscript', 0)
         );
     }
 
