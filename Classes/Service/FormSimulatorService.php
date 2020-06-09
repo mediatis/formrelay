@@ -63,7 +63,6 @@ class FormSimulatorService
 
     /**
      * @param string $file
-     * @param int $pageId
      * @param string $configFile
      * @param int $submitDelay
      * @return string
@@ -76,7 +75,7 @@ class FormSimulatorService
      * @throws \TYPO3\CMS\Core\Http\ImmediateResponseException
      * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function run(string $file, int $pageId, string $configFile, int $submitDelay = 20): string
+    public function run(string $file, string $configFile, int $submitDelay = 20): string
     {
         $this->processConfigFile($configFile);
         $this->submitDelay = $submitDelay;
@@ -91,7 +90,7 @@ class FormSimulatorService
             $logEntry = substr($content, $index);
             if (strlen($logEntry) > strlen(self::XML_LOG_PREFIX) + 3) {
                 list($formData, $date) = $this->computeLogEntry($logEntry);
-                $this->process($formData, $date, $pageId);
+                $this->process($formData, $date);
             }
 
             $content = substr($content, 0, $index);
@@ -138,14 +137,13 @@ class FormSimulatorService
     /**
      * @param array $formData
      * @param string $date
-     * @param int $pageId
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
      * @throws ServiceUnavailableException
      * @throws \TYPO3\CMS\Core\Http\ImmediateResponseException
      * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    protected function process(array $formData, string $date, int $pageId)
+    protected function process(array $formData, string $date)
     {
         if (!empty($formData)) {
             echo 'INFO: re-sending log entry from ' . $date . PHP_EOL;

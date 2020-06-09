@@ -61,11 +61,11 @@ abstract class ElementProcessor implements ElementProcessorInterface
         $valueClass = $this->getValueClass();
 
         $result = false;
-        if ($elementClass && is_a($element, $elementClass)) {
-            $result = true;
-        } elseif ($elementType && $element->getType() === $elementType) {
-            $result = true;
-        } elseif ($valueClass && is_a($elementValue, $valueClass)) {
+        if (
+            ($elementClass && is_a($element, $elementClass))
+            || ($elementType && $element->getType() === $elementType)
+            || ($valueClass && is_a($elementValue, $valueClass))
+         ) {
             $result = true;
         }
         return $result;

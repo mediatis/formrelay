@@ -176,33 +176,33 @@ class ConfigurationManager implements SingletonInterface
         return $result;
     }
 
-    protected function buildCycles($settings): array
+    protected function buildCycles($extSettings): array
     {
         $base = [];
         $cycles = [];
-        foreach ($settings as $key => $value) {
+        foreach ($extSettings as $key => $value) {
             if (is_numeric($key)) {
                 $cycles[] = $value;
             } else {
                 $base[$key] = $value;
             }
         }
-        $cascadedSettings = [];
+        $extCycleSettings = [];
         if (count($cycles) > 0) {
             foreach ($cycles as $cycle) {
-                $cascadedSettings[] = $this->merge(true, $base, $cycle);
+                $extCycleSettings[] = $this->merge(true, $base, $cycle);
             }
         } else {
-            $cascadedSettings[] = $this->merge(true, $base);
+            $extCycleSettings[] = $this->merge(true, $base);
         }
-        return $cascadedSettings;
+        return $extCycleSettings;
     }
 
     public function getExtensionSettings(string $extKey, $resolveUnsetFeature = true): array
     {
-        $settings = $this->settings[$extKey] ?? null;
-        if (!$resolveUnsetFeature || !$settings) {
-            $settings = $this->merge(
+        $extSettings = $this->settings[$extKey] ?? null;
+        if (!$resolveUnsetFeature || !$extSettings) {
+            $extSettings = $this->merge(
                 $resolveUnsetFeature,
                 $this->fetchBaseSetup(),
                 $this->fetchBaseSetupOverwrite(),
@@ -210,25 +210,25 @@ class ConfigurationManager implements SingletonInterface
                 $this->fetchExtensionSetupOverwrite($extKey)
             );
             if ($resolveUnsetFeature) {
-                $this->settings[$extKey] = $settings;
+                $this->settings[$extKey] = $extSettings;
             }
         }
-        return $settings;
+        return $extSettings;
     }
 
     public function getFormrelayCycles(string $extKey): array
     {
         if (!isset($this->cycleSettings[$extKey])) {
-            $settings = $this->getExtensionSettings($extKey, false);
-            $this->cycleSettings[$extKey] = $this->buildCycles($settings);
+            $extSettings = $this->getExtensionSettings($extKey, false);
+            $this->cycleSettings[$extKey] = $this->buildCycles($extSettings);
         }
         return $this->cycleSettings[$extKey];
     }
 
     public function getFormrelayCycle(string $extKey, int $index): array
     {
-        $cycleSettings = $this->getFormrelayCycles($extKey);
-        return $cycleSettings[$index];
+        $extCycleSettings = $this->getFormrelayCycles($extKey);
+        return $extCycleSettings[$index];
     }
 
     public function getFormrelayCycleCount($extKey)

@@ -13,7 +13,7 @@ use Mediatis\Formrelay\ConfigurationResolver\FieldMapper\FieldMapper;
 use Mediatis\Formrelay\ConfigurationResolver\FieldMapper\FieldMapperInterface;
 use Mediatis\Formrelay\ConfigurationResolver\ValueMapper\ValueMapper;
 use Mediatis\Formrelay\ConfigurationResolver\ValueMapper\ValueMapperInterface;
-use Mediatis\Formrelay\Extensions\Form\FormFinisher;
+use Mediatis\Formrelay\Extensions\Form\FormDataProcessor;
 use Mediatis\Formrelay\Extensions\Form\ElementProcessor\ElementProcessorInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -126,8 +126,8 @@ class Registry implements SingletonInterface
         $this->register(
             $classReference,
             ElementProcessorInterface::class,
-            FormFinisher::class,
-            [FormFinisher::SIGNAL_PROCESS_FORM_ELEMENT]
+            FormDataProcessor::class,
+            [FormDataProcessor::SIGNAL_PROCESS_FORM_ELEMENT]
         );
     }
 }

@@ -4,26 +4,17 @@ namespace Mediatis\Formrelay\Extensions\Form;
 
 use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use Mediatis\Formrelay\Service\Relay;
-use TYPO3\CMS\Core\Log\Logger;
-use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
-use TYPO3\CMS\Form\Domain\Model\FormElements\AbstractFormElement;
 
 
 class FormFinisher extends AbstractFinisher
 {
-    const SIGNAL_PROCESS_FORM_ELEMENT = 'processFormElement';
-
-    /** @var Logger */
-    protected $logger;
-
-    /** @var Dispatcher */
-    protected $signalSlotDispatcher;
-
     /** @var ConfigurationManager */
     protected $configurationManager;
+
+    /** @var FormDataProcessor */
+    protected $formDataProcessor;
 
     /** @var Relay */
     protected $relay;
@@ -34,22 +25,14 @@ class FormFinisher extends AbstractFinisher
         'baseUploadPath' => 'uploads/tx_formrelay/',
     ];
 
-    protected $formValueMap = [];
-
-    public function initializeObject()
-    {
-        $logManager = $this->objectManager->get(LogManager::class);
-        $this->logger = $logManager->getLogger(static::class);
-    }
-
-    public function injectSignalSlotDispatcher(Dispatcher $signalSlotDispatcher)
-    {
-        $this->signalSlotDispatcher = $signalSlotDispatcher;
-    }
-
     public function injectConfigurationManager(ConfigurationManager $configurationManager)
     {
         $this->configurationManager = $configurationManager;
+    }
+
+    public function injectFormDataProcessor(FormDataProcessor $formDataProcessor)
+    {
+        $this->formDataProcessor = $formDataProcessor;
     }
 
     public function injectRelay(Relay $relay)
@@ -69,38 +52,16 @@ class FormFinisher extends AbstractFinisher
             $formSettings = [];
         }
 
-        $this->formValueMap = $this->finisherContext->getFormValues();
-        $formRuntime = $this->finisherContext->getFormRuntime();
-
+        $elements = $this->finisherContext
+            ->getFormRuntime()
+            ->getFormDefinition()
+            ->getRenderablesRecursively();
+        $elementValues = $this->finisherContext->getFormValues();
         $options = [
             'baseUploadPath' => $this->parseOption('baseUploadPath'),
         ];
 
-        $formValues = [];
-        $elements = $formRuntime->getFormDefinition()->getRenderablesRecursively();
-        /** @var AbstractFormElement $element */
-        foreach ($elements as $element) {
-            $type = $element->getType();
-            $id = $element->getIdentifier();
-            $value = isset($this->formValueMap[$id]) ? $this->formValueMap[$id] : null;
-
-            $processed = false;
-            // default element processors are within
-            // the namespace \Mediatis\Formrelay\Extensions\Form\ElementProcessor
-            $this->signalSlotDispatcher->dispatch(
-                __CLASS__,
-                static::SIGNAL_PROCESS_FORM_ELEMENT,
-                [$element, $value, $options, &$formValues, &$processed]
-            );
-            if (!$processed) {
-                $this->logger->error('Ignoring unknown form field type.', [
-                    'form' => $element->getRootForm()->getIdentifier(),
-                    'field' => $id,
-                    'class' => get_class($element),
-                    'type' => $type,
-                ]);
-            }
-        }
+        $formValues = $this->formDataProcessor->process($elements, $elementValues, $options);
 
         $this->relay->process($formValues, $formSettings, false);
     }
