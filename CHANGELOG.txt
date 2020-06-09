@@ -1,4 +1,10 @@
 
+4.1.5
+
+[TASK] code improvements
+
+[TASK] removed option --pageId from cli command formrelay:formsimulator
+
 4.1.4
 
 [BUGFIX] fixed form simulator service
