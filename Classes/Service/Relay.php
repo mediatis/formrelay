@@ -54,6 +54,9 @@ class Relay implements SingletonInterface
     /** @var array */
     protected $settings;
 
+    /** @var array */
+    protected $data;
+
     public function injectObjectManager(ObjectManager $objectManager)
     {
         $this->objectManager = $objectManager;
@@ -95,14 +98,31 @@ class Relay implements SingletonInterface
      * @param array $formSettings Overwrite settings for the different formrelay-destinations
      * @param bool $simulate      This flag will suppress all data providers and the formrelay-log of this submission
      *                            It is used to re-send past submissions.
-     *
+     * @return bool
      * @throws InvalidSlotException
      * @throws InvalidSlotReturnException
      * @throws ObjectException
      */
-    public function process(array $data, array $formSettings = [], bool $simulate = false)
+    public function process(array $data, array $formSettings = [], bool $simulate = false): bool
     {
-        // register form overwrite settings
+        $this->initializeProcess($data, $formSettings, $simulate);
+        return $this->processAllExtensions();
+    }
+
+    public function initializeProcess(array $data, array $formSettings = [], bool $simulate = false)
+    {
+        $this->data = $data;
+        $this->processConfiguration($formSettings);
+        if ($this->settings['enabled'] && !$simulate) {
+            // call data providers
+            $this->processDataProviders();
+            // log form submit
+            $this->logData();
+        }
+    }
+
+    protected function processConfiguration(array $formSettings)
+    {
         $plainFormSettings = $this->typoScriptService->convertTypoScriptArrayToPlainArray($formSettings);
         $this->configurationManager->setSetupOverwrite($plainFormSettings);
 
@@ -110,38 +130,37 @@ class Relay implements SingletonInterface
         $plainBaseSettings = $this->typoScriptService->convertTypoScriptArrayToPlainArray($baseSettings);
         $this->configurationManager->setSetup($plainBaseSettings);
 
-        // fetch own configuration
-        if (!$this->settings) {
-            $this->settings = $this->configurationManager->getExtensionSettings('tx_formrelay');
-        }
+        $this->settings = $this->configurationManager->getExtensionSettings('tx_formrelay');
+    }
 
-        if (!$this->settings['enabled']) {
-            return;
-        }
-
-        if (!$simulate) {
-            // call data providers
-            $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_ADD_DATA, [&$data]);
-            // log form submit
-            $this->logData($data);
-        }
-
-        // call data processor for all extensions
-        $extensionList = [];
-        $extensionList = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_REGISTER, [$extensionList])[0];
-        $dispatched = false;
-        foreach ($extensionList as $extKey) {
-            if ($this->processData($data, $extKey)) {
-                $dispatched = true;
-            }
-        }
-        if (!$dispatched) {
-            // @TODO what to do if no destination had been triggered?
-        }
+    protected function processDataProviders()
+    {
+        $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_ADD_DATA, [&$this->data]);
     }
 
     /**
-     * @param array $data The original field array
+     * @return bool
+     * @throws InvalidSlotException
+     * @throws InvalidSlotReturnException
+     * @throws ObjectException
+     */
+    public function processAllExtensions()
+    {
+        if (!$this->settings['enabled']) {
+            return false;
+        }
+        $dispatched = false;
+        $extensionList = [];
+        $extensionList = $this->signalSlotDispatcher->dispatch(__CLASS__, static::SIGNAL_REGISTER, [$extensionList])[0];
+        foreach ($extensionList as $extKey) {
+            if ($this->processExtension($extKey)) {
+                $dispatched = true;
+            }
+        }
+        return $dispatched;
+    }
+
+    /**
      * @param string $extKey The key of the extension which should be processed next
      * @return bool
      *
@@ -149,15 +168,18 @@ class Relay implements SingletonInterface
      * @throws InvalidSlotReturnException
      * @throws ObjectException
      */
-    public function processData(array $data, string $extKey): bool
+    public function processExtension(string $extKey): bool
     {
+        if (!$this->settings['enabled']) {
+            return false;
+        }
         $dispatched = false;
         for ($index = 0; $index < $this->configurationManager->getFormrelayCycleCount($extKey); $index++) {
 
             // all relevant data for the signal slots (and for processing)
             $signal = [
                 null,                                                               // 0: result
-                $data,                                                              // 1: data
+                $this->data,                                                     // 1: data
                 $this->configurationManager->getFormrelayCycle($extKey, $index), // 2: conf
                 ['extKey' => $extKey, 'index' => $index]                            // 3: context
             ];
@@ -192,10 +214,7 @@ class Relay implements SingletonInterface
         return $dispatched;
     }
 
-    /**
-     * @param array|null $data
-     */
-    protected function logData(array $data = null)
+    protected function logData()
     {
         $logFilePath = '';
         if ($this->settings['logfile']['basePath']) {
@@ -219,9 +238,9 @@ class Relay implements SingletonInterface
             $xmlLog->addChild('logdate', date('r'));
             $xmlLog->addChild('userIP', IpAddress::getUserIpAdress());
 
-            if (is_array($data) && count($data) > 0) {
+            if (is_array($this->data) && count($this->data) > 0) {
                 $xmlFields = $xmlLog->addChild('form');
-                foreach ($data as $key => $value) {
+                foreach ($this->data as $key => $value) {
                     if (is_array($value)) {
                         $value = implode(',', $value);
                     }
