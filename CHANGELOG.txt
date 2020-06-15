@@ -1,4 +1,8 @@
 
+4.2.1
+
+[BUGFIX] restored compatibility for typo3 9
+
 4.2.0
 
 [FEATURE] extended model UploadFormField to hold more meta data about the uploaded file
