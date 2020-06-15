@@ -75,9 +75,9 @@ class FileUploadElementProcessor extends ElementProcessor
 
         if ($copiedFile) {
             if ($copiedFile instanceof FileInterface) {
-                $relativePath = $copiedFile->getPublicUrl();
-                $publicUrl = trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/') . '/' . $relativePath;
-                return new UploadFormField($publicUrl, $relativePath);
+                $uploadField = GeneralUtility::makeInstance(UploadFormField::class, $copiedFile);
+                $uploadField->setFileName($fileName);
+                return $uploadField;
             }
         } else {
             $this->logger->error(

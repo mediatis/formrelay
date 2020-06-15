@@ -2,28 +2,53 @@
 
 namespace Mediatis\Formrelay\Domain\Model\FormField;
 
+use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 class UploadFormField implements FormFieldInterface
 {
-    /** @var string */
-    protected $publicUrl;
+    /** @var FileInterface */
+    protected $file;
 
     /** @var string */
-    protected $relativePath;
+    protected $fileName;
 
-    public function __construct(string $publicUrl, string $relativePath)
+    public function __construct(FileInterface $file)
     {
-        $this->publicUrl = $publicUrl;
-        $this->relativePath = $relativePath;
+        $this->file = $file;
+        $this->fileName = $file->getName();
+    }
+
+    public function getFile(): FileInterface
+    {
+        return $this->file;
     }
 
     public function getPublicUrl(): string
     {
-        return $this->publicUrl;
+        return trim(GeneralUtility::getIndpEnv('TYPO3_SITE_URL'), '/')
+            . '/'
+            . $this->getRelativePath();
     }
 
     public function getRelativePath(): string
     {
-        return $this->relativePath;
+        return $this->file->getPublicUrl();
+    }
+
+    public function setFileName(string $fileName)
+    {
+        $this->fileName = $fileName;
+    }
+
+    public function getFileName(): string
+    {
+        return $this->fileName;
+    }
+
+    public function getMimeType(): string
+    {
+        return $this->file->getMimeType();
     }
 
     public function __toString(): string
