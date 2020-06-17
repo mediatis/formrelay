@@ -1,4 +1,8 @@
 
+4.2.2
+
+[BUGFIX] fixed form element processor for ignored elements
+
 4.2.1
 
 [BUGFIX] restored compatibility for typo3 9
