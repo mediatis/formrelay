@@ -19,7 +19,7 @@ abstract class IgnoredElementProcessor extends ElementProcessor
         $this->options = $options;
         if ((!$processed || $this->override()) && $this->match($element, $elementValue)) {
             $name = $this->getElementName($element);
-            if (isset($result[$name])) {
+            if (array_key_exists($name, $result)) {
                 unset($result[$name]);
             }
             $processed = true;
