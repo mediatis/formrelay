@@ -14,6 +14,11 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class RequestDispatcher implements DataDispatcherInterface
 {
+    const DEFAULT_HEADERS = [
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Accept' => '*/*',
+    ];
+
     /** @var ObjectManager */
     protected $objectManager;
 
@@ -26,6 +31,7 @@ class RequestDispatcher implements DataDispatcherInterface
     protected $url;
     protected $method = 'POST';
     protected $cookies = [];
+    protected $headers = [];
     protected $parameterise = true;
 
     public function initializeObject()
@@ -50,9 +56,10 @@ class RequestDispatcher implements DataDispatcherInterface
     /**
      * @param $url
      * @param array $cookies
+     * @param array $headers
      * @throws InvalidUrlException
      */
-    public function __construct($url, $cookies = [])
+    public function __construct($url, $cookies = [], $headers = [])
     {
         $host = parse_url($url, PHP_URL_HOST);
         if (empty($host)) {
@@ -60,6 +67,7 @@ class RequestDispatcher implements DataDispatcherInterface
         }
         $this->url = $url;
         $this->cookies = $cookies;
+        $this->headers = $headers;
     }
 
     /**
@@ -88,10 +96,21 @@ class RequestDispatcher implements DataDispatcherInterface
      */
     public function send(array $data): bool
     {
+        // body
         $params = $this->parameterize($data);
+        $requestBody = implode('&', $params);
 
-        $postFields = implode('&', $params);
+        // headers
+        $requestHeaders = static::DEFAULT_HEADERS;
+        foreach ($this->headers as $key => $value) {
+            if ($value === null) {
+                unset($requestHeaders[$key]);
+            } else {
+                $requestHeaders[$key] = $value;
+            }
+        }
 
+        // cookies
         $requestCookies = [];
         if (!empty($this->cookies)) {
             $host = parse_url($this->url, PHP_URL_HOST);
@@ -104,10 +123,16 @@ class RequestDispatcher implements DataDispatcherInterface
                 $requestCookies[] = $cookie;
             }
         }
-        $jar = new CookieJar(false, $requestCookies);
+        $cookieJar = new CookieJar(false, $requestCookies);
+
+        $requestOptions = [
+            'body' => $requestBody,
+            'cookies' => $cookieJar,
+            'headers' => $requestHeaders,
+        ];
 
         try {
-            $this->requestFactory->request($this->url, $this->method, ['body' => $postFields, 'cookies' => $jar]);
+            $this->requestFactory->request($this->url, $this->method, $requestOptions);
         } catch (GuzzleException $e) {
             $this->logger->error('GuzzleException: "' . $e->getMessage() . '"', ['exception' => $e]);
             return false;
