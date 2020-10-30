@@ -1,4 +1,8 @@
 
+4.3.0
+
+[FEATURE] added headers argument and default headers to request dispatcher
+
 4.2.2
 
 [BUGFIX] fixed form element processor for ignored elements
