@@ -2,9 +2,9 @@
 
 namespace Mediatis\Formrelay\Extensions\Form\ElementProcessor;
 
-use Mediatis\Formrelay\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 abstract class ElementProcessor implements ElementProcessorInterface
@@ -15,7 +15,7 @@ abstract class ElementProcessor implements ElementProcessorInterface
     /** @var Logger */
     protected $logger;
 
-    /** @var ConfigurationManager */
+    /** @var ConfigurationManagerInterface */
     protected $configurationManager;
 
     /** @var array */
@@ -26,7 +26,7 @@ abstract class ElementProcessor implements ElementProcessorInterface
         $this->objectManager = $objectManager;
     }
 
-    public function injectConfigurationManager(ConfigurationManager $configurationManager)
+    public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager)
     {
         $this->configurationManager = $configurationManager;
     }
