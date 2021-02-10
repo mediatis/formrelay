@@ -1,6 +1,6 @@
 <?php
 
-namespace Mediatis\Formrelay\Domain\Model\Repository\Queue;
+namespace Mediatis\Formrelay\Domain\Repository\Queue;
 
 use DateTime;
 use FormRelay\Core\Queue\JobInterface;

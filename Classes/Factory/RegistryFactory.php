@@ -6,7 +6,7 @@ use FormRelay\Core\Queue\QueueInterface;
 use FormRelay\Core\Request\DefaultRequest;
 use FormRelay\Core\Service\Registry;
 use FormRelay\Core\Service\RegistryInterface;
-use Mediatis\Formrelay\Domain\Model\Repository\Queue\JobRepository;
+use Mediatis\Formrelay\Domain\Repository\Queue\JobRepository;
 use TYPO3\CMS\Core\Log\LogManagerInterface;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
