@@ -39,16 +39,16 @@ class SubmissionFactory
     protected function buildFormRelayConfiguration(RegistryInterface $registry, array $typoScriptConfiguration): array
     {
         $configuration = $this->getExtensionConfiguration($typoScriptConfiguration, 'tx_formrelay');
-        $this->signalSlotDispatcher->dispatch(SubmissionFactory::class, BaseConfigurationUpdaterInterface::SIGNAL_UPDATE_BASE_CONFIGURATION, [&$configuration]);
+        $this->signalSlotDispatcher->dispatch(BaseConfigurationUpdaterInterface::class, BaseConfigurationUpdaterInterface::SIGNAL_UPDATE_BASE_CONFIGURATION, [&$configuration]);
         $routes = $registry->getRoutes();
         /** @var RouteInterface $route */
         foreach ($routes as $route) {
             $routeName = $route::getKeyword();
             $routeConfiguration = $this->getExtensionConfiguration($typoScriptConfiguration, 'tx_formrelay_' . $routeName);
-            $this->signalSlotDispatcher->dispatch(SubmissionFactory::class, RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION, [$routeName, &$routeConfiguration]);
+            $this->signalSlotDispatcher->dispatch(RouteConfigurationUpdaterInterface::class, RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION, [$routeName, &$routeConfiguration]);
             if (array_key_exists('passes', $routeConfiguration)) {
                 foreach (array_keys($routeConfiguration['passes']) as $pass) {
-                    $this->signalSlotDispatcher->dispatch(SubmissionFactory::class, RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION, [$routeName, &$routeConfiguration['passes'][$pass]]);
+                    $this->signalSlotDispatcher->dispatch(RouteConfigurationUpdaterInterface::class, RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION, [$routeName, &$routeConfiguration['passes'][$pass]]);
                 }
             }
             $configuration['routes'][$routeName] = $routeConfiguration;

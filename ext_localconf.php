@@ -34,7 +34,7 @@ module.tx_form.settings.yamlConfigurations {
 
     // configuration updater
     $dispatcher->connect(
-        \Mediatis\Formrelay\Factory\SubmissionFactory::class,
+        \Mediatis\Formrelay\Configuration\RouteConfigurationUpdaterInterface::class,
         \Mediatis\Formrelay\Configuration\RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION,
         \Mediatis\Formrelay\Configuration\ConfigurationUpdater::class,
         'updateRouteConfiguration'
