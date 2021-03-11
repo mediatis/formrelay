@@ -14,18 +14,20 @@ class QueueProcessorTask extends AbstractTask
 {
     const BATCH_SIZE = 10;
 
+    public $pid = 0;
+    public $batchSize = 10;
+
     /** @var QueueProcessor */
     protected $queueProcessor;
 
-    public function __construct()
+    protected function prepareTask()
     {
-        parent::__construct();
-
         /** @var ObjectManager $objectManager */
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 
         /** @var JobRepository $queue */
         $queue = $objectManager->get(JobRepository::class);
+        $queue->setPid($this->pid);
 
         /** @var RegistryFactory $registryFactory */
         $registryFactory = $objectManager->get(RegistryFactory::class);
@@ -38,8 +40,29 @@ class QueueProcessorTask extends AbstractTask
         $this->queueProcessor = GeneralUtility::makeInstance(QueueProcessor::class, $queue, $worker);
     }
 
+    public function getPid(): int
+    {
+        return $this->pid;
+    }
+
+    public function setPid(int $pid)
+    {
+        $this->pid = $pid;
+    }
+
+    public function getBatchSize(): int
+    {
+        return $this->batchSize;
+    }
+
+    public function setBatchSize(int $batchSize)
+    {
+        $this->batchSize = $batchSize;
+    }
+
     public function execute()
     {
-        return $this->queueProcessor->processBatch(static::BATCH_SIZE);
+        $this->prepareTask();
+        return $this->queueProcessor->processBatch($this->batchSize);
     }
 }

@@ -51,7 +51,9 @@ class SubmissionFactory
                     $this->signalSlotDispatcher->dispatch(RouteConfigurationUpdaterInterface::class, RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION, [$routeName, &$routeConfiguration['passes'][$pass]]);
                 }
             }
-            $configuration['routes'][$routeName] = $routeConfiguration;
+            if (!empty($routeConfiguration)) {
+                $configuration['routes'][$routeName] = $routeConfiguration;
+            }
         }
         return $configuration;
     }

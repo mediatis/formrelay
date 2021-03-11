@@ -61,4 +61,12 @@ module.tx_form.settings.yamlConfigurations {
             );
         }
     }
+
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\Mediatis\Formrelay\Scheduler\QueueProcessorTask::class] = [
+        'extension' => 'formrelay',
+        'title' => 'Formrelay Queue Worker',
+        'description' => 'Processes the next batch of form submissions using the form-relay',
+        'additionalFields' => \Mediatis\Formrelay\Scheduler\QueueProcessorFieldProvider::class,
+    ];
+
 })();

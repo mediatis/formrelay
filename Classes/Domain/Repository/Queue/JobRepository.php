@@ -10,9 +10,28 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 
 class JobRepository extends Repository implements QueueInterface
 {
+    protected $pid = 0;
+
+    public function setPid(int $pid)
+    {
+        $this->pid = $pid;
+    }
+
+    public function getPid(): int
+    {
+        return $this->pid;
+    }
+
     protected function fetchWhere(array $status = [], int $limit = 0, int $offset = 0, int $minAgeInSeconds = 0)
     {
         $query = $this->createQuery();
+        if ($this->pid) {
+            $query->getQuerySettings()->setRespectStoragePage(true);
+            $query->getQuerySettings()->setStoragePageIds([$this->pid]);
+        } else {
+            $query->getQuerySettings()->setRespectStoragePage(false);
+        }
+
         $conditions = [];
         if (count($status) > 0) {
             $conditions[] = $query->in('status', $status);
@@ -31,7 +50,7 @@ class JobRepository extends Repository implements QueueInterface
         if ($offset > 0) {
             $query->setOffset($offset);
         }
-        return $query->execute();
+        return $query->execute()->toArray();
     }
 
     public function fetch(array $status = [], int $limit = 0, int $offset = 0)
@@ -65,6 +84,7 @@ class JobRepository extends Repository implements QueueInterface
         $job->setChanged(new DateTime());
         $job->setStatusMessage($message);
         $this->update($job);
+        $this->persistenceManager->persistAll();
     }
 
     public function markAsPending(JobInterface $job)
@@ -110,9 +130,13 @@ class JobRepository extends Repository implements QueueInterface
 
     public function addJob(array $data, $status = QueueInterface::STATUS_PENDING)
     {
+        $repositoryConfig = $data['repository'] ?? [];
+        unset($data['repository']);
+
         $job = new Job();
         $job->setData($data);
         $job->setStatus($status);
+        $job->setPid($repositoryConfig['pid'] ?? 0);
         $this->add($job);
     }
 

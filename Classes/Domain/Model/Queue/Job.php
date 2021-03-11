@@ -9,10 +9,19 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 class Job extends AbstractEntity implements JobInterface
 {
+    /** @var DateTime $created */
     protected $created;
+
+    /** @var DateTime $changed */
     protected $changed;
+
+    /** @var int $status */
     protected $status;
+
+    /** @var string $statusMessage */
     protected $statusMessage;
+
+    /** @var string $serializedData */
     protected $serializedData;
 
     public function __construct()
@@ -76,7 +85,7 @@ class Job extends AbstractEntity implements JobInterface
 
     public function getSerializedData(): string
     {
-        $this->serializedData;
+        return $this->serializedData;
     }
 
     public function setSerializedData(string $serializedData)
@@ -87,7 +96,7 @@ class Job extends AbstractEntity implements JobInterface
     public function getData(): array
     {
         $data = $this->getSerializedData();
-        if ($data) {
+        if (!$data) {
             return [];
         }
         return json_decode($data, true);

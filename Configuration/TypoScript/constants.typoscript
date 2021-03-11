@@ -1,30 +1,39 @@
 plugin.tx_formrelay {
   settings {
-    # cat=plugin.tx_formrelay//1; type=boolean; label= Enable: Only convert to XML if not set to 0.
-    enabled = 1
-
-    logfile {
-      # cat=plugin.tx_formrelay//3; type=bool; label=Enable logging
-      enabled = 0
-
-      # cat=plugin.tx_formrelay//4; type=text; label= System (live,workspace,test...)
-      system = live
-
-      # cat=plugin.tx_formrelay//5; type=text; label= Log files folder. Be sure the path exist and is writable.
-      basePath =
-    }
+    pid = 0
+    async = 0
 
     fileupload {
-      # cat=plugin.tx_formrelay//6; type=text; label= Prohibited Extension, comma-separated
       prohibitedExtensions = php,exe
     }
 
     dataProviders {
+      ipAddress {
+        enabled = 0
+      }
+
+      timestamp {
+        enabled = 0
+      }
+
+      adwordsCampaigns {
+        enabled = 0
+      }
+
+      adwords {
+        enabled = 0
+      }
+
       contentElement {
-        # cat=plugin.tx_formrelay//7; type=text; label= Comma separated list of tt_content element UIDs that contains the text you wish to add to your email.
-        ttContentUid =
-        # cat=plugin.tx_formrelay//8; type=int; label= Label for the text
-        fieldName = consent_text
+        contentElement {
+          enabled = 0
+          ttContentUid =
+          field = consent_text
+        }
+      }
+
+      languageCode {
+        enabled = 0
       }
     }
   }

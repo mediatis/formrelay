@@ -42,7 +42,8 @@ class RegistryFactory
     {
         $request = new DefaultRequest();
         $loggerFactory = new LoggerFactory($this->logManager);
-        $registry = new Registry($request, $loggerFactory, $this->queue);
+        $queueDataFactory = new QueueDataFactory();
+        $registry = new Registry($request, $loggerFactory, $this->queue, $queueDataFactory);
         $this->signalSlotDispatcher->dispatch(RegistryInterface::class, static::SIGNAL_UPDATE_REGISTRY, [$registry]);
         return $registry;
     }
