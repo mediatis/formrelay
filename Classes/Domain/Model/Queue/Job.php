@@ -24,6 +24,15 @@ class Job extends AbstractEntity implements JobInterface
     /** @var string $serializedData */
     protected $serializedData;
 
+    /** @var string $route */
+    protected $route;
+
+    /** @var string $pass */
+    protected $pass;
+
+    /** @var string $label */
+    protected $label;
+
     public function __construct()
     {
         $this->created = new DateTime();
@@ -31,6 +40,14 @@ class Job extends AbstractEntity implements JobInterface
         $this->status = QueueInterface::STATUS_PENDING;
         $this->statusMessage = '';
         $this->serializedData = '';
+    }
+
+    public function updateMetaData()
+    {
+        $data = $this->getData();
+        $this->setRoute($data['context']['job']['route'] ?? '');
+        $this->setPass($data['context']['job']['pass'] ?? '');
+        $this->setLabel($this->getRoute() . '(' . $this->getPass() . ')');
     }
 
     public function getId(): int
@@ -41,6 +58,36 @@ class Job extends AbstractEntity implements JobInterface
     public function setId(int $id)
     {
         $this->uid = $id;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label)
+    {
+        $this->label = $label;
+    }
+
+    public function getRoute(): string
+    {
+        return $this->route;
+    }
+
+    public function setRoute(string $route)
+    {
+        $this->route = $route;
+    }
+
+    public function getPass(): string
+    {
+        return $this->pass;
+    }
+
+    public function setPass(string $pass)
+    {
+        $this->pass = $pass;
     }
 
     public function getCreated(): DateTime
@@ -91,6 +138,7 @@ class Job extends AbstractEntity implements JobInterface
     public function setSerializedData(string $serializedData)
     {
         $this->serializedData = $serializedData;
+        $this->updateMetaData();
     }
 
     public function getData(): array

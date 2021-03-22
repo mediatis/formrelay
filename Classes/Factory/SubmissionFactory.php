@@ -9,6 +9,7 @@ use FormRelay\Core\Service\RegistryInterface;
 use Mediatis\Formrelay\Configuration\BaseConfigurationUpdaterInterface;
 use Mediatis\Formrelay\Configuration\RouteConfigurationUpdaterInterface;
 use Mediatis\Formrelay\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
@@ -43,7 +44,7 @@ class SubmissionFactory
         $routes = $registry->getRoutes();
         /** @var RouteInterface $route */
         foreach ($routes as $route) {
-            $routeName = $route::getKeyword();
+            $routeName = GeneralUtility::camelCaseToLowerCaseUnderscored($route::getKeyword());
             $routeConfiguration = $this->getExtensionConfiguration($typoScriptConfiguration, 'tx_formrelay_' . $routeName);
             $this->signalSlotDispatcher->dispatch(RouteConfigurationUpdaterInterface::class, RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION, [$routeName, &$routeConfiguration]);
             if (array_key_exists('passes', $routeConfiguration)) {

@@ -21,46 +21,21 @@ module.tx_form.settings.yamlConfigurations {
 })();
 
 (function () {
-    /** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $dispatcher */
-    $dispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\SignalSlot\Dispatcher::class);
-
     // relay initalization
-    $dispatcher->connect(
-        \FormRelay\Core\Service\RegistryInterface::class,
-        \Mediatis\Formrelay\Factory\RegistryFactory::SIGNAL_UPDATE_REGISTRY,
-        \Mediatis\Formrelay\Initialization::class,
-        'initialize'
-    );
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerInitialization(\Mediatis\Formrelay\Initialization::class);
 
     // configuration updater
-    $dispatcher->connect(
-        \Mediatis\Formrelay\Configuration\RouteConfigurationUpdaterInterface::class,
-        \Mediatis\Formrelay\Configuration\RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION,
-        \Mediatis\Formrelay\Configuration\ConfigurationUpdater::class,
-        'updateRouteConfiguration'
-    );
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerRouteConfigurationUpdater(\Mediatis\Formrelay\Configuration\ConfigurationUpdater::class);
 
     // add form element processors (ext:form)
-    if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('form')) {
-        $elementsProcessorClasses = [
-            \Mediatis\Formrelay\Extensions\Form\ElementProcessor\AbstractSectionElementProcessor::class,
-            \Mediatis\Formrelay\Extensions\Form\ElementProcessor\ContentElementProcessor::class,
-            \Mediatis\Formrelay\Extensions\Form\ElementProcessor\DateElementProcessor::class,
-            \Mediatis\Formrelay\Extensions\Form\ElementProcessor\DatePickerElementProcessor::class,
-            \Mediatis\Formrelay\Extensions\Form\ElementProcessor\FileUploadElementProcessor::class,
-            \Mediatis\Formrelay\Extensions\Form\ElementProcessor\GenericElementProcessor::class,
-            \Mediatis\Formrelay\Extensions\Form\ElementProcessor\HoneypotElementProcessor::class,
-            \Mediatis\Formrelay\Extensions\Form\ElementProcessor\StaticTextElementProcessor::class,
-        ];
-        foreach ($elementsProcessorClasses as $elementsProcessorClass) {
-            $dispatcher->connect(
-                \Mediatis\Formrelay\Extensions\Form\FormDataProcessor::class,
-                \Mediatis\Formrelay\Extensions\Form\FormDataProcessor::SIGNAL_PROCESS_FORM_ELEMENT,
-                $elementsProcessorClass,
-                \Mediatis\Formrelay\Extensions\Form\FormDataProcessor::SIGNAL_PROCESS_FORM_ELEMENT
-            );
-        }
-    }
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\AbstractSectionElementProcessor::class);
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\ContentElementProcessor::class);
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DateElementProcessor::class);
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\DatePickerElementProcessor::class);
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\FileUploadElementProcessor::class);
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\GenericElementProcessor::class);
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\HoneypotElementProcessor::class);
+    \Mediatis\Formrelay\Utility\RegistrationUtility::registerFormElementProcessor(\Mediatis\Formrelay\Extensions\Form\ElementProcessor\StaticTextElementProcessor::class);
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\Mediatis\Formrelay\Scheduler\QueueProcessorTask::class] = [
         'extension' => 'formrelay',
@@ -68,5 +43,7 @@ module.tx_form.settings.yamlConfigurations {
         'description' => 'Processes the next batch of form submissions using the form-relay',
         'additionalFields' => \Mediatis\Formrelay\Scheduler\QueueProcessorFieldProvider::class,
     ];
+
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = \Mediatis\Formrelay\Backend\DataHandler\MetaDataHandler::class;
 
 })();

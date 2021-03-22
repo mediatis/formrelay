@@ -9,6 +9,8 @@ $readOnly = false;
 $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
     'ctrl' => [
         'label' => 'created',
+        'label_alt' => 'label',
+        'label_alt_force' => 1,
         'tstamp' => 'changed',
         'crdate' => 'created',
         'title' => $ll . 'tx_formrelay_domain_model_queue_job',
@@ -17,17 +19,41 @@ $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
         'iconfile' => 'EXT:formrelay/Resources/Public/Icons/QueueJob.svg'
     ],
     'interface' => [
-        'showRecordFieldList' => 'created,changed,status,status_message,serialized_data',
+        'showRecordFieldList' => 'route,pass,created,changed,status,status_message,serialized_data',
     ],
     'types' => [
         '0' => [
-            'showitem' => 'created,changed,status,status_message,serialized_data'
+            'showitem' => 'route,pass,created,changed,status,status_message,serialized_data'
         ],
     ],
     'palettes' => [
-        '0' => ['showitem' => 'created,changed,status,status_message,serialized_data'],
+        '0' => ['showitem' => 'route,pass,created,changed,status,status_message,serialized_data'],
     ],
     'columns' => [
+        'label' => [
+            'exclude' => 1,
+            'label' => 'Label',
+            'config' => [
+                'type' => 'input',
+                'readOnly' => 1,
+            ],
+        ],
+        'route' => [
+            'exclude' => 1,
+            'label' => 'Route',
+            'config' => [
+                'type' => 'input',
+                'readOnly' => 1,
+            ],
+        ],
+        'pass' => [
+            'exclude' => 1,
+            'label' => 'Pass',
+            'config' => [
+                'type' => 'input',
+                'readOnly' => 1,
+            ],
+        ],
         'created' => [
             'exclude' => 1,
             'label' => $ll . 'tx_formrelay_domain_model_queue_job.created',
