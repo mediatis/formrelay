@@ -63,6 +63,7 @@ class QueueProcessorTask extends AbstractTask
     public function execute()
     {
         $this->prepareTask();
-        return $this->queueProcessor->processBatch($this->batchSize);
+        $this->queueProcessor->processBatch($this->batchSize);
+        return true;
     }
 }
