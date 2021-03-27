@@ -40,12 +40,20 @@ class SubmissionFactory
     protected function buildFormRelayConfiguration(RegistryInterface $registry, array $typoScriptConfiguration): array
     {
         $configuration = $this->getExtensionConfiguration($typoScriptConfiguration, 'tx_formrelay');
+        $configuration['routes'] = $configuration['routes'] ?? [];
         $this->signalSlotDispatcher->dispatch(BaseConfigurationUpdaterInterface::class, BaseConfigurationUpdaterInterface::SIGNAL_UPDATE_BASE_CONFIGURATION, [&$configuration]);
         $routes = $registry->getRoutes();
-        /** @var RouteInterface $route */
-        foreach ($routes as $route) {
-            $routeName = GeneralUtility::camelCaseToLowerCaseUnderscored($route::getKeyword());
-            $routeConfiguration = $this->getExtensionConfiguration($typoScriptConfiguration, 'tx_formrelay_' . $routeName);
+        /**
+         * @var string $routeName
+         * @var RouteInterface $route
+         */
+        foreach ($routes as $routeName => $route) {
+            if (array_key_exists($routeName, $configuration['routes'])) {
+                $routeConfiguration = $configuration['routes'][$routeName];
+            } else {
+                $extensionKey = 'tx_formrelay_' . GeneralUtility::camelCaseToLowerCaseUnderscored($routeName);
+                $routeConfiguration = $this->getExtensionConfiguration($typoScriptConfiguration, $extensionKey);
+            }
             $this->signalSlotDispatcher->dispatch(RouteConfigurationUpdaterInterface::class, RouteConfigurationUpdaterInterface::SIGNAL_UPDATE_ROUTE_CONFIGURATION, [$routeName, &$routeConfiguration]);
             if (array_key_exists('passes', $routeConfiguration)) {
                 foreach (array_keys($routeConfiguration['passes']) as $pass) {
