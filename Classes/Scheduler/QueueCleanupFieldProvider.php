@@ -2,14 +2,13 @@
 
 namespace Mediatis\Formrelay\Scheduler;
 
-use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
 use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
 
-class QueueProcessorFieldProvider extends QueueFieldProvider
+class QueueCleanupFieldProvider extends QueueFieldProvider
 {
     /**
      * @param array $taskInfo
-     * @param QueueProcessorTask|null $task
+     * @param QueueCleanupTask|null $task
      * @param SchedulerModuleController $parentObject
      * @return array
      */
@@ -19,14 +18,17 @@ class QueueProcessorFieldProvider extends QueueFieldProvider
 
         if ($task) {
             $taskInfo['pid'] = $task->getPid();
-            $taskInfo['batchSize'] = $task->getBatchSize();
+            $taskInfo['minAge'] = $task->getMinAge();
+            $taskInfo['doneOnly'] = $task->getDoneOnly() ? 1 : 0;
         } else {
             $taskInfo['pid'] = 0;
-            $taskInfo['batchSize'] = QueueProcessorTask::BATCH_SIZE;
+            $taskInfo['minAge'] = QueueCleanupTask::MIN_AGE;
+            $taskInfo['doneOnly'] = 0;
         }
 
         $this->addField($additionalFields, $taskInfo, 'pid', 'ID of the folder that contains the submission jobs.');
-        $this->addField($additionalFields, $taskInfo, 'batchSize', 'Batch size of jobs to process per run');
+        $this->addField($additionalFields, $taskInfo, 'minAge', 'Minimum age in seconds for the jobs that are to be deleted');
+        $this->addCheckboxField($additionalFields, $taskInfo, 'doneOnly', 'Delete only jobs with status "done"');
 
         return $additionalFields;
     }
@@ -34,17 +36,19 @@ class QueueProcessorFieldProvider extends QueueFieldProvider
     public function validateAdditionalFields(array &$submittedData, SchedulerModuleController $parentObject)
     {
         $submittedData['pid'] = (int)$submittedData['pid'];
-        $submittedData['batchSize'] = (int)$submittedData['batchSize'];
+        $submittedData['minAge'] = (int)$submittedData['minAge'];
+        $submittedData['doneOnly'] = isset($submittedData['doneOnly']) ? !!$submittedData['doneOnly'] : false;
         return true;
     }
 
     /**
      * @param array $submittedData
-     * @param QueueProcessorTask|null $task
+     * @param QueueCleanupTask|null $task
      */
     public function saveAdditionalFields(array $submittedData, $task)
     {
         $task->setPid($submittedData['pid']);
-        $task->setBatchSize($submittedData['batchSize']);
+        $task->setMinAge($submittedData['minAge']);
+        $task->setDoneOnly($submittedData['doneOnly']);
     }
 }

@@ -15,7 +15,7 @@ $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
         'crdate' => 'created',
         'title' => $ll . 'tx_formrelay_domain_model_queue_job',
         'origUid' => 't3_origuid',
-        'searchFields' => 'created,status,status_message,changed,serialized_data',
+        'searchFields' => 'route,pass,created,status,status_message,changed',
         'iconfile' => 'EXT:formrelay/Resources/Public/Icons/QueueJob.svg'
     ],
     'interface' => [

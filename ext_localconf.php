@@ -44,6 +44,13 @@ module.tx_form.settings.yamlConfigurations {
         'additionalFields' => \Mediatis\Formrelay\Scheduler\QueueProcessorFieldProvider::class,
     ];
 
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\Mediatis\Formrelay\Scheduler\QueueCleanupTask::class] = [
+        'extension' => 'formrelay',
+        'title' => 'Formrelay Queue Cleanup',
+        'description' => 'Removes old submissions from the database to be compliant with data protection regulations',
+        'additionalFields' => \Mediatis\Formrelay\Scheduler\QueueCleanupFieldProvider::class,
+    ];
+
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = \Mediatis\Formrelay\Backend\DataHandler\MetaDataHandler::class;
 
 })();

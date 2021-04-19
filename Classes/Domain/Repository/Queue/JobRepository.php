@@ -22,7 +22,7 @@ class JobRepository extends Repository implements QueueInterface
         return $this->pid;
     }
 
-    protected function fetchWhere(array $status = [], int $limit = 0, int $offset = 0, int $minAgeInSeconds = 0)
+    protected function fetchWhere(array $status = [], int $limit = 0, int $offset = 0, int $minTimeSinceChangedInSeconds = 0, int $minAgeInSeconds = 0)
     {
         $query = $this->createQuery();
         if ($this->pid) {
@@ -36,10 +36,15 @@ class JobRepository extends Repository implements QueueInterface
         if (count($status) > 0) {
             $conditions[] = $query->in('status', $status);
         }
+        if ($minTimeSinceChangedInSeconds > 0) {
+            $then = new DateTime();
+            $then->modify('- ' . $minTimeSinceChangedInSeconds. ' seconds');
+            $conditions[] = $query->lessThan('changed', $then);
+        }
         if ($minAgeInSeconds > 0) {
             $then = new DateTime();
             $then->modify('- ' . $minAgeInSeconds. ' seconds');
-            $conditions[] = $query->lessThan('changed', $then);
+            $conditions[] = $query->lessThan('created', $then);
         }
         if (count($conditions) > 0) {
             $query->matching($query->logicalAnd($conditions));
@@ -63,9 +68,9 @@ class JobRepository extends Repository implements QueueInterface
         return $this->fetchWhere([QueueInterface::STATUS_PENDING], $limit, $offset);
     }
 
-    public function fetchRunning(int $limit = 0, int $offset = 0, int $minAgeInSeconds = 0)
+    public function fetchRunning(int $limit = 0, int $offset = 0, int $minTimeSinceChangedInSeconds = 0)
     {
-        return $this->fetchWhere([QueueInterface::STATUS_RUNNING], $limit, $offset, $minAgeInSeconds);
+        return $this->fetchWhere([QueueInterface::STATUS_RUNNING], $limit, $offset, $minTimeSinceChangedInSeconds);
     }
 
     public function fetchDone(int $limit = 0, int $offset = 0)
@@ -146,5 +151,14 @@ class JobRepository extends Repository implements QueueInterface
         if ($realJob) {
             $this->remove($realJob);
         }
+    }
+
+    public function removeOldJobs(int $minAgeInSeconds, array $status = [])
+    {
+        $jobs = $this->fetchWhere($status, 0, 0, 0, $minAgeInSeconds);
+        foreach ($jobs as $job) {
+            $this->remove($job);
+        }
+        $this->persistenceManager->persistAll();
     }
 }

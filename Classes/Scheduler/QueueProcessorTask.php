@@ -10,24 +10,21 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
-class QueueProcessorTask extends AbstractTask
+class QueueProcessorTask extends QueueTask
 {
     const BATCH_SIZE = 10;
 
-    public $pid = 0;
-    public $batchSize = 10;
+    public $batchSize = self::BATCH_SIZE;
 
     /** @var QueueProcessor */
     protected $queueProcessor;
 
     protected function prepareTask()
     {
+        parent::prepareTask();
+
         /** @var ObjectManager $objectManager */
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
-        /** @var JobRepository $queue */
-        $queue = $objectManager->get(JobRepository::class);
-        $queue->setPid($this->pid);
 
         /** @var RegistryFactory $registryFactory */
         $registryFactory = $objectManager->get(RegistryFactory::class);
@@ -37,17 +34,7 @@ class QueueProcessorTask extends AbstractTask
         /** @var QueueWorker $worker */
         $worker = GeneralUtility::makeInstance(QueueWorker::class, $registry);
 
-        $this->queueProcessor = GeneralUtility::makeInstance(QueueProcessor::class, $queue, $worker);
-    }
-
-    public function getPid(): int
-    {
-        return $this->pid;
-    }
-
-    public function setPid(int $pid)
-    {
-        $this->pid = $pid;
+        $this->queueProcessor = GeneralUtility::makeInstance(QueueProcessor::class, $this->queue, $worker);
     }
 
     public function getBatchSize(): int
