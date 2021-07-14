@@ -4,6 +4,7 @@ namespace Mediatis\Formrelay\DataProvider;
 
 use FormRelay\Core\DataProvider\DataProvider;
 use FormRelay\Core\Model\Submission\SubmissionInterface;
+use FormRelay\Core\Request\RequestInterface;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
 class LanguageCodeDataProvider extends DataProvider
@@ -11,7 +12,7 @@ class LanguageCodeDataProvider extends DataProvider
     const KEY_FIELD = 'field';
     const DEFAULT_FIELD = 'language';
 
-    protected function processContext(SubmissionInterface $submission)
+    protected function processContext(SubmissionInterface $submission, RequestInterface $request)
     {
         if (VersionNumberUtility::convertVersionNumberToInteger(
                 VersionNumberUtility::getNumericTypo3Version()

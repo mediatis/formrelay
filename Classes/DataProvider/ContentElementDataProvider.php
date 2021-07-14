@@ -3,7 +3,10 @@
 namespace Mediatis\Formrelay\DataProvider;
 
 use FormRelay\Core\DataProvider\DataProvider;
+use FormRelay\Core\Log\LoggerInterface;
 use FormRelay\Core\Model\Submission\SubmissionInterface;
+use FormRelay\Core\Request\RequestInterface;
+use FormRelay\Core\Service\ClassRegistryInterface;
 use FormRelay\Core\Service\RegistryInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\ContentObject\RecordsContentObject;
@@ -19,13 +22,13 @@ class ContentElementDataProvider extends DataProvider
     /** @var ObjectManager */
     protected $objectManager;
 
-    public function __construct(RegistryInterface $registry, ObjectManager $objectManager)
+    public function __construct(ClassRegistryInterface $registry, LoggerInterface $logger, ObjectManager $objectManager)
     {
-        parent::__construct($registry);
+        parent::__construct($registry, $logger);
         $this->objectManager = $objectManager;
     }
 
-    protected function processContext(SubmissionInterface $submission)
+    protected function processContext(SubmissionInterface $submission, RequestInterface $request)
     {
         $ttContentUid = $this->getConfig(static::KEY_CONTENT_ID, static::DEFAULT_CONTENT_ID);
 

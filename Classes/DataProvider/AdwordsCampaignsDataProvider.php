@@ -4,6 +4,7 @@ namespace Mediatis\Formrelay\DataProvider;
 
 use FormRelay\Core\DataProvider\DataProvider;
 use FormRelay\Core\Model\Submission\SubmissionInterface;
+use FormRelay\Core\Request\RequestInterface;
 use Mediatis\Formrelay\Utility\UtmzCookieParser;
 
 class AdwordsCampaignsDataProvider extends DataProvider
@@ -24,17 +25,17 @@ class AdwordsCampaignsDataProvider extends DataProvider
         'ga_utm_content' => 'utm_content',
     ];
 
-    protected function processContext(SubmissionInterface $submission)
+    protected function processContext(SubmissionInterface $submission, RequestInterface $request)
     {
-        $this->addCookieToContext($submission, '__utmz');
+        $this->addCookieToContext($submission, $request, '__utmz');
         foreach (array_keys(static::UTM_MAP) as $cookie) {
-            $this->addCookieToContext($submission, $cookie);
+            $this->addCookieToContext($submission, $request, $cookie);
         }
     }
 
     protected function process(SubmissionInterface $submission)
     {
-        $cookies = $submission->getContext()['cookies'] ?? [];
+        $cookies = $submission->getContext()->getCookies();
         $utmz = new UtmzCookieParser($cookies);
         if ($utmz) {
             foreach (static::UTMZ_MAP as $member => $field) {
