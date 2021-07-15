@@ -4,10 +4,10 @@ namespace Mediatis\Formrelay\Extensions\Form\ElementProcessor;
 
 use Exception;
 use FormRelay\Core\Model\Form\UploadField;
+use Mediatis\Formrelay\Domain\Model\File\File;
 use Mediatis\Formrelay\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference as ExtbaseFileReference;
@@ -81,7 +81,11 @@ class FileUploadElementProcessor extends ElementProcessor
 
         if ($copiedFile) {
             if ($copiedFile instanceof FileInterface) {
-                $uploadField = GeneralUtility::makeInstance(UploadField::class, $copiedFile);
+                /** @var File $file */
+                $file = GeneralUtility::makeInstance(File::class, $copiedFile);
+
+                /** @var UploadField $uploadField */
+                $uploadField = GeneralUtility::makeInstance(UploadField::class, $file);
                 $uploadField->setFileName($fileName);
                 return $uploadField;
             }
