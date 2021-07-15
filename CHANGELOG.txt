@@ -1,4 +1,10 @@
 
+2.2.0
+
+[FEATURE] new data provider "Cookie" providing a list of cookies as form fields
+
+[TASK] code cleanup (dispatcher)
+
 2.1.0
 
 [FEATURE] New FieldMapper: ValueMapFieldMapper (MEDO-352)

@@ -18,6 +18,11 @@ plugin.tx_formrelay {
         ttContentUid = {$plugin.tx_formrelay.settings.dataProviders.contentElement.ttContentUid}
         fieldName = {$plugin.tx_formrelay.settings.dataProviders.contentElement.fieldName}
       }
+      cookie {
+        cookieFieldMap {
+          // cookieName = fieldName
+        }
+      }
     }
   }
 }

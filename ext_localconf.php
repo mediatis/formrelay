@@ -20,6 +20,7 @@ if (!defined('TYPO3_MODE')) {
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\AdwordCampains::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\Adwords::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\ContentElement::class);
+    $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\Cookie::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\IpAddress::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\LanguageCode::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\Timestamp::class);

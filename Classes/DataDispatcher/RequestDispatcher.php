@@ -64,16 +64,14 @@ class RequestDispatcher implements DataDispatcherInterface
         return $params;
     }
 
-    /**
-     * @param array $data
-     * @return bool
-     */
-    public function send(array $data): bool
+    protected function buildBody(array $data): string
     {
         $params = $this->parameterize($data);
+        return implode('&', $params);
+    }
 
-        $postFields = implode('&', $params);
-
+    protected function buildCookieJar(array $data): CookieJar
+    {
         $requestCookies = [];
         if (!empty($this->cookies)) {
             $host = parse_url($this->url, PHP_URL_HOST);
@@ -86,10 +84,34 @@ class RequestDispatcher implements DataDispatcherInterface
                 $requestCookies[] = $cookie;
             }
         }
-        $jar = new CookieJar(false, $requestCookies);
+        return new CookieJar(false, $requestCookies);
+    }
+
+    protected function buildHeaders(array $data): array
+    {
+        return [];
+    }
+
+    /**
+     * @param array $data
+     * @return bool
+     */
+    public function send(array $data): bool
+    {
+        $postFields = $this->buildBody($data);
+        $jar = $this->buildCookieJar($data);
+        $headers = $this->buildHeaders($data);
+
+        $options = [
+            'body' => $postFields,
+            'cookies' => $jar,
+        ];
+        if (!empty($headers)) {
+            $options['headers'] = $headers;
+        }
 
         try {
-            $this->requestFactory->request($this->method, $this->url, ['body' => $postFields, 'cookies' => $jar]);
+            $this->requestFactory->request($this->method, $this->url, $options);
         } catch (GuzzleException $e) {
             GeneralUtility::devLog($e->getMessage(), __CLASS__);
             return false;
