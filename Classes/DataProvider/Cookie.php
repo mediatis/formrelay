@@ -32,7 +32,7 @@ class Cookie implements DataProviderInterface
     public function addData(array &$dataArray)
     {
         $settings = $this->configurationManager->getExtensionTypoScriptSetup('tx_formrelay');
-        $cookieFieldMap = $settings['settings.']['dataProviders.']['cookie.']['cookieFieldMap.'] ?? [];
+        $cookieFieldMap = $settings['settings']['dataProviders']['cookie']['cookieFieldMap'] ?? [];
         foreach ($cookieFieldMap as $cookie => $field) {
             if (isset($_COOKIE[$cookie])) {
                 $dataArray[$field] = $_COOKIE[$cookie];
