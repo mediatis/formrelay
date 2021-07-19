@@ -111,7 +111,7 @@ class RequestDispatcher implements DataDispatcherInterface
         }
 
         try {
-            $this->requestFactory->request($this->method, $this->url, $options);
+            $this->requestFactory->request($this->url, $this->method, $options);
         } catch (GuzzleException $e) {
             GeneralUtility::devLog($e->getMessage(), __CLASS__);
             return false;

@@ -1,4 +1,12 @@
 
+2.2.2
+
+[BUGFIX] fixed request data dispatcher arguments
+
+2.2.1
+
+[BUGFIX] fixed typoscript handling in cookie data provider
+
 2.2.0
 
 [FEATURE] new data provider "Cookie" providing a list of cookies as form fields
