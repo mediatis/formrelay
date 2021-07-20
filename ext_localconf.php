@@ -6,6 +6,7 @@ if (!defined('TYPO3_MODE')) {
 
 (function () {
     $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
+    /** @var \Mediatis\Formrelay\Service\Registry $registry */
     $registry = $objectManager->get(\Mediatis\Formrelay\Service\Registry::class);
 
     // add form element processors (ext:form)
@@ -24,6 +25,7 @@ if (!defined('TYPO3_MODE')) {
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\IpAddress::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\LanguageCode::class);
     $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\Timestamp::class);
+    $registry->registerDataProvider(\Mediatis\Formrelay\DataProvider\RequestVariables::class);
 
     // add evaluation types
     $registry->registerEvaluation(\Mediatis\Formrelay\ConfigurationResolver\Evaluation\AndEvaluation::class);

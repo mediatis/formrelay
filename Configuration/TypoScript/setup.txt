@@ -23,6 +23,11 @@ plugin.tx_formrelay {
           // cookieName = fieldName
         }
       }
+      requestVariables {
+        variableFieldMap {
+          // requestVariableName = fieldName
+        }
+      }
     }
   }
 }
