@@ -3,10 +3,10 @@
 namespace Mediatis\Formrelay\Factory;
 
 use FormRelay\Core\Queue\QueueInterface;
-use FormRelay\Core\Request\DefaultRequest;
 use FormRelay\Core\Service\Registry;
 use FormRelay\Core\Service\RegistryInterface;
 use Mediatis\Formrelay\Domain\Repository\Queue\JobRepository;
+use Mediatis\Formrelay\Request\Typo3Request;
 use TYPO3\CMS\Core\Log\LogManagerInterface;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
@@ -40,7 +40,7 @@ class RegistryFactory
 
     public function buildRegistry(): RegistryInterface
     {
-        $request = new DefaultRequest();
+        $request = new Typo3Request();
         $loggerFactory = new LoggerFactory($this->logManager);
         $queueDataFactory = new QueueDataFactory();
         $registry = new Registry($request, $loggerFactory, $this->queue, $queueDataFactory);
