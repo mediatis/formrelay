@@ -35,6 +35,6 @@ class File implements FileInterface
 
     public function getMimeType(): string
     {
-        return $this->getMimeType();
+        return $this->file->getMimeType();
     }
 }
