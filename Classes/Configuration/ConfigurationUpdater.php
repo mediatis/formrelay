@@ -17,8 +17,21 @@ class ConfigurationUpdater implements RouteConfigurationUpdaterInterface
         }
     }
 
+    protected function updateDefaultsConfiguration(array &$routeConfiguration)
+    {
+        if (isset($routeConfiguration['defaults'])) {
+            foreach ($routeConfiguration['defaults'] as $key => $value) {
+                if (!array_key_exists('default', $routeConfiguration['fields'][$key] ?? [])) {
+                    $routeConfiguration['fields'][$key]['default'] = $value;
+                }
+            }
+            unset($routeConfiguration['defaults']);
+        }
+    }
+
     public function updateRouteConfiguration(string $routeName, array &$routeConfiguration)
     {
         $this->updatePassConfiguration($routeConfiguration);
+        $this->updateDefaultsConfiguration($routeConfiguration);
     }
 }
