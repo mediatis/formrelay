@@ -2,7 +2,6 @@
 
 namespace Mediatis\Formrelay\Scheduler;
 
-use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
 use TYPO3\CMS\Scheduler\Controller\SchedulerModuleController;
 
 class QueueProcessorFieldProvider extends QueueFieldProvider

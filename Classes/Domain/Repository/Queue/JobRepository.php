@@ -38,12 +38,12 @@ class JobRepository extends Repository implements QueueInterface
         }
         if ($minTimeSinceChangedInSeconds > 0) {
             $then = new DateTime();
-            $then->modify('- ' . $minTimeSinceChangedInSeconds. ' seconds');
+            $then->modify('- ' . $minTimeSinceChangedInSeconds . ' seconds');
             $conditions[] = $query->lessThan('changed', $then);
         }
         if ($minAgeInSeconds > 0) {
             $then = new DateTime();
-            $then->modify('- ' . $minAgeInSeconds. ' seconds');
+            $then->modify('- ' . $minAgeInSeconds . ' seconds');
             $conditions[] = $query->lessThan('created', $then);
         }
         if (count($conditions) > 0) {

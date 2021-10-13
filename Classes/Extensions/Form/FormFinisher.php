@@ -8,7 +8,6 @@ use Mediatis\Formrelay\Factory\SubmissionFactory;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 
-
 class FormFinisher extends AbstractFinisher
 {
     /** @var RegistryFactory */

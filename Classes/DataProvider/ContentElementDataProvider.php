@@ -7,7 +7,6 @@ use FormRelay\Core\Log\LoggerInterface;
 use FormRelay\Core\Model\Submission\SubmissionInterface;
 use FormRelay\Core\Request\RequestInterface;
 use FormRelay\Core\Service\ClassRegistryInterface;
-use FormRelay\Core\Service\RegistryInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\ContentObject\RecordsContentObject;
 
@@ -97,6 +96,4 @@ class ContentElementDataProvider extends DataProvider
             static::KEY_CONTENT_ID => static::DEFAULT_CONTENT_ID,
         ];
     }
-
-
 }

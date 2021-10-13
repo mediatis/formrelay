@@ -4,11 +4,9 @@ namespace Mediatis\Formrelay\Scheduler;
 
 use FormRelay\Core\Queue\QueueProcessor;
 use FormRelay\Core\Service\QueueWorker;
-use Mediatis\Formrelay\Domain\Repository\Queue\JobRepository;
 use Mediatis\Formrelay\Factory\RegistryFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
 class QueueProcessorTask extends QueueTask
 {

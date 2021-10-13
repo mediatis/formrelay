@@ -7,11 +7,11 @@ use FormRelay\Core\Model\Form\UploadField;
 use Mediatis\Formrelay\Domain\Model\File\File;
 use Mediatis\Formrelay\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference as ExtbaseFileReference;
-use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
 
 class FileUploadElementProcessor extends ElementProcessor

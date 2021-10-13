@@ -37,7 +37,7 @@ class QueueCleanupFieldProvider extends QueueFieldProvider
     {
         $submittedData['pid'] = (int)$submittedData['pid'];
         $submittedData['minAge'] = (int)$submittedData['minAge'];
-        $submittedData['doneOnly'] = isset($submittedData['doneOnly']) ? !!$submittedData['doneOnly'] : false;
+        $submittedData['doneOnly'] = isset($submittedData['doneOnly']) ? (bool)$submittedData['doneOnly'] : false;
         return true;
     }
 

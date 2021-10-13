@@ -15,8 +15,8 @@ class LanguageCodeDataProvider extends DataProvider
     protected function processContext(SubmissionInterface $submission, RequestInterface $request)
     {
         if (VersionNumberUtility::convertVersionNumberToInteger(
-                VersionNumberUtility::getNumericTypo3Version()
-            ) >= 10000000) {
+            VersionNumberUtility::getNumericTypo3Version()
+        ) >= 10000000) {
             $language = $GLOBALS['TSFE']->getLanguage()->getTwoLetterIsoCode();
         } else {
             $language = $GLOBALS['TSFE']->sys_language_isocode;
