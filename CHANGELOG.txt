@@ -1,4 +1,8 @@
 
+5.0.0
+
+[FEATURE] Asynchronous Submissions
+
 4.3.0
 
 [FEATURE] added headers argument and default headers to request dispatcher
