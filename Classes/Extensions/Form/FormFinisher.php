@@ -2,22 +2,22 @@
 
 namespace Mediatis\Formrelay\Extensions\Form;
 
-use Mediatis\Formrelay\Configuration\ConfigurationManager;
-use Mediatis\Formrelay\Service\Relay;
+use FormRelay\Core\Service\Relay;
+use Mediatis\Formrelay\Factory\RegistryFactory;
+use Mediatis\Formrelay\Factory\SubmissionFactory;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Form\Domain\Finishers\AbstractFinisher;
 
-
 class FormFinisher extends AbstractFinisher
 {
-    /** @var ConfigurationManager */
-    protected $configurationManager;
+    /** @var RegistryFactory */
+    protected $registryFactory;
+
+    /** @var SubmissionFactory */
+    protected $submissionFactory;
 
     /** @var FormDataProcessor */
     protected $formDataProcessor;
-
-    /** @var Relay */
-    protected $relay;
 
     /** @var array */
     protected $defaultOptions = [
@@ -25,9 +25,14 @@ class FormFinisher extends AbstractFinisher
         'baseUploadPath' => 'uploads/tx_formrelay/',
     ];
 
-    public function injectConfigurationManager(ConfigurationManager $configurationManager)
+    public function injectRegistryFactory(RegistryFactory $registryFactory)
     {
-        $this->configurationManager = $configurationManager;
+        $this->registryFactory = $registryFactory;
+    }
+
+    public function injectSubmissionFactory(SubmissionFactory $submissionFactory)
+    {
+        $this->submissionFactory = $submissionFactory;
     }
 
     public function injectFormDataProcessor(FormDataProcessor $formDataProcessor)
@@ -35,23 +40,8 @@ class FormFinisher extends AbstractFinisher
         $this->formDataProcessor = $formDataProcessor;
     }
 
-    public function injectRelay(Relay $relay)
+    protected function buildFormValues()
     {
-        $this->relay = $relay;
-    }
-
-    protected function executeInternal()
-    {
-        $setup = trim($this->parseOption('setup'));
-
-        if ($setup) {
-            $typoScriptParser = $this->objectManager->get(TypoScriptParser::class);
-            $typoScriptParser->parse($setup);
-            $formSettings = $typoScriptParser->setup;
-        } else {
-            $formSettings = [];
-        }
-
         $elements = $this->finisherContext
             ->getFormRuntime()
             ->getFormDefinition()
@@ -60,9 +50,33 @@ class FormFinisher extends AbstractFinisher
         $options = [
             'baseUploadPath' => $this->parseOption('baseUploadPath'),
         ];
+        return $this->formDataProcessor->process($elements, $elementValues, $options);
+    }
 
-        $formValues = $this->formDataProcessor->process($elements, $elementValues, $options);
+    protected function buildFormSettings()
+    {
+        $setup = trim($this->parseOption('setup'));
+        if ($setup) {
+            $typoScriptParser = $this->objectManager->get(TypoScriptParser::class);
+            $typoScriptParser->parse($setup);
+            $formSettings = $typoScriptParser->setup;
+        } else {
+            $formSettings = [];
+        }
+        return $formSettings;
+    }
 
-        $this->relay->process($formValues, $formSettings, false);
+    protected function executeInternal()
+    {
+        $formValues = $this->buildFormValues();
+        $formSettings = $this->buildFormSettings();
+
+        $registry = $this->registryFactory->buildRegistry();
+        $submission = $this->submissionFactory->buildSubmission($registry, $formValues, $formSettings);
+
+        $relay = new Relay($registry);
+        $relay->process($submission);
+
+        return null;
     }
 }

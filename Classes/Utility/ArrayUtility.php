@@ -2,10 +2,33 @@
 
 namespace Mediatis\Formrelay\Utility;
 
-use TYPO3\CMS\Core\Utility\ArrayUtility as CoreArrayUtility;
+use FormRelay\Core\Exception\FormRelayException;
+use FormRelay\Core\Model\Submission\SubmissionConfigurationInterface;
 
 final class ArrayUtility
 {
+    public static function convertConfigurationForRelayFormat(array $setup)
+    {
+        $keys = array_keys($setup);
+        if (in_array(SubmissionConfigurationInterface::KEY_SELF, $keys)) {
+            throw new FormRelayException('TypoScript array not compatible with form-relay/core');
+        }
+        foreach ($keys as $key) {
+            if ($key === '_typoScriptNodeValue') {
+                $setup[SubmissionConfigurationInterface::KEY_SELF] = $setup[$key];
+                unset($setup[$key]);
+            } else {
+                $value = $setup[$key];
+                if ($value === '__UNSET') {
+                    $setup[$key] = null;
+                } elseif (is_array($value)) {
+                    $setup[$key] = static::convertConfigurationForRelayFormat($value);
+                }
+            }
+        }
+        return $setup;
+    }
+
     /**
      * (copied from TYPO3\CMS\Core\TypoScript\TypoScriptService, not changed, but now it is in a static context)
      *
@@ -66,46 +89,5 @@ final class ArrayUtility
             }
         }
         return $typoScriptArray;
-    }
-
-    /**
-     * Crawls recursively through the array, finds every key "<key>" whose value is "__UNSET"
-     * and then deletes array entries "<key>" and "<key>."
-     *
-     * @param array $data
-     */
-    protected static function resolveUnsetFeature(array &$data)
-    {
-        foreach ($data as $key => $_) {
-            if (is_array($data[$key])) {
-                static::resolveUnsetFeature($data[$key]);
-            } elseif ($data[$key] === '__UNSET') {
-                unset($data[$key]);
-                unset($data[$key . '.']);
-            }
-        }
-    }
-
-    /**
-     * Based on mergeRecursiveWithOverrule, but for plain arrays
-     * - plain arrays are converted to typoScript arrays, then merged, then converted back to plain arrays
-     * - changes the unset feature so that "key" => "__UNSET" also unsets "key."
-     *
-     * @see mergeRecursiveWithOverrule
-     * @param array $original
-     * @param array $overrule
-     * @param bool $addKeys
-     * @param bool $includeEmptyValues
-     * @param bool $enableUnsetFeature
-     */
-    public static function plainArrayMergeRecursiveWithOverrule(array &$original, array $overrule, $addKeys = true, $includeEmptyValues = true, $enableUnsetFeature = true)
-    {
-        $tsOriginal = static::convertPlainArrayToTypoScriptArray($original);
-        $tsOverrule = static::convertPlainArrayToTypoScriptArray($overrule);
-        CoreArrayUtility::mergeRecursiveWithOverrule($tsOriginal, $tsOverrule, $addKeys, $includeEmptyValues, false);
-        if ($enableUnsetFeature) {
-            static::resolveUnsetFeature($tsOriginal);
-        }
-        $original = static::convertTypoScriptArrayToPlainArray($tsOriginal);
     }
 }
