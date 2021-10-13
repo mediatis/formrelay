@@ -37,11 +37,9 @@ class AdwordsCampaignsDataProvider extends DataProvider
     {
         $cookies = $submission->getContext()->getCookies();
         $utmz = new UtmzCookieParser($cookies);
-        if ($utmz) {
-            foreach (static::UTMZ_MAP as $member => $field) {
-                if ($utmz->$member) {
-                    $this->setField($submission, $field, $utmz->$member);
-                }
+        foreach (static::UTMZ_MAP as $member => $field) {
+            if ($utmz->$member) {
+                $this->setField($submission, $field, $utmz->$member);
             }
         }
 

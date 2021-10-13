@@ -76,5 +76,7 @@ class FormFinisher extends AbstractFinisher
 
         $relay = new Relay($registry);
         $relay->process($submission);
+
+        return null;
     }
 }
