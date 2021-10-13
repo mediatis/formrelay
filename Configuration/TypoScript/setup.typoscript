@@ -1,22 +1,37 @@
 plugin.tx_formrelay {
   settings {
 
-    enabled = {$plugin.tx_formrelay.settings.enabled}
-
-    logfile {
-      enabled = {$plugin.tx_formrelay.settings.logfile.enabled}
-      system = {$plugin.tx_formrelay.settings.logfile.system}
-      basePath = {$plugin.tx_formrelay.settings.logfile.basePath}
-    }
+    pid = {$plugin.tx_formrelay.settings.pid}
+    async = {$plugin.tx_formrelay.settings.async}
 
     fileupload {
       prohibitedExtensions = {$plugin.tx_formrelay.settings.fileupload.prohibitedExtensions}
     }
 
     dataProviders {
+      ipAddress {
+        enabled = {$plugin.tx_formrelay.settings.dataProviders.ipAddress.enabled}
+      }
+
+      timestamp {
+        enabled = {$plugin.tx_formrelay.settings.dataProviders.timestamp.enabled}
+      }
+
+      adwordsCampaigns {
+        enabled = {$plugin.tx_formrelay.settings.dataProviders.adwordsCampaigns.enabled}
+      }
+
+      adwords {
+        enabled = {$plugin.tx_formrelay.settings.dataProviders.adwords.enabled}
+      }
+
       contentElement {
         ttContentUid = {$plugin.tx_formrelay.settings.dataProviders.contentElement.ttContentUid}
-        fieldName = {$plugin.tx_formrelay.settings.dataProviders.contentElement.fieldName}
+        field = {$plugin.tx_formrelay.settings.dataProviders.contentElement.field}
+      }
+
+      languageCode {
+        enabled = {$plugin.tx_formrelay.settings.dataProviders.languageCode.enabled}
       }
     }
   }

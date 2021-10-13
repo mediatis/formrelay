@@ -3,12 +3,15 @@
 namespace Mediatis\Formrelay\Extensions\Form\ElementProcessor;
 
 use Exception;
-use Mediatis\Formrelay\Domain\Model\FormField\UploadFormField;
+use FormRelay\Core\Model\Form\UploadField;
+use Mediatis\Formrelay\Domain\Model\File\File;
+use Mediatis\Formrelay\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference as ExtbaseFileReference;
-use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
 
 class FileUploadElementProcessor extends ElementProcessor
@@ -32,9 +35,12 @@ class FileUploadElementProcessor extends ElementProcessor
             $elementValue = $elementValue->getOriginalFile();
         }
 
-        $pluginTs = $this->configurationManager->getExtensionSettings('tx_formrelay');
+        $fullConfiguration = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
+        $configuration = $fullConfiguration['plugin.']['tx_formrelay.']['settings.'] ?? [];
+        $pluginTs = ArrayUtility::convertTypoScriptArrayToPlainArray($configuration);
+
         if (!empty($pluginTs['fileupload']['prohibitedExtensions'])) {
-            $prohibitedExtensions = explode(',', $pluginTs['settings.']['fileupload.']['prohibitedExtensions']);
+            $prohibitedExtensions = explode(',', $pluginTs['fileupload']['prohibitedExtensions']);
             if (in_array($elementValue->getExtension(), $prohibitedExtensions)) {
                 $this->logger->error(
                     'Uploaded file did not pass safety checks, discarded',
@@ -75,7 +81,11 @@ class FileUploadElementProcessor extends ElementProcessor
 
         if ($copiedFile) {
             if ($copiedFile instanceof FileInterface) {
-                $uploadField = GeneralUtility::makeInstance(UploadFormField::class, $copiedFile);
+                /** @var File $file */
+                $file = GeneralUtility::makeInstance(File::class, $copiedFile);
+
+                /** @var UploadField $uploadField */
+                $uploadField = GeneralUtility::makeInstance(UploadField::class, $file);
                 $uploadField->setFileName($fileName);
                 return $uploadField;
             }

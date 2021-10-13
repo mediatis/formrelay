@@ -22,16 +22,16 @@ class UtmzCookieParser
     public $utmz_campaignNumber;
 
     //Contstructor fires method that parses and assigns property values
-    public function __construct()
+    public function __construct(array $cookies)
     {
-        $this->setUtmz();
+        $this->setUtmz($cookies);
     }
 
     //Grab utmz cookie if it exists
-    private function setUtmz()
+    private function setUtmz($cookies)
     {
-        if (isset($_COOKIE['__utmz'])) {
-            $this->utmz = $_COOKIE['__utmz'];
+        if (isset($cookies['__utmz'])) {
+            $this->utmz = $cookies['__utmz'];
             $this->parseUtmz();
         }
     }
