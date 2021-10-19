@@ -16,9 +16,43 @@ use TYPO3\CMS\Form\Domain\Model\FormElements\FileUpload;
 
 class FileUploadElementProcessor extends ElementProcessor
 {
+    /** @var array **/
+    protected $pluginTs;
+
     protected function getElementClass()
     {
         return FileUpload::class;
+    }
+
+    protected function getPluginTs(): array
+    {
+        if (!$this->pluginTs) {
+            $fullConfiguration = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
+            $configuration = $fullConfiguration['plugin.']['tx_formrelay.']['settings.'] ?? [];
+            $this->pluginTs = ArrayUtility::convertTypoScriptArrayToPlainArray($configuration);
+        }
+        return $this->pluginTs;
+    }
+
+    public function processFormElement($element, $elementValue, array $options, array &$result, bool &$processed)
+    {
+        $this->options = $options;
+        if ($this->match($element, $elementValue)) {
+            $pluginTs = $this->getPluginTs();
+            $name = $this->getElementName($element);
+            if ($pluginTs['fileupload']['disableFileuploadProcessing']) {
+                if (array_key_exists($name, $result)) {
+                    unset($result[$name]);
+                }
+                $processed = true;
+            } else {
+                if (!$processed || $this->override()) {
+                    $value = $this->process($element, $elementValue);
+                    $result[$name] = $value;
+                    $processed = true;
+                }
+            }
+        }
     }
 
     protected function process($element, $elementValue)
@@ -35,9 +69,7 @@ class FileUploadElementProcessor extends ElementProcessor
             $elementValue = $elementValue->getOriginalFile();
         }
 
-        $fullConfiguration = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
-        $configuration = $fullConfiguration['plugin.']['tx_formrelay.']['settings.'] ?? [];
-        $pluginTs = ArrayUtility::convertTypoScriptArrayToPlainArray($configuration);
+        $pluginTs = $this->getPluginTs();
 
         if (!empty($pluginTs['fileupload']['prohibitedExtensions'])) {
             $prohibitedExtensions = explode(',', $pluginTs['fileupload']['prohibitedExtensions']);

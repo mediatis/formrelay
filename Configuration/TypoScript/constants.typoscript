@@ -4,6 +4,7 @@ plugin.tx_formrelay {
     async = 0
 
     fileupload {
+      disableFileuploadProcessing = 0
       prohibitedExtensions = php,exe
     }
 
