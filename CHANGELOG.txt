@@ -1,4 +1,8 @@
 
+5.1.0
+
+[FEATURE] disable fileupload processing option (OWEBSITE-764)
+
 5.0.0
 
 [FEATURE] Asynchronous Submissions
