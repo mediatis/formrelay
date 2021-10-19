@@ -69,13 +69,7 @@ class FileUploadElementProcessor extends ElementProcessor
             $elementValue = $elementValue->getOriginalFile();
         }
 
-        $fullConfiguration = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
-        $configuration = $fullConfiguration['plugin.']['tx_formrelay.']['settings.'] ?? [];
-        $pluginTs = ArrayUtility::convertTypoScriptArrayToPlainArray($configuration);
-
-        if ($pluginTs['fileupload']['disableFileuploadProcessing'] == '1') {
-            return null;
-        }
+        $pluginTs = $this->getPluginTs();
 
         if (!empty($pluginTs['fileupload']['prohibitedExtensions'])) {
             $prohibitedExtensions = explode(',', $pluginTs['fileupload']['prohibitedExtensions']);
