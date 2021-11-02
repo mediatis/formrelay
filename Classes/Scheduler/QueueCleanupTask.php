@@ -8,8 +8,17 @@ class QueueCleanupTask extends QueueTask
 {
     const MIN_AGE = 3600 * 24 * 30; // 30 days
 
+    /** @var QueueInterface */
+    protected $queue;
+
     protected $minAge = self::MIN_AGE;
     protected $doneOnly = false;
+
+    protected function prepareTask()
+    {
+        parent::prepareTask();
+        $this->queue = $this->registry->getQueue();
+    }
 
     public function getMinAge(): int
     {

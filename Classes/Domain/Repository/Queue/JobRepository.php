@@ -126,14 +126,14 @@ class JobRepository extends Repository implements QueueInterface
         }
     }
 
-    public function markListAsFailed(array $jobs)
+    public function markListAsFailed(array $jobs, string $message = '')
     {
         foreach ($jobs as $job) {
-            $this->markAsFailed($job);
+            $this->markAsFailed($job, $message);
         }
     }
 
-    public function addJob(array $data, $status = QueueInterface::STATUS_PENDING)
+    public function addJob(array $data, $status = QueueInterface::STATUS_PENDING): JobInterface
     {
         $repositoryConfig = $data['repository'] ?? [];
         unset($data['repository']);
@@ -141,8 +141,12 @@ class JobRepository extends Repository implements QueueInterface
         $job = new Job();
         $job->setData($data);
         $job->setStatus($status);
-        $job->setPid($repositoryConfig['pid'] ?? 0);
+        if (isset($repositoryConfig['pid'])) {
+            $job->setPid($repositoryConfig['pid']);
+        }
         $this->add($job);
+        $this->persistenceManager->persistAll();
+        return $job;
     }
 
     public function removeJob(JobInterface $job)
@@ -150,6 +154,7 @@ class JobRepository extends Repository implements QueueInterface
         $realJob = $this->findByUid($job->getId());
         if ($realJob) {
             $this->remove($realJob);
+            $this->persistenceManager->persistAll();
         }
     }
 

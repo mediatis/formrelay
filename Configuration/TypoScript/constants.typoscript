@@ -2,6 +2,7 @@ plugin.tx_formrelay {
   settings {
     pid = 0
     async = 0
+    disableStorage = 0
 
     fileupload {
       disableFileuploadProcessing = 0
