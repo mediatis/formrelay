@@ -15,9 +15,9 @@ class MetaDataHandler implements SingletonInterface
             if ($serializedData) {
                 $data = json_decode($serializedData, true);
             }
-            $fieldArray['route'] = $data['context']['job']['route'] ?? '';
-            $fieldArray['pass'] = $data['context']['job']['pass'] ?? '';
-            $fieldArray['label'] = $fieldArray['route'] . '(' . $fieldArray['pass'] . ')';
+            $fieldArray['route'] = $data['context']['job']['route'] ?? 'undefined';
+            $fieldArray['pass'] = isset($data['context']['job']['pass']) ? $data['context']['job']['pass'] + 1 : 'undefined';
+            $fieldArray['label'] = $fieldArray['route'] . '#' . $fieldArray['pass'];
         }
     }
 }

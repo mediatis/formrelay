@@ -139,9 +139,9 @@ class JobRepository extends Repository implements QueueInterface
         unset($data['repository']);
 
         $job = new Job();
-        $job->setData($data);
-        $job->setStatus($status);
         $job->setPid($repositoryConfig['pid'] ?? 0);
+        $job->setStatus($status);
+        $job->setData($data);
         $this->add($job);
     }
 

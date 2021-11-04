@@ -4,6 +4,9 @@ plugin.tx_formrelay {
     pid = {$plugin.tx_formrelay.settings.pid}
     async = {$plugin.tx_formrelay.settings.async}
 
+    debugLog = {$plugin.tx_formrelay.settings.debugLog}
+    debugLogFile = {$plugin.tx_formrelay.settings.debugLogFile}
+
     fileupload {
       disableFileuploadProcessing = {$plugin.tx_formrelay.settings.fileupload.disableFileuploadProcessing}
       prohibitedExtensions = {$plugin.tx_formrelay.settings.fileupload.prohibitedExtensions}
