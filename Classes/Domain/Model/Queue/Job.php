@@ -30,6 +30,9 @@ class Job extends AbstractEntity implements JobInterface
     /** @var string $pass */
     protected $pass;
 
+    /** @var string $hash */
+    protected $hash;
+
     /** @var string $label */
     protected $label;
 
@@ -43,14 +46,16 @@ class Job extends AbstractEntity implements JobInterface
         $this->route = '';
         $this->pass = '';
         $this->label = '';
+        $this->hash = '';
     }
 
     public function updateMetaData()
     {
         $data = $this->getData();
         $this->setRoute($data['context']['job']['route'] ?? 'undefined');
-        $this->setPass(isset($data['context']['job']['pass']) ? $data['context']['job']['pass'] + 1 : 'undefined');
-        $this->setLabel($this->getRoute() . '#' . $this->getPass());
+        $this->setPass($data['context']['job']['pass'] ?? 'undefined');
+        $this->setHash($data['context']['submission']['hash'] ?? 'undefined');
+        $this->setLabel($data['context']['job']['label'] ?? 'undefined');
     }
 
     public function getId(): int
@@ -61,6 +66,16 @@ class Job extends AbstractEntity implements JobInterface
     public function setId(int $id)
     {
         $this->uid = $id;
+    }
+
+    public function getHash(): string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash)
+    {
+        $this->hash = $hash;
     }
 
     public function getLabel(): string

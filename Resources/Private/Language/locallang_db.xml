@@ -12,6 +12,10 @@
       <label index="tx_formrelay_domain_model_queue_job.status">Status</label>
       <label index="tx_formrelay_domain_model_queue_job.status_message">Status Message</label>
       <label index="tx_formrelay_domain_model_queue_job.serialized_data">Data</label>
+      <label index="tx_formrelay_domain_model_queue_job.label">Label</label>
+      <label index="tx_formrelay_domain_model_queue_job.hash">Hash</label>
+      <label index="tx_formrelay_domain_model_queue_job.route">Route</label>
+      <label index="tx_formrelay_domain_model_queue_job.pass">Pass</label>
     </languageKey>
   </data>
 </T3locallang>

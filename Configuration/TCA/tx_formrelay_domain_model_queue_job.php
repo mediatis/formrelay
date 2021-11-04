@@ -16,24 +16,32 @@ $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
         'crdate' => 'created',
         'title' => $ll . 'tx_formrelay_domain_model_queue_job',
         'origUid' => 't3_origuid',
-        'searchFields' => 'route,pass,created,status,status_message,changed',
+        'searchFields' => 'hash,route,pass,created,status,status_message,changed',
         'iconfile' => 'EXT:formrelay/Resources/Public/Icons/QueueJob.svg'
     ],
     'interface' => [
-        'showRecordFieldList' => 'route,pass,created,changed,status,status_message,serialized_data',
+        'showRecordFieldList' => 'hash,route,pass,created,changed,status,status_message,serialized_data',
     ],
     'types' => [
         '0' => [
-            'showitem' => 'route,pass,created,changed,status,status_message,serialized_data'
+            'showitem' => 'hash,route,pass,created,changed,status,status_message,serialized_data'
         ],
     ],
     'palettes' => [
-        '0' => ['showitem' => 'route,pass,created,changed,status,status_message,serialized_data'],
+        '0' => ['showitem' => 'hash,route,pass,created,changed,status,status_message,serialized_data'],
     ],
     'columns' => [
         'label' => [
             'exclude' => 1,
-            'label' => 'Label',
+            'label' => $ll . 'tx_formrelay_domain_model_queue_job.label',
+            'config' => [
+                'type' => 'input',
+                'readOnly' => 1,
+            ],
+        ],
+        'hash' => [
+            'exclude' => 1,
+            'label' => $ll . 'tx_formrelay_domain_model_queue_job.hash',
             'config' => [
                 'type' => 'input',
                 'readOnly' => 1,
@@ -41,7 +49,7 @@ $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
         ],
         'route' => [
             'exclude' => 1,
-            'label' => 'Route',
+            'label' => $ll . 'tx_formrelay_domain_model_queue_job.route',
             'config' => [
                 'type' => 'input',
                 'readOnly' => 1,
@@ -49,7 +57,7 @@ $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
         ],
         'pass' => [
             'exclude' => 1,
-            'label' => 'Pass',
+            'label' => $ll . 'tx_formrelay_domain_model_queue_job.pass',
             'config' => [
                 'type' => 'input',
                 'readOnly' => 1,

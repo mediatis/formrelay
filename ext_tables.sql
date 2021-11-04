@@ -3,6 +3,7 @@ CREATE TABLE tx_formrelay_domain_model_queue_job (
   pid int(11) DEFAULT '0' NOT NULL,
 
   label text DEFAULT '',
+  hash text DEFAULT '',
   route text DEFAULT '',
   pass text DEFAULT '',
 
