@@ -40,14 +40,17 @@ class Job extends AbstractEntity implements JobInterface
         $this->status = QueueInterface::STATUS_PENDING;
         $this->statusMessage = '';
         $this->serializedData = '';
+        $this->route = '';
+        $this->pass = '';
+        $this->label = '';
     }
 
     public function updateMetaData()
     {
         $data = $this->getData();
-        $this->setRoute($data['context']['job']['route'] ?? '');
-        $this->setPass($data['context']['job']['pass'] ?? '');
-        $this->setLabel($this->getRoute() . '(' . $this->getPass() . ')');
+        $this->setRoute($data['context']['job']['route'] ?? 'undefined');
+        $this->setPass(isset($data['context']['job']['pass']) ? $data['context']['job']['pass'] + 1 : 'undefined');
+        $this->setLabel($this->getRoute() . '#' . $this->getPass());
     }
 
     public function getId(): int
@@ -147,11 +150,26 @@ class Job extends AbstractEntity implements JobInterface
         if (!$data) {
             return [];
         }
-        return json_decode($data, true);
+        $data = json_decode($data, true);
+        if (!$data) {
+            return [];
+        }
+        return $data;
     }
 
     public function setData(array $data)
     {
-        $this->setSerializedData(json_encode($data, JSON_PRETTY_PRINT));
+        $serializedData = json_encode($data, JSON_PRETTY_PRINT);
+        if ($serializedData === false) {
+            if (isset($data['configuration'])) {
+                // remove "configuration" since print_r is not able to print big data sets completely
+                // and "data" and "context" are much more important (and usually much smaller)
+                unset($data['configuration']);
+            }
+            $serializedData = print_r($data, true);
+            $this->setStatus(QueueInterface::STATUS_FAILED);
+            $this->setStatusMessage('data encoding failed');
+        }
+        $this->setSerializedData($serializedData);
     }
 }
