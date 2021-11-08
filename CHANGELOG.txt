@@ -1,4 +1,10 @@
 
+5.2.0
+
+[FEATURE] Job Attributes "skipped" and "hash" (MEDO-566)
+
+[FEATURE] Synchronous Submissions use Storage too (MEDO-570)
+
 5.1.1
 
 [TASK] safeguard implementations for malformed data
