@@ -3,6 +3,7 @@ plugin.tx_formrelay {
 
     pid = {$plugin.tx_formrelay.settings.pid}
     async = {$plugin.tx_formrelay.settings.async}
+    disableStorage = {$plugin.tx_formrelay.settings.disableStorage}
 
     debugLog = {$plugin.tx_formrelay.settings.debugLog}
     debugLogFile = {$plugin.tx_formrelay.settings.debugLogFile}

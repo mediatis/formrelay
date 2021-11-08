@@ -3,7 +3,7 @@
 namespace Mediatis\Formrelay\Domain\Repository\Queue;
 
 use DateTime;
-use FormRelay\Core\Queue\JobInterface;
+use FormRelay\Core\Model\Queue\JobInterface;
 use FormRelay\Core\Queue\QueueInterface;
 use Mediatis\Formrelay\Domain\Model\Queue\Job;
 use TYPO3\CMS\Extbase\Persistence\Repository;
@@ -83,11 +83,12 @@ class JobRepository extends Repository implements QueueInterface
         return $this->fetchWhere([QueueInterface::STATUS_FAILED], $limit, $offset);
     }
 
-    public function markAs(JobInterface $job, int $status, string $message = '')
+    public function markAs(JobInterface $job, int $status, string $message = '', bool $skipped = false)
     {
         $job->setStatus($status);
         $job->setChanged(new DateTime());
         $job->setStatusMessage($message);
+        $job->setSkipped($skipped);
         $this->update($job);
         $this->persistenceManager->persistAll();
     }
@@ -102,9 +103,9 @@ class JobRepository extends Repository implements QueueInterface
         $this->markAs($job, QueueInterface::STATUS_RUNNING);
     }
 
-    public function markAsDone(JobInterface $job)
+    public function markAsDone(JobInterface $job, bool $skipped = false)
     {
-        $this->markAs($job, QueueInterface::STATUS_DONE);
+        $this->markAs($job, QueueInterface::STATUS_DONE, '', $skipped);
     }
 
     public function markAsFailed(JobInterface $job, string $message = '')
@@ -119,30 +120,35 @@ class JobRepository extends Repository implements QueueInterface
         }
     }
 
-    public function markListAsDone(array $jobs)
+    public function markListAsDone(array $jobs, bool $skipped = false)
     {
         foreach ($jobs as $job) {
-            $this->markAsDone($job);
+            $this->markAsDone($job, $skipped);
         }
     }
 
-    public function markListAsFailed(array $jobs)
+    public function markListAsFailed(array $jobs, string $message = '')
     {
         foreach ($jobs as $job) {
-            $this->markAsFailed($job);
+            $this->markAsFailed($job, $message);
         }
     }
 
-    public function addJob(array $data, $status = QueueInterface::STATUS_PENDING)
+    public function addJob(JobInterface $job)
     {
-        $repositoryConfig = $data['repository'] ?? [];
-        unset($data['repository']);
-
-        $job = new Job();
-        $job->setPid($repositoryConfig['pid'] ?? 0);
-        $job->setStatus($status);
-        $job->setData($data);
+        if (!$job instanceof Job) {
+            $newJob = new Job();
+            $newJob->setData($job->getData());
+            $newJob->setCreated($job->getCreated());
+            $newJob->setChanged($job->getChanged());
+            $newJob->setStatus($job->getStatus());
+            $newJob->setStatusMessage($job->getStatusMessage());
+            $newJob->setHash($job->getHash());
+            $newJob->setLabel($job->getLabel());
+            $job = $newJob;
+        }
         $this->add($job);
+        $this->persistenceManager->persistAll();
     }
 
     public function removeJob(JobInterface $job)
@@ -150,6 +156,7 @@ class JobRepository extends Repository implements QueueInterface
         $realJob = $this->findByUid($job->getId());
         if ($realJob) {
             $this->remove($realJob);
+            $this->persistenceManager->persistAll();
         }
     }
 

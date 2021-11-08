@@ -3,7 +3,7 @@
 namespace Mediatis\Formrelay\Domain\Model\Queue;
 
 use DateTime;
-use FormRelay\Core\Queue\JobInterface;
+use FormRelay\Core\Model\Queue\JobInterface;
 use FormRelay\Core\Queue\QueueInterface;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
@@ -18,6 +18,9 @@ class Job extends AbstractEntity implements JobInterface
     /** @var int $status */
     protected $status;
 
+    /** @var bool $skipped */
+    protected $skipped;
+
     /** @var string $statusMessage */
     protected $statusMessage;
 
@@ -27,8 +30,11 @@ class Job extends AbstractEntity implements JobInterface
     /** @var string $route */
     protected $route;
 
-    /** @var string $pass */
+    /** @var int $pass */
     protected $pass;
+
+    /** @var string $hash */
+    protected $hash;
 
     /** @var string $label */
     protected $label;
@@ -41,16 +47,22 @@ class Job extends AbstractEntity implements JobInterface
         $this->statusMessage = '';
         $this->serializedData = '';
         $this->route = '';
-        $this->pass = '';
+        $this->pass = 0;
         $this->label = '';
+        $this->hash = '';
     }
 
-    public function updateMetaData()
+    protected function updateMetaData()
     {
         $data = $this->getData();
-        $this->setRoute($data['context']['job']['route'] ?? 'undefined');
-        $this->setPass(isset($data['context']['job']['pass']) ? $data['context']['job']['pass'] + 1 : 'undefined');
-        $this->setLabel($this->getRoute() . '#' . $this->getPass());
+        if (!empty($data)) {
+            if (isset($data['route'])) {
+                $this->setRoute($data['route']);
+            }
+            if (isset($data['pass'])) {
+                $this->setPass($data['pass']);
+            }
+        }
     }
 
     public function getId(): int
@@ -61,6 +73,16 @@ class Job extends AbstractEntity implements JobInterface
     public function setId(int $id)
     {
         $this->uid = $id;
+    }
+
+    public function getHash(): string
+    {
+        return $this->hash;
+    }
+
+    public function setHash(string $hash)
+    {
+        $this->hash = $hash;
     }
 
     public function getLabel(): string
@@ -83,12 +105,12 @@ class Job extends AbstractEntity implements JobInterface
         $this->route = $route;
     }
 
-    public function getPass(): string
+    public function getPass(): int
     {
         return $this->pass;
     }
 
-    public function setPass(string $pass)
+    public function setPass(int $pass)
     {
         $this->pass = $pass;
     }
@@ -121,6 +143,16 @@ class Job extends AbstractEntity implements JobInterface
     public function setStatus(int $status)
     {
         $this->status = $status;
+    }
+
+    public function getSkipped(): bool
+    {
+        return $this->skipped;
+    }
+
+    public function setSkipped(bool $skipped)
+    {
+        $this->skipped = $skipped;
     }
 
     public function getStatusMessage(): string
