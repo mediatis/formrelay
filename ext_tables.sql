@@ -8,6 +8,7 @@ CREATE TABLE tx_formrelay_domain_model_queue_job (
   pass text DEFAULT '',
 
   status int(11) unsigned DEFAULT 0,
+  skipped tinyint(4) unsigned DEFAULT '0' NOT NULL,
   status_message text DEFAULT '',
   serialized_data text DEFAULT '',
 

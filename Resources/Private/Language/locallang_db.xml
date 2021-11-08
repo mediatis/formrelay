@@ -10,6 +10,7 @@
       <label index="tx_formrelay_domain_model_queue_job.created">Created</label>
       <label index="tx_formrelay_domain_model_queue_job.changed">Changed</label>
       <label index="tx_formrelay_domain_model_queue_job.status">Status</label>
+      <label index="tx_formrelay_domain_model_queue_job.skipped">Skipped</label>
       <label index="tx_formrelay_domain_model_queue_job.status_message">Status Message</label>
       <label index="tx_formrelay_domain_model_queue_job.serialized_data">Data</label>
       <label index="tx_formrelay_domain_model_queue_job.label">Label</label>

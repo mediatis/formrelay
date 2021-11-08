@@ -3,12 +3,8 @@
 namespace Mediatis\Formrelay\Scheduler;
 
 use FormRelay\Core\Queue\QueueProcessor;
-use FormRelay\Core\Service\QueueWorker;
 use FormRelay\Core\Service\Relay;
-use FormRelay\Core\Service\RelayInterface;
-use Mediatis\Formrelay\Factory\RegistryFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class QueueProcessorTask extends QueueTask
 {
@@ -16,13 +12,17 @@ class QueueProcessorTask extends QueueTask
 
     public $batchSize = self::BATCH_SIZE;
 
-    /** @var RelayInterface */
-    protected $relay;
+    /** @var QueueProcessor */
+    protected $queueProcessor;
 
     protected function prepareTask()
     {
         parent::prepareTask();
-        $this->relay = GeneralUtility::makeInstance(Relay::class, $this->registry);
+
+        /** @var Relay $relay */
+        $relay = GeneralUtility::makeInstance(Relay::class, $this->registry);
+
+        $this->queueProcessor = new QueueProcessor($this->queue, $relay);
     }
 
     public function getBatchSize(): int
@@ -38,7 +38,7 @@ class QueueProcessorTask extends QueueTask
     public function execute()
     {
         $this->prepareTask();
-        $this->relay->processFromQueue($this->batchSize);
+        $this->queueProcessor->processBatch($this->batchSize);
         return true;
     }
 }

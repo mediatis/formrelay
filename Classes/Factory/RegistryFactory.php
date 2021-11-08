@@ -43,7 +43,7 @@ class RegistryFactory
         $request = new Typo3Request();
         $loggerFactory = new LoggerFactory($this->logManager);
         $queueDataFactory = new QueueDataFactory();
-        $registry = new Registry($request, $loggerFactory, $this->queue, $queueDataFactory);
+        $registry = new Registry($request, $loggerFactory, $this->queue, null, $queueDataFactory);
         $this->signalSlotDispatcher->dispatch(RegistryInterface::class, static::SIGNAL_UPDATE_REGISTRY, [$registry]);
         return $registry;
     }
