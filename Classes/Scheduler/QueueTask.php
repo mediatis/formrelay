@@ -2,7 +2,10 @@
 
 namespace Mediatis\Formrelay\Scheduler;
 
+use FormRelay\Core\Queue\QueueInterface;
+use FormRelay\Core\Service\RegistryInterface;
 use Mediatis\Formrelay\Domain\Repository\Queue\JobRepository;
+use Mediatis\Formrelay\Factory\RegistryFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
@@ -11,7 +14,10 @@ abstract class QueueTask extends AbstractTask
 {
     protected $pid = 0;
 
-    /** @var JobRepository */
+    /** @var RegistryInterface */
+    protected $registry;
+
+    /** @var QueueInterface */
     protected $queue;
 
     protected function prepareTask()
@@ -19,7 +25,13 @@ abstract class QueueTask extends AbstractTask
         /** @var ObjectManager $objectManager */
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
 
-        $this->queue = $objectManager->get(JobRepository::class);
+        /** @var RegistryFactory $registryFactory */
+        $registryFactory = $objectManager->get(RegistryFactory::class);
+
+        $this->registry = $registryFactory->buildRegistry();
+
+        /** @var JobRepository $queue */
+        $this->queue = $this->registry->getQueue();
         $this->queue->setPid($this->pid);
     }
 

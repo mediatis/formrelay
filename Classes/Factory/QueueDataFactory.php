@@ -3,14 +3,26 @@
 namespace Mediatis\Formrelay\Factory;
 
 use FormRelay\Core\Factory\QueueDataFactory as OriginalQueueDataFactory;
+use FormRelay\Core\Model\Queue\JobInterface;
 use FormRelay\Core\Model\Submission\SubmissionInterface;
+use FormRelay\Core\Queue\QueueInterface;
+use Mediatis\Formrelay\Domain\Model\Queue\Job;
 
 class QueueDataFactory extends OriginalQueueDataFactory
 {
-    public function pack(SubmissionInterface $submission): array
+    const KEY_PID = 'pid';
+    const DEFAULT_PID = 0;
+
+    protected function createJob(): JobInterface
     {
-        $packed = parent::pack($submission);
-        $packed['repository']['pid'] = $submission->getConfiguration()->get('pid', 0);
-        return $packed;
+        return new Job();
+    }
+
+    public function convertSubmissionToJob(SubmissionInterface $submission, string $route, int $pass, int $status = QueueInterface::STATUS_PENDING): JobInterface
+    {
+        /** @var Job $job */
+        $job = parent::convertSubmissionToJob($submission, $route, $pass, $status);
+        $job->setPid($submission->getConfiguration()->getWithRoutePassOverride(static::KEY_PID, $route, $pass, static::DEFAULT_PID));
+        return $job;
     }
 }
