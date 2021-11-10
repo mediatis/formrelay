@@ -30,9 +30,9 @@
   ],
   "require": {
     "php": "^7.2",
-    "typo3/cms-core": "^9.5 || ^10.4",
-    "typo3/cms-form": "^9.5 || ^10.4",
-    "mediatis/form_fieldnames": "^2.0 || ^3.1",
+    "typo3/cms-core": "^10.4 || ^11.5",
+    "typo3/cms-form": "^10.4 || ^11.5",
+    "mediatis/form_fieldnames": "^3.3",
     "form-relay/core": "^2.1"
   },
   "require-dev": {
@@ -63,8 +63,8 @@
   },
   "extra": {
     "typo3/cms": {
-      "cms-package-dir": "{$vendor-dir}/typo3/cms",
-      "web-dir": ".Build/Web"
+      "web-dir": ".Build/Web",
+      "extension-key": "formrelay"
     }
   }
 }
