@@ -6,7 +6,7 @@ use FormRelay\Core\DataProvider\DataProvider;
 use FormRelay\Core\Log\LoggerInterface;
 use FormRelay\Core\Model\Submission\SubmissionInterface;
 use FormRelay\Core\Request\RequestInterface;
-use FormRelay\Core\Service\ClassRegistryInterface;
+use FormRelay\Core\Service\PluginRegistryInterface;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Frontend\ContentObject\RecordsContentObject;
 
@@ -21,9 +21,9 @@ class ContentElementDataProvider extends DataProvider
     /** @var ObjectManager */
     protected $objectManager;
 
-    public function __construct(ClassRegistryInterface $registry, LoggerInterface $logger, ObjectManager $objectManager)
+    public function __construct(string $keyword, PluginRegistryInterface $registry, LoggerInterface $logger, ObjectManager $objectManager)
     {
-        parent::__construct($registry, $logger);
+        parent::__construct($keyword, $registry, $logger);
         $this->objectManager = $objectManager;
     }
 
