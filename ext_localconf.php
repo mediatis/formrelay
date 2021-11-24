@@ -7,15 +7,12 @@ if (!defined('TYPO3')) {
 (function () {
     $typoscript = '# frontend configuration
 plugin.tx_form.settings.yamlConfigurations {
-  1590510649 = EXT:formrelay/Configuration/Yaml/BaseSetup.yaml
-  1590510650 = EXT:formrelay/Configuration/Yaml/FormEngineSetup.yaml
+  1590510649 = EXT:formrelay/Configuration/Yaml/FormSetup.yaml
 }
 
 # backend configuration
 module.tx_form.settings.yamlConfigurations {
-  1590510649 = EXT:formrelay/Configuration/Yaml/BaseSetup.yaml
-  1590510650 = EXT:formrelay/Configuration/Yaml/FormEditorSetup.yaml
-  1590510651 = EXT:formrelay/Configuration/Yaml/FormEngineSetup.yaml
+  1590510649 = EXT:formrelay/Configuration/Yaml/FormSetup.yaml
 }';
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup($typoscript);
 })();
