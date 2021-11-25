@@ -1,4 +1,8 @@
 
+5.2.1
+
+[TASK] improved checks for data encoding
+
 5.2.0
 
 [FEATURE] Job Attributes "skipped" and "hash" (MEDO-566)
