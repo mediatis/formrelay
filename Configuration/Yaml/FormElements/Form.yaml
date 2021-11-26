@@ -20,7 +20,7 @@ TYPO3:
                         50:
                           identifier: 'header'
                           templateName: 'Inspector-CollectionElementHeaderEditor'
-                          label: ''
+                          label: 'Formrelay'
                         100:
                           label: 'Formrelay'
                         150:
