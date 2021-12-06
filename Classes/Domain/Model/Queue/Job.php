@@ -193,14 +193,18 @@ class Job extends AbstractEntity implements JobInterface
     {
         $serializedData = json_encode($data, JSON_PRETTY_PRINT);
         if ($serializedData === false) {
-            if (isset($data['configuration'])) {
-                // remove "configuration" since print_r is not able to print big data sets completely
-                // and "data" and "context" are much more important (and usually much smaller)
-                unset($data['configuration']);
-            }
-            $serializedData = print_r($data, true);
             $this->setStatus(QueueInterface::STATUS_FAILED);
-            $this->setStatusMessage('data encoding failed');
+            $this->setStatusMessage('data encoding failed [' . json_last_error() . ']: "' . json_last_error_msg() . '"');
+
+            $serializedData = json_encode($data, JSON_PRETTY_PRINT | JSON_INVALID_UTF8_SUBSTITUTE);
+            if ($serializedData === false) {
+                if (isset($data['submission']['configuration'])) {
+                    // remove "configuration" since print_r is not able to print big data sets completely
+                    // and "data" and "context" are much more important (and usually much smaller)
+                    unset($data['submission']['configuration']);
+                }
+                $serializedData = print_r($data, true);
+            }
         }
         $this->setSerializedData($serializedData);
     }
