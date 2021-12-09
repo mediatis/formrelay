@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+  <file datatype="plaintext" date="2021-12-01T09:11:39Z" original="messages" product-name="formrelay" source-language="en">
+    <header/>
+    <body>
+      <trans-unit id="tx_formrelay_domain_model_queue_job" xml:space="preserve">
+        <source>Form Relay Queue Job</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.created" xml:space="preserve">
+        <source>Created</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.changed" xml:space="preserve">
+        <source>Changed</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.status" xml:space="preserve">
+        <source>Status</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.skipped" xml:space="preserve">
+        <source>Skipped</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.status_message" xml:space="preserve">
+        <source>Status Message</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.serialized_data" xml:space="preserve">
+        <source>Data</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.label" xml:space="preserve">
+        <source>Label</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.hash" xml:space="preserve">
+        <source>Hash</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.route" xml:space="preserve">
+        <source>Route</source>
+      </trans-unit>
+      <trans-unit id="tx_formrelay_domain_model_queue_job.pass" xml:space="preserve">
+        <source>Pass</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
