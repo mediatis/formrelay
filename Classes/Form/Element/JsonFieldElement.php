@@ -37,7 +37,13 @@ class JsonFieldElement extends \TYPO3\CMS\Backend\Form\Element\AbstractFormEleme
             't3js-formengine-textarea',
             'formengine-textarea',
         ];
-        $itemValue = $parameterArray['itemFormElValue'];
+        // If value can be decoded into json, we encode it with JSON_PRETTY_PRINT, else use the raw value.
+        $itemValue = json_decode($parameterArray['itemFormElValue']);
+        if (!$itemValue) {
+            $itemValue = $parameterArray['itemFormElValue'];
+        } else {
+            $itemValue = json_encode($itemValue, JSON_PRETTY_PRINT);
+        }
         $attributes['class'] = implode(' ', $classes);
 
         $html = [];
@@ -47,7 +53,7 @@ class JsonFieldElement extends \TYPO3\CMS\Backend\Form\Element\AbstractFormEleme
         $html[] = '<div class="form-wizards-element">';
         $html[] = '<div class="form-control-wrap">';
         $html[] = '<textarea ' . GeneralUtility::implodeAttributes($attributes, true) . '>';
-        $html[] = json_encode(json_decode($itemValue), JSON_PRETTY_PRINT);
+        $html[] = $itemValue;
         $html[] = '</textarea>';
         $html[] = '</div>';
         $html[] = '</div>';
