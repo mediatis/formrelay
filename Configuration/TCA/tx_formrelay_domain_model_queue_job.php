@@ -120,10 +120,13 @@ $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
             'exclude' => 1,
             'label' => $ll . 'tx_formrelay_domain_model_queue_job.serialized_data',
             'config' => [
-                'type' => 'text',
-                'cols' => 40,
-                'rows' => 15,
-                'readOnly' => $readOnly,
+                'type' => 'user',
+                'renderType' => 'formrelayJsonFieldElement',
+                'parameters' => [
+                    'cols' => 40,
+                    'rows' => 15,
+                    'readOnly' => $readOnly,
+                ],
             ],
         ],
     ],
