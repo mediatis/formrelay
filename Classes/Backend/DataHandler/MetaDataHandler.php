@@ -13,11 +13,16 @@ class MetaDataHandler implements SingletonInterface
     {
         $queueDataFactory = new QueueDataFactory();
         $job = new Job();
-        $job->setSerializedData($fieldArray['serialized_data'] ?? '');
+        $serializedData = json_decode($fieldArray['serialized_data'] ?? '');
+        if (!$serializedData) {
+            $job->setSerializedData('');
+        } else {
+            $job->setSerializedData(json_encode($serializedData));
+        }
         $job->setHash($fieldArray['hash'] ?? '');
 
         if ($queueDataFactory->updateLegacyJobData($job)) {
-            $fieldArray['serialized_data'] = $job->getSerializedData();
+            $fieldArray['serialized_data'] = json_encode(json_decode($job->getSerializedData()));
         }
 
         $fieldArray['route'] = $queueDataFactory->getJobRoute($job);

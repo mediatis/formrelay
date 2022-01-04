@@ -1,4 +1,8 @@
 
+5.2.2
+
+[BUGFIX] Remove whitespaces from searialized data and increase its maximum size (MEDO-598)
+
 5.2.1
 
 [TASK] improved checks for data encoding
