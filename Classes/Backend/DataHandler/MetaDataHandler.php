@@ -13,7 +13,7 @@ class MetaDataHandler implements SingletonInterface
     {
         $queueDataFactory = new QueueDataFactory();
         $job = new Job();
-        $serializedData = json_decode($fieldArray['serialized_data']);
+        $serializedData = json_decode($fieldArray['serialized_data'] ?? '');
         if (!$serializedData) {
             $job->setSerializedData('');
         } else {
