@@ -2,9 +2,10 @@
 
 namespace Mediatis\Formrelay\Scheduler;
 
+use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
 use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
 
-abstract class QueueFieldProvider implements AdditionalFieldProviderInterface
+abstract class QueueFieldProvider extends AbstractAdditionalFieldProvider
 {
     protected function addField(array &$additionalFields, array $taskInfo, $fieldName, $label)
     {
@@ -19,7 +20,6 @@ abstract class QueueFieldProvider implements AdditionalFieldProviderInterface
             'label' => $label,
         ];
     }
-
     protected function addCheckboxField(array &$additionalFields, array $taskInfo, $fieldName, $label)
     {
         $fieldId = 'task_' . $fieldName;
