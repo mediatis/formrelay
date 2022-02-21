@@ -49,4 +49,12 @@ module.tx_form.settings.yamlConfigurations {
     ];
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = \Mediatis\Formrelay\Backend\DataHandler\MetaDataHandler::class;
+
+    // Add textarea with built-in json formatting
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1640091726] = [
+        'nodeName' => 'formrelayJsonFieldElement',
+        'priority' => 40,
+        'class' => \Mediatis\Formrelay\Form\Element\JsonFieldElement::class,
+    ];
+
 })();
