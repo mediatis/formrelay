@@ -1,3 +1,13 @@
+6.0.0
+[TASK] Update for TYPO3 11
+
+[TASK] Use the new forms config format
+
+[TASK] Migrate from XML to XLF language format
+
+[TASK] Update to the latest form_fieldnames dependency
+
+[TASK] Drop support for TYPO3 9.5
 
 5.2.2
 
