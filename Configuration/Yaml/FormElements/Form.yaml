@@ -17,8 +17,10 @@ TYPO3:
                     99:
                       identifier: 'Formrelay'
                       editors:
-                        __inheritances:
-                          10: 'TYPO3.CMS.Form.mixins.formElementMixins.BaseCollectionEditorsMixin'
+                        50:
+                          identifier: 'header'
+                          templateName: 'Inspector-CollectionElementHeaderEditor'
+                          label: 'Formrelay'
                         100:
                           label: 'Formrelay'
                         150:
@@ -31,12 +33,6 @@ TYPO3:
                           templateName: 'Inspector-TextareaEditor'
                           label: 'Setup'
                           propertyPath: 'options.setup'
-          finishersDefinition:
-            Formrelay:
-              formEditor:
-                iconIdentifier: 't3-form-icon-finisher'
-                label: 'Formrelay'
-                predefinedDefaults:
-                  options:
-                    setup: ''
-                    baseUploadPath: 'uploads/tx_formrelay/'
+                        9999:
+                          identifier: 'removeButton'
+                          templateName: 'Inspector-RemoveElementEditor'

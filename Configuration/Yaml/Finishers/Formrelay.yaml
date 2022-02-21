@@ -16,3 +16,11 @@ TYPO3:
                     label: 'Base upload path'
                     config:
                       type: 'text'
+              formEditor:
+                iconIdentifier: 't3-form-icon-finisher'
+                label: 'Formrelay'
+                predefinedDefaults:
+                  options:
+                    setup: ''
+                    baseUploadPath: 'uploads/tx_formrelay/'
+              implementationClassName: 'Mediatis\Formrelay\Extensions\Form\FormFinisher'

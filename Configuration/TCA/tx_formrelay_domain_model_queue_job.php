@@ -1,10 +1,10 @@
 <?php
 
-if (!defined('TYPO3_MODE')) {
+if (!defined('TYPO3')) {
     die('Access denied.');
 }
 
-$ll = 'LLL:EXT:formrelay/Resources/Private/Language/locallang_db.xml:';
+$ll = 'LLL:EXT:formrelay/Resources/Private/Language/locallang_db.xlf:';
 $readOnly = false;
 
 $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
