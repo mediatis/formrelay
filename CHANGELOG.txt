@@ -1,4 +1,10 @@
+
+6.0.1
+
+[BUGFIX] use strict comparison during configuration conversion (MEDO22-51) (#6)
+
 6.0.0
+
 [TASK] Update for TYPO3 11
 
 [TASK] Use the new forms config format
