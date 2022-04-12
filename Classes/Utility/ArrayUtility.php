@@ -10,7 +10,7 @@ final class ArrayUtility
     public static function convertConfigurationForRelayFormat(array $setup)
     {
         $keys = array_keys($setup);
-        if (in_array(SubmissionConfigurationInterface::KEY_SELF, $keys)) {
+        if (in_array(SubmissionConfigurationInterface::KEY_SELF, $keys, true)) {
             throw new FormRelayException('TypoScript array not compatible with form-relay/core');
         }
         foreach ($keys as $key) {
