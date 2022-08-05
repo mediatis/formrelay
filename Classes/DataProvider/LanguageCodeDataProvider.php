@@ -19,7 +19,7 @@ class LanguageCodeDataProvider extends DataProvider
         ) >= 10000000) {
             $language = $GLOBALS['TSFE']->getLanguage()->getTwoLetterIsoCode();
         } else {
-            $language = $GLOBALS['TSFE']->sys_language_isocode;
+            $language = $GLOBALS['TSFE']->getLanguage()->getTwoLetterIsoCode();
         }
         $this->addToContext($submission, 'language', $language);
     }

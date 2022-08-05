@@ -81,7 +81,7 @@ class FileUploadElementProcessor extends ElementProcessor
                 return null;
             }
         }
-        $resourceFactory = ResourceFactory::getInstance();
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
         $defaultStorage = $resourceFactory->getDefaultStorage();
 
         $baseUploadPath = rtrim($this->options['baseUploadPath'], '/')
