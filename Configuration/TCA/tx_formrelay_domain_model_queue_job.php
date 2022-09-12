@@ -17,14 +17,14 @@ $GLOBALS['TCA']['tx_formrelay_domain_model_queue_job'] = [
         'title' => $ll . 'tx_formrelay_domain_model_queue_job',
         'origUid' => 't3_origuid',
         'searchFields' => 'label,hash,route,pass,created,status,skipped,status_message,changed',
-        'iconfile' => 'EXT:formrelay/Resources/Public/Icons/QueueJob.svg'
+        'iconfile' => 'EXT:formrelay/Resources/Public/Icons/QueueJob.svg',
     ],
     'interface' => [
         'showRecordFieldList' => 'label,hash,route,pass,created,changed,status,skipped,status_message,serialized_data',
     ],
     'types' => [
         '0' => [
-            'showitem' => 'label,hash,route,pass,created,changed,status,skipped,status_message,serialized_data'
+            'showitem' => 'label,hash,route,pass,created,changed,status,skipped,status_message,serialized_data',
         ],
     ],
     'palettes' => [

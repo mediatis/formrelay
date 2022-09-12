@@ -35,7 +35,8 @@
     "form-relay/core": "^2.1"
   },
   "require-dev": {
-    "nimut/testing-framework": "^5.0.3"
+    "nimut/testing-framework": "^5.0.3",
+	"typo3/coding-standards": "^0.5.2"
   },
   "autoload": {
     "psr-4": {

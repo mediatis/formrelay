@@ -63,7 +63,7 @@ class ContentElementDataProvider extends DataProvider
                 [
                     'tables' => 'tt_content',
                     'source' => $uid,
-                    'dontCheckPid' => 1
+                    'dontCheckPid' => 1,
                 ]
             );
             $renderedElement = $this->prettyContent($renderedElement);

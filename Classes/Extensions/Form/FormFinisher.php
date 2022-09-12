@@ -43,7 +43,6 @@ class FormFinisher extends AbstractFinisher
         $this->formDataProcessor = $formDataProcessor;
     }
 
-
     protected function buildFormValues()
     {
         $elements = $this->finisherContext

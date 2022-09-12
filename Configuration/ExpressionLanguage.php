@@ -2,6 +2,6 @@
 
 return [
     'typoscript' => [
-        \Mediatis\Formrelay\ExpressionLanguage\TypoScriptConditionProvider::class
-    ]
+        \Mediatis\Formrelay\ExpressionLanguage\TypoScriptConditionProvider::class,
+    ],
 ];
