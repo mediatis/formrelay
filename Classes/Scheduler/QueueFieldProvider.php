@@ -3,7 +3,6 @@
 namespace Mediatis\Formrelay\Scheduler;
 
 use TYPO3\CMS\Scheduler\AbstractAdditionalFieldProvider;
-use TYPO3\CMS\Scheduler\AdditionalFieldProviderInterface;
 
 abstract class QueueFieldProvider extends AbstractAdditionalFieldProvider
 {

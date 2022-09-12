@@ -56,5 +56,4 @@ module.tx_form.settings.yamlConfigurations {
         'priority' => 40,
         'class' => \Mediatis\Formrelay\Form\Element\JsonFieldElement::class,
     ];
-
 })();
