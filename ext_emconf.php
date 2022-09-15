@@ -8,11 +8,11 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 'voehringer@mediatis.de',
     'author_company' => 'Mediatis AG',
     'state' => 'stable',
-    'version' => '6.0.1',
+    'version' => '6.0.2',
     'constraints' => [
         'depends' => [
             'typo3' => '10.4.0-11.5.99',
-            'form_fieldnames' => '>=3.4.0',
+            'form_fieldnames' => '>=3.5.0',
         ],
         'conflicts' => [
         ],
