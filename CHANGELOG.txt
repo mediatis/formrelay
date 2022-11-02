@@ -1,4 +1,8 @@
 
+6.0.4
+
+[BUGFIX] replace deprecated code
+
 6.0.3
 
 [BUGFIX] fixed index issues for utmz parser
